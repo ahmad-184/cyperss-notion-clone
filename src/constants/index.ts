@@ -153,9 +153,9 @@ export const USERS = [
 
 export const PRICING_CARDS = [
   {
-    planType: "Free Plan",
+    planType: "plan-free",
     price: "0",
-    description: "Limited block trials  for teams",
+    description: "Limited block trials for teams",
     highlightFeature: "",
     freatures: [
       "Unlimited blocks for teams",
@@ -165,19 +165,19 @@ export const PRICING_CARDS = [
     ],
   },
   {
-    planType: "Pro Plan",
+    planType: "plan-pro",
     price: "12.99",
     description: "Billed annually. $17 billed monthly",
     highlightFeature: "Everything in free +",
     freatures: [
       "Unlimited blocks for teams",
       "Unlimited file uploads",
-      "1 year day page history",
+      "1 year page history",
       "Invite 10 guests",
     ],
   },
 ];
 
-export const PRICING_PLANS = { proplan: "Pro Plan", freeplan: "Free Plan" };
+export const PRICING_PLANS = { proplan: "plan-pro", freeplan: "plan-free" };
 
 export const MAX_FOLDERS_FREE_PLAN = 3;

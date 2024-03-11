@@ -2,14 +2,23 @@ import type { Metadata } from "next";
 import { DM_Sans, Vazirmatn } from "next/font/google";
 import "../globals.css";
 import ThemeProvider from "@/Providers/NextThemeProvider";
+import { i18nConfig } from "../../../i18nConfig";
+import { Toaster } from "@/components/ui/Sonner";
 
 const dm_sans = DM_Sans({ subsets: ["latin"], display: "swap" });
-const vazir = Vazirmatn({ subsets: ["arabic"], display: "swap" });
+const vazirmatn = Vazirmatn({
+  subsets: ["arabic"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Cypress",
-  description: "",
+  description: "An all-in-one Collaboration and Productivity Platform.",
 };
+
+export function generateStaticParams() {
+  return i18nConfig.locales.map((locale) => ({ locale }));
+}
 
 export default function RootLayout({
   children,
@@ -21,10 +30,11 @@ export default function RootLayout({
   };
 }>) {
   return (
-    <html lang="en" dir={locale === "fa" ? "rtl" : "ltr"}>
-      <body className={`${dm_sans.className} ${vazir.className} font-sans`}>
+    <html lang={locale || "en"} dir={locale === "fa" ? "rtl" : "ltr"}>
+      <body className={`${dm_sans.className} ${vazirmatn.className}`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

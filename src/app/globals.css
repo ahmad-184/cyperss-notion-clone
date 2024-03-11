@@ -15,7 +15,7 @@ html {
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 266, 100%, 50%;
+    --primary: 266 100% 50%;
     --primary-foreground: 210 20% 98%;
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
@@ -38,7 +38,7 @@ html {
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 266, 100%, 50%;
+    --primary: 266 100% 50%;
     --primary-foreground: 210 20% 98%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
@@ -67,11 +67,24 @@ html {
   animation: 15s slide linear infinite;
 }
 
+.animate-slide-rtl {
+  animation: 15s slide-rtl linear infinite;
+}
+
 @keyframes slide {
   from {
     transform: translateX(0);
   }
   to {
     transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
   }
 }

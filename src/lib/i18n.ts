@@ -7,8 +7,8 @@ import type { i18n } from "i18next";
 export default async function initTranslations(
   locale: string,
   namespaces: string[],
-  i18nInstance: i18n,
-  resources: Resources
+  i18nInstance?: i18n,
+  resources?: Resources
 ) {
   i18nInstance = i18nInstance || createInstance();
 

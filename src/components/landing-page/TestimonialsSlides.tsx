@@ -1,11 +1,13 @@
 import { USERS } from "@/constants";
 import { cn } from "@/lib/utils";
 import CustomCard from "./CustomCard";
-import { Avatar } from "../ui/avatar";
+import { Avatar } from "../ui/Avatar";
 import Image from "next/image";
 import { CardDescription, CardTitle } from "../ui/Card";
 
-const TestimonialsSlides = () => {
+import type { TFunction } from "i18next";
+
+const TestimonialsSlides = ({ t, lang }: { t: TFunction; lang: string }) => {
   return (
     <>
       {[...Array(2)].map((arr, i) => (
@@ -14,8 +16,12 @@ const TestimonialsSlides = () => {
             "mt-10 flex flex-nowrap gap-6 self-start",
             {
               "flex-row-reverse": i === 0,
-              "animate-[slide_250s_linear_infinite]": true,
-              "animate-[slide_250s_linear_infinite_reverse]": i === 1,
+              "animate-[slide_250s_linear_infinite]": lang === "en",
+              "animate-[slide-rtl_250s_linear_infinite]": lang !== "en",
+              "animate-[slide_250s_linear_infinite_reverse]":
+                i === 1 && lang === "en",
+              "animate-[slide-rtl_250s_linear_infinite_reverse]":
+                i === 1 && lang !== "en",
               "ml-[100vw]": i === 1,
             },
             "hover:paused"
@@ -30,7 +36,7 @@ const TestimonialsSlides = () => {
                   <Avatar>
                     <div className="relative w-full h-full rounded-full">
                       <Image
-                        alt={`testimonial ${user.name}`}
+                        alt={`trusted by ${user.name}`}
                         src={user.avatar}
                         className="object-contain"
                       />
@@ -38,15 +44,21 @@ const TestimonialsSlides = () => {
                   </Avatar>
                   <div>
                     <CardTitle className="text-foreground">
-                      {user.name}
+                      {t(`trusted-by:trustedby-${user.name}-name`)}
                     </CardTitle>
                     <CardDescription className="dark:text-zinc-400">
-                      {user.name.toLocaleLowerCase()}
+                      {t(
+                        `trusted-by:trustedby-${user.name}-name`
+                      ).toLocaleLowerCase()}
                     </CardDescription>
                   </div>
                 </div>
               }
-              cardContent={<p className="dark:text-zinc-400">{user.message}</p>}
+              cardContent={
+                <p className="dark:text-zinc-400">
+                  {t(`trusted-by:trustedby-message`)}
+                </p>
+              }
             />
           ))}
         </div>

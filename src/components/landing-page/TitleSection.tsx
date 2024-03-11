@@ -19,15 +19,15 @@ const TitleSection: React.FC<TitleSectionProps> = ({
         </div>
       </article>
       {subheading ? (
-        <div className="flex flex-col gap-3 md:items-center text-left md:text-center">
+        <div className="flex flex-col gap-3 md:items-center md:text-center">
           <h1 className="text-3xl sm:text-5xl sm:max-w-[750px] font-semibold">
             {title}
           </h1>
-          <p className="dark:text-zinc-400 sm:max-w-[450px]">{subheading}</p>
+          <p className="dark:text-slate-400 sm:max-w-[450px]">{subheading}</p>
         </div>
       ) : (
         <div>
-          <h1 className="text-left text-4xl sm:text-center sm:text-6xl sm:max-w-[850px] font-semibold">
+          <h1 className="text-4xl sm:text-center sm:text-6xl sm:max-w-[850px] font-semibold">
             {title}
           </h1>
         </div>
