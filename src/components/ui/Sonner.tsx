@@ -1,17 +1,22 @@
 "use client";
 
+import { getDirByLang } from "@/lib/dir";
 import { useTheme } from "next-themes";
 import { Toaster as Sonner } from "sonner";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
-const Toaster = ({ ...props }: ToasterProps) => {
+type dirType = ToasterProps["dir"];
+
+const Toaster = ({ lang, ...props }: ToasterProps & { lang: string }) => {
   const { theme = "system" } = useTheme();
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      dir={getDirByLang(lang) as dirType}
+      duration={5000}
       toastOptions={{
         classNames: {
           toast:
