@@ -18,7 +18,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
               />
             </Link>
             <h1 className="text-3xl font-semibold dark:text-slate-200">
-              Cypress.
+              cypress.
             </h1>
           </div>
           <p className="text-sm text-slate-400">
