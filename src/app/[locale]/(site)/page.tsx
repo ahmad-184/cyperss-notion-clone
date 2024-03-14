@@ -31,10 +31,10 @@ export default async function pages({
   ]);
 
   return (
-    <section className="py-6 pb-11">
+    <section className="py-6 pb-11 overflow-hidden mt-14">
       <div className="mt-10 px-4 sm:px-6 sm:flex sm:flex-col gap-4 md:justify-center md:items-center">
         <TitleSection title={t("head-title")} pill={t("head-pill")} />
-        <div className="z-20 p-[2px] bg-white rounded-[14px] bg-gradient-to-r from-purple-500 to-blue-500 mt-5">
+        <div className="z-[1] p-[2px] bg-white rounded-[14px] bg-gradient-to-r from-purple-500 to-blue-500 mt-5">
           <Button
             variant="default"
             className="w-full bg-white hover:bg-white hover:shadow-lg duration-150 transition-all hover:-translate-y-1 rounded-xl text-black dark:text-white dark:bg-black"
