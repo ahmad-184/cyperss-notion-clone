@@ -19,22 +19,26 @@ export default function Error({
   }, [err]);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center relative px-4 sm:px-4 py-6">
-      <div className="flex gap-2 absolute top-6 left-4 sm:left-6">
-        <Link href="/">
+    <div className="w-full h-screen flex items-center justify-center relative px-4 sm:px-4 py-6 bg-gradient-to-bl from-background to-purple-500/20">
+      <div className="absolute top-6 left-4 sm:left-12">
+        <Link href="/" className="flex gap-2 items-center">
           <Image alt="Cypress logo" src={Logo} width={25} height={25} />
+          <p className="dark:text-slate-200 font-medium">cypress.</p>
         </Link>
-        <p className="dark:text-slate-200">cypress.</p>
       </div>
       <div className="flex flex-col gap-4 text-center justify-center items-center">
         <h1>
-          <span className="text-3xl sm:text-6xl font-semibold text-transparent bg-clip-text bg-gradient-to-l from-rose-500 to-purple-300">
+          <span className="text-3xl sm:text-5xl font-semibold text-slate-700 dark:text-slate-200">
             Ooooops, getting errors
           </span>
-          <span className="text-3xl sm:text-6xl font-semibold">🤧</span>
+          <span className="text-3xl sm:text-5xl font-semibold">🪲🤧</span>
         </h1>
         <p className="">We catch some errors, reset to fix</p>
-        <Button variant="secondary" onClick={reset}>
+        <Button
+          variant="secondary"
+          className="bg-slate-200 dark:bg-slate-700"
+          onClick={reset}
+        >
           Reset
         </Button>
       </div>
