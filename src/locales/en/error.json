@@ -1,0 +1,5 @@
+{
+  "error_title": "Oooops, something went wrong",
+  "error_message": "We encountered an unknown error, click the reset button to fix the problem",
+  "reset_btn": "Reset"
+}

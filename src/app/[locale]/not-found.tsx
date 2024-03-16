@@ -1,35 +1,57 @@
 "use client";
 
 import { Button, buttonVariants } from "@/components/ui/Button";
-import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
-import Logo from "@/assets/cypresslogo.svg";
+import { getDirByLang } from "@/lib/dir";
+import AppLogo from "@/components/AppLogo";
+import { cn } from "@/lib/utils";
+import { useContext, useEffect, useState } from "react";
+import { Context as LanguageContext } from "@/contexts/language-context";
+
+type translateTypes = {
+  message?: string;
+  btn_home?: string;
+  btn_back?: string;
+};
 
 export default function NotFound() {
   const router = useRouter();
+  const { locale = "en" } = useParams();
+
+  const [translation, setTranslation] = useState<translateTypes>({});
+  const { lang } = useContext(LanguageContext);
+
+  const getTranslation = async () => {
+    const file = (await import(`@/locales/${lang}/not-found.json`)).default;
+    setTranslation(JSON.parse(JSON.stringify(file)));
+  };
+
+  useEffect(() => {
+    getTranslation();
+  }, [lang]);
 
   return (
-    <div className="w-full h-screen flex items-center justify-center relative bg-gradient-to-bl from-background to-purple-500/20">
-      <div className="absolute top-6 left-4 sm:left-12">
-        <Link href="/" className="flex gap-2 items-center">
-          <Image alt="Cypress logo" src={Logo} width={25} height={25} />
-          <p className="dark:text-slate-200 font-medium">cypress.</p>
-        </Link>
-      </div>
+    <div className="w-full h-screen flex items-center justify-center relative bg-gradient-to-bl from-background to-purple-500/15">
+      <AppLogo
+        className={cn("absolute top-6", {
+          "left-4 sm:left-12": getDirByLang(locale as string) === "ltr",
+          "right-4 sm:right-12": getDirByLang(locale as string) === "rtl",
+        })}
+      />
       <div className="flex flex-col gap-3 text-center">
         <h1 className="text-8xl sm:text-9xl font-bold text-slate-700 dark:text-slate-300">
           404
         </h1>
-        <p className="font-normal ">Page you looking for not founded</p>
+        <p className="font-normal ">{translation.message}</p>
         <div className="flex gap-2 justify-center">
           <Button
             variant="link"
             onClick={() => router.back()}
             className="text-slate-800 dark:text-slate-300"
           >
-            Back
+            {translation.btn_back}
           </Button>
           <Link
             href={"/"}
@@ -38,7 +60,7 @@ export default function NotFound() {
               className: "bg-slate-200 dark:bg-slate-700",
             })}
           >
-            Home
+            {translation.btn_home}
           </Link>
         </div>
       </div>

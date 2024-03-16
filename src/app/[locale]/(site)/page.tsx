@@ -31,7 +31,7 @@ export default async function pages({
   ]);
 
   return (
-    <section className="py-6 pb-11 overflow-hidden mt-14">
+    <section className="py-6 pb-11 overflow-hidden mt-20 scroll-smooth">
       <div className="mt-10 px-4 sm:px-6 sm:flex sm:flex-col gap-4 md:justify-center md:items-center">
         <TitleSection title={t("head-title")} pill={t("head-pill")} />
         <div className="z-[1] p-[2px] bg-white rounded-[14px] bg-gradient-to-r from-purple-500 to-blue-500 mt-5">
@@ -65,7 +65,8 @@ export default async function pages({
       </div>
       <div className="relative mt-20">
         <div className="w-full blur-[120px] rounded-full h-32 absolute bg-purple-600 -z-10 top-56" />
-        <div className="flex flex-col overflow-x-hidden overflow-visible">
+        <div className="flex flex-col overflow-x-hidden overflow-visible relative">
+          <div id="testimonials" className="top-[-25%] absolute left-0" />
           <div className="px-4 sm:px-6">
             <TitleSection
               title={t("trustby-title")}
@@ -76,7 +77,8 @@ export default async function pages({
           <TestimonialsSlides t={t} lang={locale} />
         </div>
       </div>
-      <div className="mt-20 px-4 sm:px-6">
+      <div className="mt-20 px-4 sm:px-6 relative">
+        <div id="pricing" className="top-[-25%] absolute left-0" />
         <TitleSection
           title={t("plans-title")}
           pill={t("plans-pill")}
