@@ -18,10 +18,13 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import { login } from "@/server-actions";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
   const router = useRouter();
   const [submittingError, setSubmittingError] = useState<string>("");
+
+  const { t } = useTranslation();
 
   const form = useForm<loginValidatorType>({
     resolver: zodResolver(loginValidator),
@@ -60,7 +63,7 @@ const Login = () => {
           render={({ field, formState: { errors } }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Email" {...field} />
+                <Input placeholder={t("login:email")} {...field} />
               </FormControl>
               {errors.email ? (
                 <FormMessage>{errors.email.message}</FormMessage>
@@ -75,7 +78,7 @@ const Login = () => {
           render={({ field, formState: { errors } }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Password" {...field} />
+                <Input placeholder={t("login:password")} {...field} />
               </FormControl>
               {errors.password ? (
                 <FormMessage>{errors.password.message}</FormMessage>
@@ -90,12 +93,12 @@ const Login = () => {
           variant={"default"}
           disabled={isSubmitting}
         >
-          {isSubmitting ? <Loader className="w-7" /> : "Login"}
+          {isSubmitting ? <Loader className="w-7" /> : t("login:login")}
         </Button>
         <FormDescription className="dark:text-slate-400 self-center">
-          Don't have an account?{" "}
+          {t("login:dont-have-account")}{" "}
           <Link href={"/signup"} className="text-primary">
-            Sign Up
+            {t("login:signup")}
           </Link>
         </FormDescription>
       </form>
