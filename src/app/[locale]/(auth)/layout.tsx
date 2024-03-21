@@ -3,6 +3,8 @@ import logo from "@/assets/cypresslogo.svg";
 import Image from "next/image";
 import initTranslations from "@/lib/i18n";
 import TranslationsProvider from "@/providers/TranslationProvider";
+import LanguageChanger from "@/components/LanguageChanger";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const namespaces = ["common", "login"];
 
@@ -42,6 +44,10 @@ export default async function Layout({
         >
           {children}
         </TranslationsProvider>
+        <div className="flex items-center gap-3 mt-3 justify-center">
+          <ThemeToggle btn_variant="ghost" />
+          <LanguageChanger btn_variant="ghost" />
+        </div>
       </div>
     </div>
   );

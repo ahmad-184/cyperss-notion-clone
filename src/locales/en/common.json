@@ -1,5 +1,10 @@
 {
   "get-started": "Get Started",
   "cypress": "cypress",
-  "this_is_cypress": "An all-in-one Collaboration and Productivity Platform."
+  "this_is_cypress": "An all-in-one Collaboration and Productivity Platform.",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "english": "English",
+  "farsi": "Farsi"
 }

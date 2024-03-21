@@ -4,15 +4,34 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { i18nConfig } from "../../i18nConfig";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/DropdownMenu";
+import { Button } from "./ui/Button";
+import { getDirByLang } from "@/lib/dir";
+import { Globe } from "lucide-react";
+import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 
-export default function LanguageChanger() {
-  const { i18n } = useTranslation();
+type LanguageChangerProps = {
+  btn_variant?: "outline" | "ghost";
+  menu_align?: "center" | "end" | "start" | undefined;
+};
+
+export default function LanguageChanger({
+  btn_variant = "outline",
+  menu_align = "center",
+}: LanguageChangerProps) {
+  const { i18n, t } = useTranslation();
   const currentLocale = i18n.language;
   const router = useRouter();
   const currentPathname = usePathname();
 
-  const handleChange = (e: any) => {
-    const newLocale = e.target.value;
+  const handleChange = (e: string) => {
+    const newLocale = e;
 
     // set cookie for next-i18n-router
     const days = 30;
@@ -36,10 +55,44 @@ export default function LanguageChanger() {
     router.refresh();
   };
 
+  const langs = useMemo(
+    () => [
+      {
+        locale: "en",
+        lang: t("common:english"),
+      },
+      {
+        locale: "fa",
+        lang: t("common:farsi"),
+      },
+    ],
+    []
+  );
+
+  const dir = getDirByLang(currentLocale);
+
   return (
-    <select onChange={handleChange} value={currentLocale}>
-      <option value="en">English</option>
-      <option value="it">Persian</option>
-    </select>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={btn_variant} size="icon">
+          <Globe strokeWidth={"1.6px"} className="w-[1.2rem] h-[1.2rem]" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={menu_align}>
+        {langs.map((l, i) => (
+          <DropdownMenuItem
+            key={i}
+            className={cn("capitalize my-1 rtl:justify-end ltr:justify-start", {
+              "dark:bg-slate-500/30 bg-foreground/5":
+                l.locale === currentLocale,
+            })}
+            onClick={() => handleChange(l.locale)}
+          >
+            {l.lang}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
