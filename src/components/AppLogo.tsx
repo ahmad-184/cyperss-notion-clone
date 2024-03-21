@@ -13,8 +13,12 @@ type translateTypes = {
 
 const AppLogo = ({
   t,
+  showLogoName = true,
   ...props
-}: HTMLAttributes<HTMLDivElement> & { t?: TFunction }) => {
+}: HTMLAttributes<HTMLDivElement> & {
+  t?: TFunction;
+  showLogoName?: boolean;
+}) => {
   const [translation, setTranslation] = useState<translateTypes>({});
   const { lang } = useContext(LanguageContext);
 
@@ -31,9 +35,11 @@ const AppLogo = ({
     <div {...props}>
       <Link href="/" className="flex gap-2 items-center">
         <Image alt="Cypress logo" src={Logo} width={25} height={25} />
-        <p className="dark:text-slate-200 font-medium">
-          {t ? t("common:cypress") : translation.cypress}.
-        </p>
+        {showLogoName ? (
+          <p className="dark:text-slate-200 font-medium">
+            {t ? t("common:cypress") : translation.cypress}.
+          </p>
+        ) : null}
       </Link>
     </div>
   );
