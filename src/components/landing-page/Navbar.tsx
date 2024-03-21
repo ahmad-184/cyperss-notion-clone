@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useWindowScroll } from "@mantine/hooks";
 
@@ -9,10 +9,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "../ui/Button";
 import AppLogo from "../AppLogo";
 import { useTranslation } from "react-i18next";
+import MobileNavbar from "./MobileNavbar";
+import ThemeToggle from "@/components/ThemeToggle";
+import LanguageChanger from "../LanguageChanger";
 
 const Navbar = () => {
   const [scroll] = useWindowScroll();
   const { t } = useTranslation();
+
+  const [openMobileNav, setOpenMobileNav] = useState<boolean>(false);
+
+  const handleOpenMobileNav = () => {
+    setOpenMobileNav((prev) => !prev);
+  };
 
   const navLinks = useMemo(
     () =>
@@ -44,9 +53,9 @@ const Navbar = () => {
       )}
     >
       <div className="flex justify-between items-center w-full py-4 px-4 md:px-12">
-        <AppLogo t={t} />
+        <AppLogo t={t} showLogoName={true} />
 
-        <div className="hidden sm:flex gap-10 items-center">
+        <div className="hidden md:flex gap-10 items-center">
           {navLinks.map((link, i) => (
             <p
               key={i}
@@ -61,16 +70,28 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-1">
-          <Link href={"/login"}>
-            <Button variant="btn-secondary" className="px-1">
-              {t("navbar:login")}
-            </Button>
-          </Link>
-          <Link href={"/signup"}>
-            <Button variant="btn-primary">{t("navbar:signup")}</Button>
-          </Link>
+        <div className="hidden md:flex items-center gap-7">
+          <div className="flex items-center gap-2">
+            <ThemeToggle btn_variant="ghost" />
+            <LanguageChanger btn_variant="ghost" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link href={"/login"}>
+              <Button variant="btn-secondary" className="px-1">
+                {t("navbar:login")}
+              </Button>
+            </Link>
+            <Link href={"/signup"}>
+              <Button variant="btn-primary">{t("navbar:signup")}</Button>
+            </Link>
+          </div>
         </div>
+
+        <MobileNavbar
+          openMobileNav={openMobileNav}
+          handleOpenMobileNav={handleOpenMobileNav}
+          navLinks={navLinks}
+        />
       </div>
     </div>
   );
