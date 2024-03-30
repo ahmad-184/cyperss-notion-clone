@@ -26,10 +26,22 @@ const TestimonialsSlides = ({ t, lang }: { t: TFunction; lang: string }) => {
             },
             "hover:paused"
           )}
-          key={arr + i}
+          key={
+            arr +
+            i +
+            new Date().getFullYear() +
+            new Date().getTime() +
+            Math.random() * 100000000
+          }
         >
           {USERS.map((user, i) => (
             <CustomCard
+              key={
+                i +
+                new Date().getFullYear() +
+                new Date().getMinutes() +
+                Math.random() * 100000000
+              }
               className="w-[300px] sm:w-[500px] shrink-0 rounded-xl bg-gradient-to-t from-border to-background"
               cardHeader={
                 <div className="items-center flex gap-4">

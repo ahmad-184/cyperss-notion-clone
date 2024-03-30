@@ -1,11 +1,8 @@
 "use client";
 
-import { lazy, useContext, useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Context as LanguageContext } from "@/contexts/language-context";
-import Logo from "@/assets/cypresslogo.svg";
 import AppLogo from "@/components/AppLogo";
 import { cn } from "@/lib/utils";
 import { getDirByLang } from "@/lib/dir";

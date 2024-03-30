@@ -16,7 +16,13 @@ const PlansCards = ({ t, lang }: { t: TFunction; lang: string }) => {
 
         return (
           <CustomCard
-            key={card.planType + i}
+            key={
+              card.planType +
+              i +
+              new Date().getFullYear() +
+              new Date().getTime() +
+              Math.floor(Math.random() * 100000000)
+            }
             className={cn(
               "w-[300px] rounded-2xl dark:bg-black/95 backdrop-blur-3xl relative",
               {
@@ -69,8 +75,16 @@ const PlansCards = ({ t, lang }: { t: TFunction; lang: string }) => {
                 </small>
                 {t(`${plan}:freatures`)
                   .split(",")
-                  .map((feature) => (
-                    <li key={feature} className="flex items-center gap-2">
+                  .map((feature, i) => (
+                    <li
+                      key={
+                        feature +
+                        i +
+                        new Date().getFullYear() +
+                        Math.floor(Math.random() * 100000000)
+                      }
+                      className="flex items-center gap-2"
+                    >
                       <Image src={Check} alt={feature} />
                       {feature}
                     </li>

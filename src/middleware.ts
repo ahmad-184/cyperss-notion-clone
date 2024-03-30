@@ -1,11 +1,9 @@
-import { i18nRouter } from "next-i18n-router";
-import { i18nConfig } from "../i18nConfig";
-import type { NextRequest } from "next/server";
+import { chain } from "@/middlewares/chain";
+import { i18nMiddleware } from "@/middlewares/i18nMiddleware";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 
-export const middleware = (req: NextRequest) => {
-  return i18nRouter(req, i18nConfig);
-};
+export default chain([authMiddleware, i18nMiddleware]);
 
 export const config = {
-  matcher: "/((?!api|static|.*\\..*|_next).*)",
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

@@ -12,6 +12,8 @@ import { useTranslation } from "react-i18next";
 import { getDirByLang } from "@/lib/dir";
 import LanguageChanger from "../LanguageChanger";
 import ThemeToggle from "../ThemeToggle";
+import Link from "next/link";
+import { Button } from "../ui/Button";
 
 type MobileNavbarProps = {
   openMobileNav: boolean;
@@ -43,9 +45,16 @@ const MobileNavbar = ({
           </SheetHeader>
           <div className="mt-14 flex flex-col gap-3">
             {navLinks.map((link, i) => (
-              <SheetClose asChild>
+              <SheetClose
+                asChild
+                key={
+                  i +
+                  new Date().getFullYear() +
+                  new Date().getTime() +
+                  Math.floor(Math.random() * 100000000)
+                }
+              >
                 <p
-                  key={i}
                   onClick={() => {
                     const el = document.getElementById(link.id);
                     if (el?.scrollIntoView) el.scrollIntoView();
@@ -61,9 +70,14 @@ const MobileNavbar = ({
             ))}
           </div>
           <SheetFooter className="mt-6">
-            <div className="flex items-center gap-3 w-full">
-              <ThemeToggle menu_align={dir === "rtl" ? "end" : "start"} />
-              <LanguageChanger menu_align={dir === "rtl" ? "end" : "start"} />
+            <div className="flex justify-between gap-2 items-center w-full">
+              <div className="flex items-center gap-3 w-full">
+                <ThemeToggle menu_align={dir === "rtl" ? "end" : "start"} />
+                <LanguageChanger menu_align={dir === "rtl" ? "end" : "start"} />
+              </div>
+              <Link href={"/signin"}>
+                <Button variant="btn-primary">{t("navbar:signin")}</Button>
+              </Link>
             </div>
           </SheetFooter>
         </SheetContent>

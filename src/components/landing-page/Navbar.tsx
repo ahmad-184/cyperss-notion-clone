@@ -12,8 +12,9 @@ import { useTranslation } from "react-i18next";
 import MobileNavbar from "./MobileNavbar";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageChanger from "../LanguageChanger";
+import { UserSession } from "@/types";
 
-const Navbar = () => {
+const Navbar = ({ user }: { user: UserSession["user"] }) => {
   const [scroll] = useWindowScroll();
   const { t } = useTranslation();
 
@@ -58,7 +59,12 @@ const Navbar = () => {
         <div className="hidden md:flex gap-10 items-center">
           {navLinks.map((link, i) => (
             <p
-              key={i}
+              key={
+                i +
+                new Date().getFullYear() +
+                new Date().getTime() +
+                Math.floor(Math.random() * 100000000)
+              }
               onClick={() => {
                 const el = document.getElementById(link.id);
                 if (el?.scrollIntoView) el.scrollIntoView();
@@ -76,14 +82,13 @@ const Navbar = () => {
             <LanguageChanger btn_variant="ghost" />
           </div>
           <div className="flex items-center gap-1">
-            <Link href={"/login"}>
-              <Button variant="btn-secondary" className="px-1">
-                {t("navbar:login")}
-              </Button>
-            </Link>
-            <Link href={"/signup"}>
-              <Button variant="btn-primary">{t("navbar:signup")}</Button>
-            </Link>
+            {user ? (
+              <>{/* TODO show user avatar */}</>
+            ) : (
+              <Link href={"/signin"}>
+                <Button variant="btn-primary">{t("navbar:signin")}</Button>
+              </Link>
+            )}
           </div>
         </div>
 

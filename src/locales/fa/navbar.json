@@ -1,6 +1,5 @@
 {
-  "login": "ورود",
-  "signup": "ثبت نام",
+  "signin": "ورود",
   "features": "امکانات",
   "pricing": "خرید اشتراک",
   "testimonials": "گواهینامه ها"

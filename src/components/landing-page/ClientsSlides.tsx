@@ -10,7 +10,11 @@ const ClientsSlides = ({ lang }: { lang: string }) => {
     >
       {[...Array(2)].map((arr) => (
         <div
-          key={arr}
+          key={
+            arr +
+            new Date().getFullYear() +
+            Math.floor(Math.random() * 100000000)
+          }
           className={cn("flex flex-nowrap", {
             "animate-slide": lang === "en",
             "animate-slide-rtl": lang !== "en",
@@ -19,7 +23,12 @@ const ClientsSlides = ({ lang }: { lang: string }) => {
           {CLIENTS.map((client) => (
             <div
               className="relative w-[180px] m-20 shrink-0 flex items-center"
-              key={client.alt + " slide"}
+              key={
+                client.alt +
+                " slide" +
+                new Date().getFullYear() +
+                Math.floor(Math.random() * 100000000)
+              }
             >
               <Image
                 src={client.logo}

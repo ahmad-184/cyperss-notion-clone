@@ -1,4 +1,5 @@
 import Navbar from "@/components/landing-page/Navbar";
+import { getAuthSession } from "@/lib/authOptions";
 import initTranslations from "@/lib/i18n";
 import TranslationsProvider from "@/providers/TranslationProvider";
 
@@ -12,8 +13,9 @@ export default async function Layout({
   params: { locale: string };
 }) {
   const locale = params.locale || "en";
-
   const { resources } = await initTranslations(locale, i18nNamespaces);
+
+  const session = await getAuthSession();
 
   return (
     <main className="w-full">
@@ -22,7 +24,7 @@ export default async function Layout({
         locale={locale}
         resources={resources}
       >
-        <Navbar />
+        <Navbar user={session?.user} />
       </TranslationsProvider>
       {children}
     </main>

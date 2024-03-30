@@ -1,6 +1,5 @@
 {
-  "login": "login",
-  "signup": "Sign Up",
+  "signin": "Sign in",
   "features": "Features",
   "pricing": "Pricing",
   "testimonials": "Testimonials"

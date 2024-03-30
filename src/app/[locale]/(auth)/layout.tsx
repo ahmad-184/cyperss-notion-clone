@@ -6,7 +6,7 @@ import TranslationsProvider from "@/providers/TranslationProvider";
 import LanguageChanger from "@/components/LanguageChanger";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const namespaces = ["common", "login"];
+const namespaces = ["common", "register", "validators", "messages"];
 
 export default async function Layout({
   params,

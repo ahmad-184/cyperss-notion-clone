@@ -56,7 +56,12 @@ export default function ModeToggle({
       <DropdownMenuContent align={menu_align}>
         {themes.map((t, i) => (
           <DropdownMenuItem
-            key={t.key + i}
+            key={
+              t.key +
+              i +
+              new Date().getFullYear() +
+              Math.floor(Math.random() * 100000000)
+            }
             className={cn("capitalize my-1 rtl:justify-end ltr:justify-start", {
               "dark:bg-slate-500/30 bg-foreground/5": t.key === currentTheme,
             })}

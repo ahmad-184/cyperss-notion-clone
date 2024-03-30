@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { i18nConfig } from "../../i18nConfig";
@@ -82,7 +82,7 @@ export default function LanguageChanger({
       <DropdownMenuContent align={menu_align}>
         {langs.map((l, i) => (
           <DropdownMenuItem
-            key={i}
+            key={i + new Date().getFullYear()}
             className={cn("capitalize my-1 rtl:justify-end ltr:justify-start", {
               "dark:bg-slate-500/30 bg-foreground/5":
                 l.locale === currentLocale,

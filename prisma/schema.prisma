@@ -1,136 +1,177 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-    id              String    @id(map: "users_pkey") @default(cuid()) @db.Uuid
-    full_name       String?
-    avatar_url      String?
-    billing_address Json?
-    payment_method  Json?
-    updatedAt       DateTime? @db.Timestamptz(6)
-    email           String?
+model account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
-model Workspace {
-    id               String   @id @default(cuid())
-    created_at       DateTime @default(now())
-    workspaceOwnerId String
-    title            String
-    iconId           String?
-    data             String?
-    inTrash          Boolean
-    logo             String?
-    bannerUrl        String?
-    files            File[]
-    folders          Folder[]
+model session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Folder {
-    id               String    @id @default(cuid())
-    workspaceId      String
-    workspaceOwnerId String
-    title            String
-    iconId           String?
-    data             String?
-    inTrash          Boolean
-    bannerUrl        String?
-    files            File[]
-    workspace        Workspace @relation(fields: [workspaceId], references: [id])
-    created_at       DateTime  @default(now())
-    updated_at       DateTime  @updatedAt
+model user {
+  id                    String    @id(map: "users_pkey") @default(cuid())
+  name                  String?
+  image                 String?
+  billing_address       Json?
+  payment_method        Json?
+  updatedAt             DateTime? @db.Timestamptz(6)
+  email                 String    @unique
+  password              String?
+  emailVerified         DateTime?
+  otp_token             String?
+  otp_token_expiry_time DateTime?
+  accounts              account[]
+  sessions              session[]
 }
 
-model File {
-    id               String    @id @default(cuid())
-    workspaceId      String
-    workspaceOwnerId String
-    title            String
-    iconId           String?
-    data             String?
-    inTrash          Boolean
-    bannerUrl        String?
-    folderId         String
-    folder           Folder    @relation(fields: [folderId], references: [id])
-    workspace        Workspace @relation(fields: [workspaceId], references: [id])
-    created_at       DateTime  @default(now())
-    updated_at       DateTime  @updatedAt
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model workspace {
+  id               String   @id @default(cuid())
+  created_at       DateTime @default(now())
+  workspaceOwnerId String
+  title            String
+  iconId           String?
+  data             String?
+  inTrash          Boolean
+  logo             String?
+  bannerUrl        String?
+  files            file[]
+  folders          folder[]
+}
+
+model folder {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  workspaceOwnerId String
+  title            String
+  iconId           String?
+  data             String?
+  inTrash          Boolean
+  bannerUrl        String?
+  files            file[]
+  workspace        workspace @relation(fields: [workspaceId], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+}
+
+model file {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  workspaceOwnerId String
+  title            String
+  iconId           String?
+  data             String?
+  inTrash          Boolean
+  bannerUrl        String?
+  folderId         String
+  folder           folder    @relation(fields: [folderId], references: [id])
+  workspace        workspace @relation(fields: [workspaceId], references: [id])
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Customer {
-    id                 String  @id(map: "customers_pkey") @db.Uuid
-    stripe_customer_id String?
+model customer {
+  id                 String  @id(map: "customers_pkey") @db.Uuid
+  stripe_customer_id String?
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Price {
-    id                String                 @id(map: "prices_pkey")
-    product_id        String?
-    active            Boolean?
-    description       String?
-    unit_amount       BigInt?
-    currency          String?
-    type              pricing_type?
-    interval          pricing_plan_interval?
-    interval_count    Int?
-    trial_period_days Int?
-    metadata          Json?
+model price {
+  id                String                 @id(map: "prices_pkey")
+  product_id        String?
+  active            Boolean?
+  description       String?
+  unit_amount       BigInt?
+  currency          String?
+  type              pricing_type?
+  interval          pricing_plan_interval?
+  interval_count    Int?
+  trial_period_days Int?
+  metadata          Json?
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Product {
-    id          String   @id(map: "products_pkey")
-    active      Boolean?
-    name        String?
-    description String?
-    image       String?
-    metadata    Json?
+model product {
+  id          String   @id(map: "products_pkey")
+  active      Boolean?
+  name        String?
+  description String?
+  image       String?
+  metadata    Json?
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Subscription {
-    id                   String               @id(map: "subscriptions_pkey")
-    user_id              String               @db.Uuid
-    status               subscription_status?
-    metadata             Json?
-    price_id             String?
-    quantity             Int?
-    cancel_at_period_end Boolean?
-    created              DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    current_period_start DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    current_period_end   DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    ended_at             DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    cancel_at            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    canceled_at          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    trial_start          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-    trial_end            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+model subscription {
+  id                   String               @id(map: "subscriptions_pkey")
+  user_id              String               @db.Uuid
+  status               subscription_status?
+  metadata             Json?
+  price_id             String?
+  quantity             Int?
+  cancel_at_period_end Boolean?
+  created              DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  current_period_start DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  current_period_end   DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  ended_at             DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  cancel_at            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  canceled_at          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  trial_start          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  trial_end            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
 }
 
 enum pricing_plan_interval {
-    day
-    week
-    month
-    year
+  day
+  week
+  month
+  year
 }
 
 enum pricing_type {
-    one_time
-    recurring
+  one_time
+  recurring
 }
 
 enum subscription_status {
-    trialing
-    active
-    canceled
-    incomplete
-    incomplete_expired
-    past_due
-    unpaid
+  trialing
+  active
+  canceled
+  incomplete
+  incomplete_expired
+  past_due
+  unpaid
 }
