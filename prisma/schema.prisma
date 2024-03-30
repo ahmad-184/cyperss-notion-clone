@@ -35,19 +35,16 @@ model session {
 }
 
 model user {
-  id                    String    @id(map: "users_pkey") @default(cuid())
-  name                  String?
-  image                 String?
-  billing_address       Json?
-  payment_method        Json?
-  updatedAt             DateTime? @db.Timestamptz(6)
-  email                 String    @unique
-  password              String?
-  emailVerified         DateTime?
-  otp_token             String?
-  otp_token_expiry_time DateTime?
-  accounts              account[]
-  sessions              session[]
+  id              String    @id(map: "users_pkey") @default(cuid())
+  name            String?
+  image           String?
+  billing_address Json?
+  payment_method  Json?
+  updatedAt       DateTime? @db.Timestamptz(6)
+  email           String    @unique
+  emailVerified   DateTime?
+  accounts        account[]
+  sessions        session[]
 }
 
 model VerificationToken {

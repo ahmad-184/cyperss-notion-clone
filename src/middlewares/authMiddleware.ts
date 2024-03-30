@@ -5,6 +5,7 @@ import { CustomMiddleware } from "./chain";
 import { i18nConfig } from "../../i18nConfig";
 
 const protectedPaths = ["/dashboard"];
+const routesThatAccessMustDenyAfterSignin = ["/signin"];
 
 function getProtectedRoutes(protectedPaths: string[], locales: string[]) {
   let protectedPathsWithLocale = [...protectedPaths];
@@ -42,6 +43,19 @@ export function authMiddleware(middleware: CustomMiddleware) {
       const signInUrl = new URL("/signin", request.url);
       signInUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(signInUrl);
+    }
+
+    const routesThatAccessMustDenyAfterSigninWithLocale = getProtectedRoutes(
+      routesThatAccessMustDenyAfterSignin,
+      [...i18nConfig.locales]
+    );
+
+    if (
+      token &&
+      routesThatAccessMustDenyAfterSigninWithLocale.includes(pathname)
+    ) {
+      const home_page = new URL("/", request.url);
+      return NextResponse.redirect(home_page);
     }
 
     return middleware(request, event, response);

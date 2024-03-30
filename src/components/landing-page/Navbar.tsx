@@ -13,6 +13,7 @@ import MobileNavbar from "./MobileNavbar";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageChanger from "../LanguageChanger";
 import { UserSession } from "@/types";
+import UserAvatar from "./UserAvatar";
 
 const Navbar = ({ user }: { user: UserSession["user"] }) => {
   const [scroll] = useWindowScroll();
@@ -83,7 +84,7 @@ const Navbar = ({ user }: { user: UserSession["user"] }) => {
           </div>
           <div className="flex items-center gap-1">
             {user ? (
-              <>{/* TODO show user avatar */}</>
+              <UserAvatar user={user} />
             ) : (
               <Link href={"/signin"}>
                 <Button variant="btn-primary">{t("navbar:signin")}</Button>
