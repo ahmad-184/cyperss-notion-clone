@@ -17,6 +17,7 @@ const Toaster = ({ lang, ...props }: ToasterProps & { lang: string }) => {
       className="toaster group"
       dir={getDirByLang(lang) as dirType}
       duration={5000}
+      closeButton
       toastOptions={{
         classNames: {
           toast:
