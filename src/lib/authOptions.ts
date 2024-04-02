@@ -50,6 +50,9 @@ export const options: AuthOptions = {
 
       return session;
     },
+    async redirect({ baseUrl }) {
+      return `${baseUrl}/dashboard`;
+    },
   },
 };
 

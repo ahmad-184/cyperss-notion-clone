@@ -1,7 +1,9 @@
-import { uploadClient } from "@/lib/uploader";
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState, useContext } from "react";
 import { toast } from "sonner";
-import type { UploadcareFile } from "@uploadcare/upload-client";
+import { uploader } from "@/lib/uploader";
+import { Context } from "@/contexts/local-context";
 
 interface Props {
   ref: React.MutableRefObject<HTMLInputElement | null>;
@@ -11,6 +13,9 @@ const useUpload = ({ ref }: Props) => {
   const [inputElem, setInputElem] = useState<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[] | []>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const { uploadcare_key } = useContext(Context);
 
   useEffect(() => {
     if (inputElem) return;
@@ -39,7 +44,7 @@ const useUpload = ({ ref }: Props) => {
     if (file.size > 2000000)
       return {
         error: {
-          message: "File too large, size: more than 2MB",
+          message: "File too large, size: more than 1MB",
         },
       };
     if (!file.type.startsWith("image/"))
@@ -50,7 +55,7 @@ const useUpload = ({ ref }: Props) => {
       };
   };
 
-  const startUpload = async (): Promise<UploadcareFile | null | undefined> => {
+  const startUpload = async () => {
     try {
       if (!files) return;
 
@@ -64,8 +69,12 @@ const useUpload = ({ ref }: Props) => {
         return;
       }
 
-      const res = await uploadClient.uploadFile(files[0]);
-      toast.success("File uploaded successfully");
+      const res = await uploader(files[0], uploadcare_key, setProgress);
+      if (!res?.done) {
+        console.log(res);
+        return;
+      }
+      if (res.file) toast.success("File uploaded successfully");
       return res;
     } catch (err: any) {
       console.log(err);
@@ -82,6 +91,7 @@ const useUpload = ({ ref }: Props) => {
     files,
     startUpload,
     isUploading,
+    progress,
   };
 };
 
