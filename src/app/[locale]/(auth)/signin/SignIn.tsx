@@ -19,6 +19,7 @@ import { z } from "zod";
 import { useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { ShieldCheck } from "lucide-react";
+import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgress";
 
 const SignUp = () => {
   const [submittingError, setSubmittingError] = useState<string>("");
@@ -96,14 +97,14 @@ const SignUp = () => {
             {submittingError ? (
               <FormMessage>{submittingError}</FormMessage>
             ) : null}
-            <Button
+            <ButtonWithLoaderAndProgress
+              disabled={isSubmitting}
+              loading={isSubmitting}
               type="submit"
               className="hover:bg-primary/90"
-              variant={"default"}
-              disabled={isSubmitting}
             >
-              {isSubmitting ? <Loader className="w-7" /> : t("register:submit")}
-            </Button>
+              {t("register:submit")}
+            </ButtonWithLoaderAndProgress>
           </>
         )}
       </form>

@@ -1,11 +1,8 @@
-import type { Metadata } from "next";
 import { DM_Sans, Vazirmatn } from "next/font/google";
+import type { Metadata } from "next";
 import "../globals.css";
-import ThemeProvider from "@/providers/NextThemeProvider";
 import { i18nConfig } from "../../../i18nConfig";
-import { Toaster } from "@/components/ui/Sonner";
 import { getDirByLang } from "@/lib/dir";
-import { Provider as LanguageContextProvider } from "@/contexts/language-context";
 import Providers from "@/lib/Providers";
 
 const dm_sans = DM_Sans({ subsets: ["latin"], display: "swap" });
@@ -35,7 +32,12 @@ export default function RootLayout({
   return (
     <html lang={locale || "en"} dir={getDirByLang(locale)}>
       <body className={`${dm_sans.className} ${vazirmatn.className}`}>
-        <Providers locale={locale || "en"}>{children}</Providers>
+        <Providers
+          locale={locale || "en"}
+          uploadcare_key={process.env.UPLOADCARE_KEY as string}
+        >
+          {children}
+        </Providers>
       </body>
     </html>
   );

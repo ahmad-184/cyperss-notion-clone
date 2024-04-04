@@ -10,3 +10,15 @@ export const signinValidator = (t: TFunction) => {
   });
   return { validator };
 };
+
+export const setupWorkspaceValidator = (t: TFunction) => {
+  const validator = z.object({
+    name: z
+      .string()
+      .min(3, { message: "Workspace name must have more than 3 characters." })
+      .max(30, {
+        message: "Workspace name can not have more than 30 characters.",
+      }),
+  });
+  return { validator };
+};

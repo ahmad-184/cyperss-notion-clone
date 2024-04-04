@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 type LoaderProps = React.HTMLAttributes<HTMLDivElement> & {};
 
 const Loader: React.FC<LoaderProps> = ({ ...props }) => {

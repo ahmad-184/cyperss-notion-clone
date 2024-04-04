@@ -14,17 +14,21 @@ import LanguageChanger from "../LanguageChanger";
 import ThemeToggle from "../ThemeToggle";
 import Link from "next/link";
 import { Button } from "../ui/Button";
+import { UserSession } from "@/types";
+import UserAvatar from "./UserAvatar";
 
 type MobileNavbarProps = {
   openMobileNav: boolean;
   handleOpenMobileNav: () => void;
   navLinks: { text: string; id: string }[];
+  user: UserSession["user"];
 };
 
 const MobileNavbar = ({
   openMobileNav,
   handleOpenMobileNav,
   navLinks,
+  user,
 }: MobileNavbarProps) => {
   const { t, i18n } = useTranslation();
 
@@ -71,13 +75,17 @@ const MobileNavbar = ({
           </div>
           <SheetFooter className="mt-6">
             <div className="flex justify-between gap-2 items-center w-full">
-              <div className="flex items-center gap-3 w-full">
+              {user ? (
+                <UserAvatar user={user} />
+              ) : (
+                <Link href={"/signin"}>
+                  <Button variant="btn-primary">{t("navbar:signin")}</Button>
+                </Link>
+              )}
+              <div className="flex items-center justify-end gap-3 w-full">
                 <ThemeToggle menu_align={dir === "rtl" ? "end" : "start"} />
                 <LanguageChanger menu_align={dir === "rtl" ? "end" : "start"} />
               </div>
-              <Link href={"/signin"}>
-                <Button variant="btn-primary">{t("navbar:signin")}</Button>
-              </Link>
             </div>
           </SheetFooter>
         </SheetContent>

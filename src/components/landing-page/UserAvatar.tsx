@@ -7,7 +7,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from "../ui/DropdownMenu";
-import Link from "next/link";
 import Image from "next/image";
 
 const UserAvatar = ({ user }: { user: UserSession["user"] }) => {
@@ -29,9 +28,9 @@ const UserAvatar = ({ user }: { user: UserSession["user"] }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 py-1">
         <DropdownMenuGroup>
-          <Link href={"/dashboard"}>
+          <a href={"/dashboard"}>
             <DropdownMenuItem>Go to Dashboard</DropdownMenuItem>
-          </Link>
+          </a>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

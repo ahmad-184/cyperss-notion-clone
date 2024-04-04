@@ -1,14 +1,20 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
-
 import workspaceReducer from "./slices/workspace";
+
+const compinedReducers = combineReducers({
+  workspace: workspaceReducer,
+});
 
 export const makeStore = () => {
   return configureStore({
-    reducer: {
-      workspace: workspaceReducer,
-    },
+    reducer: compinedReducers,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: false,
+        immutableCheck: false,
+      }),
   });
 };
 

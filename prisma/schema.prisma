@@ -35,16 +35,18 @@ model session {
 }
 
 model user {
-  id              String    @id(map: "users_pkey") @default(cuid())
+  id              String      @id(map: "users_pkey") @default(cuid())
   name            String?
   image           String?
   billing_address Json?
   payment_method  Json?
-  updatedAt       DateTime? @db.Timestamptz(6)
-  email           String    @unique
+  updatedAt       DateTime?   @db.Timestamptz(6)
+  createdAt       DateTime    @default(now())
+  email           String      @unique
   emailVerified   DateTime?
   accounts        account[]
   sessions        session[]
+  workspaces      workspace[]
 }
 
 model VerificationToken {
@@ -55,16 +57,23 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+enum WorkspaceType {
+  private
+  shared
+}
+
 model workspace {
-  id               String   @id @default(cuid())
-  created_at       DateTime @default(now())
+  id               String        @id @default(cuid())
+  createdAt        DateTime      @default(now())
   workspaceOwnerId String
+  workspaceOwner   user          @relation(fields: [workspaceOwnerId], references: [id])
   title            String
   iconId           String?
   data             String?
   inTrash          Boolean
   logo             String?
   bannerUrl        String?
+  type             WorkspaceType @default(private)
   files            file[]
   folders          folder[]
 }
@@ -80,8 +89,8 @@ model folder {
   bannerUrl        String?
   files            file[]
   workspace        workspace @relation(fields: [workspaceId], references: [id])
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model file {
@@ -96,8 +105,8 @@ model file {
   folderId         String
   folder           folder    @relation(fields: [folderId], references: [id])
   workspace        workspace @relation(fields: [workspaceId], references: [id])
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

@@ -97,6 +97,7 @@ const Navbar = ({ user }: { user: UserSession["user"] }) => {
           openMobileNav={openMobileNav}
           handleOpenMobileNav={handleOpenMobileNav}
           navLinks={navLinks}
+          user={user}
         />
       </div>
     </div>
