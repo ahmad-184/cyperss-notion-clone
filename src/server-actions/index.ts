@@ -19,18 +19,6 @@ import {
   sharedWorkspacesQuery,
 } from "./queries";
 import { cookies } from "next/headers";
-import { error } from "console";
-import {
-  Give_You_Glory,
-  Major_Mono_Display,
-  Ubuntu_Mono,
-} from "next/font/google";
-import { unstable_batchedUpdates } from "react-dom";
-import { UnlockKeyhole } from "lucide-react";
-import { v5 } from "uuid";
-import { junit } from "node:test/reporters";
-import { ucs2 } from "punycode";
-import { lchown } from "fs";
 
 export const checkUserExist = async (userId: string, cookies: any) => {
   try {

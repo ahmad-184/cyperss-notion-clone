@@ -13,7 +13,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   progress?: number;
 }
 
-const ButtonWithLoader: React.FC<Props> = ({
+const ButtonWithLoaderAndProgress: React.FC<Props> = ({
   loading,
   isUploading,
   progress,
@@ -34,4 +34,4 @@ const ButtonWithLoader: React.FC<Props> = ({
   );
 };
 
-export default ButtonWithLoader;
+export default ButtonWithLoaderAndProgress;

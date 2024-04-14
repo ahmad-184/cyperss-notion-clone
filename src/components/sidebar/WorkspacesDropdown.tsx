@@ -81,8 +81,8 @@ const WorkspacesDropdown = () => {
                 openDropdown ? "table px-2 py-3" : "invisible h-0"
               }`}
             >
-              <div className="h-full flex flex-col gap-3">
-                <div>
+              <div className="h-full flex flex-col gap-3 w-full">
+                <div className="w-full">
                   {workspaces.private.length ? (
                     <div className="flex flex-col w-full mb-2">
                       <p className="text-gray-500 text-sm">
@@ -95,7 +95,8 @@ const WorkspacesDropdown = () => {
                             workspace={e}
                             selectWorkspace={selectWorkspace}
                             className={cn("text-sm", {
-                              "bg-primary/20": current_workspace.id === e.id,
+                              "bg-primary/20 hover:bg-primary/30 dark:hover:bg-primary/50 dark:bg-primary/20":
+                                current_workspace.id === e.id,
                             })}
                             image_size={20}
                           />

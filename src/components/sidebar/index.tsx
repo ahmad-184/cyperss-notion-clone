@@ -2,6 +2,7 @@ import { getAuthSession } from "@/lib/authOptions";
 import { getUserSubscription } from "@/server-actions";
 import { notFound } from "next/navigation";
 import WorkspacesDropdown from "./WorkspacesDropdown";
+import PlanUsage from "./PlanUsage";
 
 interface SidebarProps {
   workspaceId: string;
@@ -18,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
   return (
     <div className="w-[280px] border-r h-screen p-3 py-4">
       <WorkspacesDropdown />
+      <PlanUsage subscription={data} />
     </div>
   );
 };

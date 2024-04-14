@@ -38,7 +38,7 @@ const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
       />
       <p
         className={`whitespace-nowrap truncate overflow-hidden overflow-ellipsis
-        capitalize
+        capitalize max-w-[206px]
       `}
       >
         {workspace?.title}

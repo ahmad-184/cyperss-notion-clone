@@ -22,9 +22,9 @@ import { useSession } from "next-auth/react";
 import { createCollaborators, createWorkspace } from "@/server-actions";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/store";
-import { addWorkspace, setCurrentWorkspace } from "@/store/slices/workspace";
+import { addWorkspace } from "@/store/slices/workspace";
 import { useRouter } from "next/navigation";
-import ButtonWithLoader from "../ButtonWithLoaderAndProgress";
+import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
 
 interface WorkspaceCreatorProps {}
 
@@ -189,9 +189,13 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
           <small className="my-1 text-destructive">{error}</small>
         ) : null}
       </div>
-      <ButtonWithLoader className="w-full" type="submit" loading={isSubmitting}>
+      <ButtonWithLoaderAndProgress
+        className="w-full"
+        type="submit"
+        loading={isSubmitting}
+      >
         Create
-      </ButtonWithLoader>
+      </ButtonWithLoaderAndProgress>
     </form>
   );
 };

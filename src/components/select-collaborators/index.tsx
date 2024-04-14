@@ -1,9 +1,9 @@
 import { getUsers } from "@/server-actions";
 import { User } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Label } from "../ui/Label";
-import { ChevronDown, Minus, Plus, X } from "lucide-react";
+import { ChevronDown, Minus, Plus } from "lucide-react";
 import { ScrollArea } from "../ui/ScrollArea";
 import { cn } from "@/lib/utils";
 import Loader from "../Loader";
