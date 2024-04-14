@@ -35,18 +35,21 @@ model session {
 }
 
 model user {
-  id              String      @id(map: "users_pkey") @default(cuid())
+  id              String         @id(map: "users_pkey") @default(cuid())
   name            String?
   image           String?
   billing_address Json?
   payment_method  Json?
-  updatedAt       DateTime?   @db.Timestamptz(6)
-  createdAt       DateTime    @default(now())
-  email           String      @unique
+  updatedAt       DateTime?      @db.Timestamptz(6)
+  createdAt       DateTime       @default(now())
+  email           String         @unique
   emailVerified   DateTime?
   accounts        account[]
   sessions        session[]
   workspaces      workspace[]
+  collaborators   collaborator[]
+  folders         folder[]
+  files           file[]
 }
 
 model VerificationToken {
@@ -63,32 +66,45 @@ enum WorkspaceType {
 }
 
 model workspace {
-  id               String        @id @default(cuid())
-  createdAt        DateTime      @default(now())
+  id               String         @id @default(cuid())
+  createdAt        DateTime       @default(now())
   workspaceOwnerId String
-  workspaceOwner   user          @relation(fields: [workspaceOwnerId], references: [id])
+  workspaceOwner   user           @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?
   inTrash          Boolean
   logo             String?
   bannerUrl        String?
-  type             WorkspaceType @default(private)
+  type             WorkspaceType  @default(private)
   files            file[]
   folders          folder[]
+  collaborators    collaborator[]
+}
+
+model collaborator {
+  id          String    @id @default(cuid())
+  userId      String
+  user        user      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  workspaceId String
+  workspace   workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@index([userId, workspaceId])
 }
 
 model folder {
   id               String    @id @default(cuid())
   workspaceId      String
   workspaceOwnerId String
+  workspaceOwner   user      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?
   inTrash          Boolean
   bannerUrl        String?
   files            file[]
-  workspace        workspace @relation(fields: [workspaceId], references: [id])
+  workspace        workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
@@ -97,6 +113,7 @@ model file {
   id               String    @id @default(cuid())
   workspaceId      String
   workspaceOwnerId String
+  wokrspaceOwner   user      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?

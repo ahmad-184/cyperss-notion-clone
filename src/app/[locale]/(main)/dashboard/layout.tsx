@@ -1,10 +1,15 @@
 import initTranslations from "@/lib/i18n";
 import ReduxStoreProvider from "@/providers/ReduxStoreProvider";
 import TranslationProvider from "@/providers/TranslationProvider";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate } from "uuid";
 
 const namespaces = ["common"];
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 export default async function Layout({
   params,

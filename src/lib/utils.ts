@@ -1,5 +1,7 @@
+import { getWorkspacesReturnType } from "@/server-actions";
 import { type ClassValue, clsx } from "clsx";
 import type { HashOptions } from "crypto";
+import { signOut } from "next-auth/react";
 import { twMerge } from "tailwind-merge";
 
 const secret_key = process.env.SECRET_KEY as HashOptions;
@@ -18,10 +20,19 @@ export function AddMinutesToDate({
   return new Date(date.getTime() + minutes * 60000);
 }
 
-// export async function CreateHash(key: string) {
-//   return await bcrypt.hash(pass, 10);
-// }
+export const returnAllWorkspaces = (
+  data: NonNullable<getWorkspacesReturnType["data"]>
+) => {
+  return [...data.private, ...data.shared, ...data.collaborating];
+};
 
-// export async function ComparePasswords(candidatePass: string, pass: string) {
-//   return await bcrypt.compare(candidatePass, pass);
-// }
+export const logOutUser = async () => {
+  if (window) {
+    signOut({ redirect: false }).then(() => {
+      setTimeout(() => {
+        window.localStorage.removeItem("active_workspace");
+        window.location.reload();
+      }, 200);
+    });
+  }
+};

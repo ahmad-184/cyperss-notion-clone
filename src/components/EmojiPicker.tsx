@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/Dialog";
+import { cn } from "@/lib/utils";
 
 const Picker = dynamic(() => import("emoji-picker-react"), {
   ssr: false,
@@ -11,10 +12,12 @@ const Picker = dynamic(() => import("emoji-picker-react"), {
 interface EmojiPickerProps {
   handleChangeEmoji(e: EmojiClickData): void;
   emoji: string;
+  classNames?: string;
 }
 
 const EmojiPicker: React.FC<EmojiPickerProps> = ({
   handleChangeEmoji,
+  classNames,
   emoji,
 }) => {
   const { theme, systemTheme } = useTheme();
@@ -30,7 +33,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
       }}
     >
       <DialogTrigger asChild onClick={() => setOpen((prev) => !prev)}>
-        <p className="text-[40px] cursor-pointer">{emoji}</p>
+        <p className={cn(`cursor-pointer`, classNames)}>{emoji}</p>
       </DialogTrigger>
       <DialogContent className="py-5 bg-transparent border-none">
         <Picker

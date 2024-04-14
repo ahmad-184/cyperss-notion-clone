@@ -1,5 +1,4 @@
-import { UserSession } from "@/types";
-import { Avatar, AvatarFallback } from "../ui/Avatar";
+import { User } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,30 +6,29 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from "../ui/DropdownMenu";
-import Image from "next/image";
+import CustomAvatar from "../CustomAvatar";
+import { logOutUser } from "@/lib/utils";
+import React from "react";
 
-const UserAvatar = ({ user }: { user: UserSession["user"] }) => {
+interface UserAvatarProps {
+  user: User;
+}
+
+const UserAvatar: React.FC<UserAvatarProps> = ({ user }) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Avatar className="relative">
-          <Image
-            src={
-              "https://utfs.io/f/18d7227d-e478-4c5f-857c-14c8c63e7066-pv8ciq.jpg"
-            }
-            alt={`${user?.name} profile avatar`}
-            width={60}
-            height={60}
-            className="object-cover"
-          />
-          <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
+      <DropdownMenuTrigger className="outline-none">
+        <CustomAvatar
+          user={user!}
+          className="cursor-pointer outline-none border-none"
+        />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 py-1">
         <DropdownMenuGroup>
           <a href={"/dashboard"}>
             <DropdownMenuItem>Go to Dashboard</DropdownMenuItem>
           </a>
+          <DropdownMenuItem onClick={logOutUser}>Sign Out</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

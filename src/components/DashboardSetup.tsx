@@ -26,9 +26,7 @@ import { setupWorkspaceValidator } from "@/lib/validations";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ButtonWithLoaderAndProgress from "./ButtonWithLoaderAndProgress";
-import { createWorkspace } from "@/server-actions";
-import { useAppDispatch } from "@/store";
-import { addWorkspace } from "@/store/slices/workspace";
+import { createWorkspace, updateUserDetail } from "@/server-actions";
 import { useRouter } from "next/navigation";
 
 interface DashboardSetupProps {
@@ -40,7 +38,6 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   user,
   subscription,
 }) => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
 
   const [emoji, setEmoji] = useState("💼");
@@ -61,7 +58,8 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
     register,
   } = useForm<setupWorkspaceValidatorType>({
     defaultValues: {
-      name: "",
+      workspace_name: "",
+      username: "",
     },
     mode: "onSubmit",
     resolver: zodResolver(validator),
@@ -86,17 +84,18 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   };
 
   const onSubmit = async (data: setupWorkspaceValidatorType) => {
-    // type NewType =
     try {
+      if (!user?.id) return;
       let payload: Omit<Workspace, "createdAt"> = {
-        title: data.name,
-        workspaceOwnerId: user?.id!,
+        id: uuid4(),
+        title: data.workspace_name,
+        workspaceOwnerId: user.id!,
         iconId: emoji,
         inTrash: false,
         bannerUrl: "",
         logo: "",
         data: null,
-        id: uuid4(),
+        type: "private",
       };
 
       if (files[0]) {
@@ -107,12 +106,14 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         }
       }
 
-      const { data: resData, error } = await createWorkspace(payload);
+      const [updatedUser, { data: resData, error }] = await Promise.all([
+        updateUserDetail({ name: data.username, id: user.id }),
+        createWorkspace(payload),
+      ]);
 
       if (error) return toast.error(error.message);
       if (resData) {
-        dispatch(addWorkspace(resData));
-        router.replace(`dashboard/${resData.id}`);
+        router.refresh();
       } else throw new Error();
     } catch (err) {
       console.log(err);
@@ -123,7 +124,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   return (
     <Card className="max-w-[600px] h-auto">
       <CardHeader>
-        <CardTitle>Create A Workspace</CardTitle>
+        <CardTitle>Setup Your First Workspace</CardTitle>
         <CardDescription>
           Lets create a private workspace to get you started. You can add
           collaborators later from the workspace setting tab.
@@ -132,15 +133,32 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-2">
+            <div className="w-full mb-2">
+              <Label htmlFor="username">Your Name</Label>
+              <Input
+                {...register("username")}
+                className="w-full"
+                placeholder="koorosh..."
+              />
+            </div>
             <div className="flex gap-3 items-center">
               <EmojiPicker
                 handleChangeEmoji={handleChangeEmoji}
                 emoji={emoji}
+                classNames="text-[40px] sm:text-[50px]"
               />
-              <Input {...register("name")} placeholder="Your Workspace Name" />
+              <div className="flex flex-grow flex-col gap-1">
+                <Label htmlFor="workspace_name">Workspace Name</Label>
+                <Input
+                  {...register("workspace_name")}
+                  placeholder="something awesome..."
+                />
+              </div>
             </div>
-            {errors.name ? (
-              <small className="text-destructive">{errors.name.message}</small>
+            {errors.workspace_name ? (
+              <small className="text-destructive">
+                {errors.workspace_name.message}
+              </small>
             ) : null}
             <div>
               <Label htmlFor="logo">Workspace Logo</Label>

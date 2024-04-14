@@ -6,6 +6,7 @@ import ThemeProvider from "@/providers/NextThemeProvider";
 import { Toaster } from "@/components/ui/Sonner";
 import { Provider as LanguageContextProvider } from "@/contexts/language-context";
 import { Provider as LocalContextProvider } from "@/contexts/local-context";
+import StylesProviders from "@/providers/StylesProviders";
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,7 +19,9 @@ const Providers: FC<LayoutProps> = ({ locale, uploadcare_key, children }) => {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <LanguageContextProvider lang={locale || "en"}>
         <LocalContextProvider uploadcare_key={uploadcare_key}>
-          <SessionProvider>{children}</SessionProvider>
+          <SessionProvider>
+            <StylesProviders>{children}</StylesProviders>
+          </SessionProvider>
           <Toaster lang={locale} />
         </LocalContextProvider>
       </LanguageContextProvider>

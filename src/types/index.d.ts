@@ -5,7 +5,9 @@ export type UserSession = {
   user: Session["user"] | undefined;
 };
 
-export type WorkspaceType = workspace & {
+export type User = Session["user"];
+
+export type WorkspaceTypes = workspace & {
   folders: (folder & {
     files: file[] | [];
   })[];

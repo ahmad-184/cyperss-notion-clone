@@ -41,14 +41,33 @@ export const options: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub;
-        session.user.email = token.email;
-        session.user.name = token.name;
-        session.user.image = token.picture;
-      }
+      let newSession: typeof session = {
+        user: {
+          id: "",
+          email: "",
+          image: "",
+          name: "",
+        },
+        expires: session.expires,
+      };
 
-      return session;
+      if (token) {
+        newSession.user.id = token.sub;
+        newSession.user.email = token.email;
+        const user = await db.user.findUnique({
+          where: {
+            id: token.sub,
+          },
+        });
+        if (user) {
+          newSession.user.name = user.name || token.name;
+          newSession.user.image = user.image || token.picture;
+        } else {
+          newSession.user.name = token.name;
+          newSession.user.image = token.picture;
+        }
+      }
+      return newSession;
     },
     async redirect({ baseUrl }) {
       return `${baseUrl}/dashboard`;

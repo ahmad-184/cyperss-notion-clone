@@ -52,6 +52,7 @@ const SignUp = () => {
 
   const onSubmit = async (data: signinValidatorType) => {
     try {
+      setSubmittingError("");
       const res = await signIn("email", {
         email: data.email,
         callbackUrl: callback_url || "/",

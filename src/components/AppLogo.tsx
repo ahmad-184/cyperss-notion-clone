@@ -1,11 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { TFunction } from "i18next";
-import Logo from "@/assets/cypresslogo.svg";
 import { HTMLAttributes, useContext, useEffect, useState } from "react";
 import { Context as LanguageContext } from "@/contexts/language-context";
+import CypressLogo from "./CypressLogo";
 
 type translateTypes = {
   cypress?: string;
@@ -34,7 +33,7 @@ const AppLogo = ({
   return (
     <div {...props}>
       <Link href="/" className="flex gap-2 items-center">
-        <Image alt="Cypress logo" src={Logo} width={25} height={25} />
+        <CypressLogo />
         {showLogoName ? (
           <p className="dark:text-slate-200 font-medium">
             {t ? t("common:cypress") : translation.cypress}.

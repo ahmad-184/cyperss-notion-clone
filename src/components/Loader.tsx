@@ -7,7 +7,7 @@ const Loader: React.FC<LoaderProps> = ({ ...props }) => {
     <div role="status" {...props}>
       <svg
         aria-hidden="true"
-        className="inline mr-2 text-gray-200 animate-spin dark:text-primary-foreground/30 fill-primary-foreground "
+        className="inline mr-2 text-gray-400 animate-spin dark:text-primary-foreground/30 fill-primary-foreground "
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

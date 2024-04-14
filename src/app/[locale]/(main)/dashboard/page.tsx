@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { getUserSubscription } from "@/server-actions";
 import { redirect } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import RedirectUser from "./RedirectUser";
 
 export default async function Page() {
   const session = await getAuthSession();
@@ -14,7 +15,7 @@ export default async function Page() {
 
   const existingWorkspace = await db.workspace.findFirst({
     where: {
-      workspaceOwnerId: session.user.id!,
+      workspaceOwnerId: session.user.id as string,
     },
   });
 
@@ -31,5 +32,5 @@ export default async function Page() {
       </div>
     );
 
-  return redirect(`/dashboard/${existingWorkspace.id}`);
+  return <RedirectUser id={existingWorkspace.id} user={session.user} />;
 }
