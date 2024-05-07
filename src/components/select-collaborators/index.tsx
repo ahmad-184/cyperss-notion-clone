@@ -3,11 +3,11 @@ import { User } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Label } from "../ui/Label";
-import { ChevronDown, Minus, Plus } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { ScrollArea } from "../ui/ScrollArea";
 import { cn } from "@/lib/utils";
 import Loader from "../Loader";
-import CustomAvatar from "../CustomAvatar";
+import Collaborator from "./Collaborator";
 
 interface SelectCollaboratorsProps {
   getValue(data: User[] | []): void;
@@ -56,8 +56,8 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
   };
 
   return (
-    <div className="w-full relative my-2">
-      <div className="flex w-full flex-col gap-1">
+    <div className="w-full relative">
+      <div className="flex w-full flex-col gap-1 z-10">
         <Label>Collaborators</Label>
         <div
           onClick={() => setOpenDropdown((prev) => !prev)}
@@ -65,7 +65,9 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
         >
           <div className="flex gap-2 flex-grow flex-row flex-wrap py-2">
             {!selectedCollaborators.length && (
-              <p className="text-sm text-muted-foreground">...select...</p>
+              <p className="text-sm text-muted-foreground">
+                select collaborators
+              </p>
             )}
             {selectedCollaborators.length
               ? selectedCollaborators.map((e) => (
@@ -106,47 +108,12 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
           <div className="flex flex-col gap-2 w-full py-1">
             {users.length
               ? users.map((u, i) => (
-                  <div
-                    className={cn(
-                      "flex px-3 shadow-sm dark:shadow-none bg-muted/40 hover:bg-muted/60 transition-color duration-150 cursor-pointer rounded-md p-2 justify-between gap-3 items-center",
-                      {
-                        "bg-primary/90 shadow-none hover:bg-primary/80 dark:bg-primary/70 dark:hover:bg-primary/50":
-                          selectedCollaborators.some((e) => e.id === u.id),
-                      }
-                    )}
-                    key={u.id + `${i}`}
-                    onClick={() => onChangeValue(u)}
-                  >
-                    <div className="flex gap-3 items-center">
-                      <CustomAvatar user={u} />
-                      <div className="flex flex-col">
-                        <p
-                          className={cn("dark:text-slate-300 text-sm", {
-                            "text-slate-100": selectedCollaborators.some(
-                              (e) => e.id === u.id
-                            ),
-                          })}
-                        >
-                          {u?.name}
-                        </p>
-                        <small
-                          className={cn("text-muted-foreground", {
-                            "dark:text-slate-400 text-slate-300":
-                              selectedCollaborators.some((e) => e.id === u.id),
-                          })}
-                        >
-                          {u?.email}
-                        </small>
-                      </div>
-                    </div>
-                    <div>
-                      {selectedCollaborators.some((e) => e.id === u.id) ? (
-                        <Minus className="w-5 h-5 dark:text-slate-300 text-muted" />
-                      ) : (
-                        <Plus className="w-5 h-5 dark:text-slate-300 text-muted" />
-                      )}
-                    </div>
-                  </div>
+                  <Collaborator
+                    data={u}
+                    key={i + u.id!}
+                    onChangeValue={onChangeValue}
+                    isActive={selectedCollaborators.some((e) => e.id === u.id)}
+                  />
                 ))
               : null}
           </div>

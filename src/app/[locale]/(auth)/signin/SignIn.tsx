@@ -11,8 +11,6 @@ import {
   FormMessage,
 } from "@/components/ui/Form";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import Loader from "@/components/Loader";
 import { signIn } from "next-auth/react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -20,8 +18,15 @@ import { useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { ShieldCheck } from "lucide-react";
 import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgress";
+import { cn } from "@/lib/utils";
+import AppLogo from "@/components/AppLogo";
+import { getDirByLang } from "@/lib/dir";
 
-const SignUp = () => {
+interface SignUpProps {
+  locale: string;
+}
+
+const SignUp: React.FC<SignUpProps> = ({ locale }) => {
   const [submittingError, setSubmittingError] = useState<string>("");
   const [isEmailSent, setEmailSent] = useState(false);
   const searchParams = useSearchParams();
@@ -67,6 +72,13 @@ const SignUp = () => {
 
   return (
     <FormProvider {...form}>
+      <AppLogo
+        t={t}
+        className={cn("fixed top-4 md:top-6", {
+          "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
+          "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
+        })}
+      />
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         {isEmailSent ? (
           <div className="w-full">

@@ -1,6 +1,9 @@
+import BackgroundOverlay from "@/components/BackgroundOverlay";
 import Sidebar from "@/components/sidebar";
 import initTranslations from "@/lib/i18n";
+import { validatUser } from "@/lib/validateUser";
 import TranslationsProvider from "@/providers/TranslationProvider";
+import { redirect } from "next/navigation";
 
 const namespaces = ["common"];
 
@@ -12,6 +15,9 @@ export default async function Layout({
   params: { locale: string; workspaceId: string };
 }) {
   const { resources } = await initTranslations(params.locale, namespaces);
+  const { validatedUser, error } = await validatUser();
+
+  if (error || !validatedUser) return redirect("/signout");
 
   return (
     <div className="w-screen h-screen flex overflow-auto">
@@ -21,7 +27,13 @@ export default async function Layout({
         namespaces={namespaces}
       >
         <Sidebar workspaceId={params.workspaceId} />
-        <div className="flex flex-grow ">{children}</div>
+        <div
+          className="flex flex-grow ml-[280px] h-[100vh] flex-col gap-2 bg-gray-50 dark:bg-background"
+          style={{ width: "100%" }}
+        >
+          <BackgroundOverlay />
+          {children}
+        </div>
       </TranslationsProvider>
     </div>
   );

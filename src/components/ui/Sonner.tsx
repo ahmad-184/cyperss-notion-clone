@@ -9,7 +9,7 @@ type ToasterProps = React.ComponentProps<typeof Sonner>;
 type dirType = ToasterProps["dir"];
 
 const Toaster = ({ lang, ...props }: ToasterProps & { lang: string }) => {
-  const { theme = "system" } = useTheme();
+  const { theme = "dark" } = useTheme();
 
   return (
     <Sonner
@@ -18,6 +18,7 @@ const Toaster = ({ lang, ...props }: ToasterProps & { lang: string }) => {
       dir={getDirByLang(lang) as dirType}
       duration={5000}
       closeButton
+      position="top-center"
       toastOptions={{
         classNames: {
           toast:
@@ -27,6 +28,7 @@ const Toaster = ({ lang, ...props }: ToasterProps & { lang: string }) => {
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          closeButton: "dark:border-gray-400 dark:hover:bg-gray-800",
         },
       }}
       {...props}

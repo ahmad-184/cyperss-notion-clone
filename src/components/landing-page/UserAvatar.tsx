@@ -6,7 +6,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
 } from "../ui/DropdownMenu";
-import CustomAvatar from "../CustomAvatar";
+import CustomAvatar from "../custom/CustomAvatar";
 import { logOutUser } from "@/lib/utils";
 import React from "react";
 

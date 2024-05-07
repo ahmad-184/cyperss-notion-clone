@@ -1,9 +1,9 @@
 import type { EmojiClickData, Theme } from "emoji-picker-react";
-import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/Dialog";
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
 
 const Picker = dynamic(() => import("emoji-picker-react"), {
   ssr: false,
@@ -35,14 +35,15 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
       <DialogTrigger asChild onClick={() => setOpen((prev) => !prev)}>
         <p className={cn(`cursor-pointer`, classNames)}>{emoji}</p>
       </DialogTrigger>
-      <DialogContent className="py-5 bg-transparent border-none">
+      <DialogContent className="py-5 bg-transparent border-none" id="wrapper">
         <Picker
           onEmojiClick={(e) => {
             handleChangeEmoji(e);
             setOpen(false);
           }}
           theme={t as Theme}
-          lazyLoadEmojis
+          lazyLoadEmojis={false}
+          autoFocusSearch
           style={{
             maxHeight: "600px",
           }}
@@ -53,4 +54,4 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({
   );
 };
 
-export default EmojiPicker;
+export default memo(EmojiPicker);

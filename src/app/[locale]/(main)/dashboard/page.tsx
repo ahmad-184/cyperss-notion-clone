@@ -1,25 +1,30 @@
 import DashboardSetup from "@/components/DashboardSetup";
 import LanguageChanger from "@/components/LanguageChanger";
-import { getAuthSession } from "@/lib/authOptions";
 import { db } from "@/lib/db";
 import { getUserSubscription } from "@/server-actions";
 import { redirect } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import RedirectUser from "./RedirectUser";
+import { validatUser } from "@/lib/validateUser";
 
-export default async function Page() {
-  const session = await getAuthSession();
+interface PageProps {
+  params: {
+    locale: string;
+  };
+}
 
-  if (!session) return redirect("/signin");
-  if (!session.user) return redirect("/signin");
+export default async function Page({ params }: PageProps) {
+  const { validatedUser, error } = await validatUser();
+  if (error) return redirect("/signout");
+  if (!validatedUser?.id) return redirect("/signout");
 
   const existingWorkspace = await db.workspace.findFirst({
     where: {
-      workspaceOwnerId: session.user.id as string,
+      workspaceOwnerId: validatedUser.id as string,
     },
   });
 
-  const { data, error } = await getUserSubscription(session.user.id as string);
+  const { data } = await getUserSubscription(validatedUser.id as string);
 
   if (!existingWorkspace)
     return (
@@ -28,9 +33,13 @@ export default async function Page() {
           <ThemeToggle />
           <LanguageChanger />
         </div>
-        <DashboardSetup user={session.user} subscription={data} />
+        <DashboardSetup
+          user={validatedUser}
+          subscription={data}
+          locale={params.locale}
+        />
       </div>
     );
 
-  return <RedirectUser id={existingWorkspace.id} user={session.user} />;
+  return <RedirectUser id={existingWorkspace.id} user={validatedUser} />;
 }

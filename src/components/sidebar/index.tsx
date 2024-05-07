@@ -1,25 +1,37 @@
-import { getAuthSession } from "@/lib/authOptions";
 import { getUserSubscription } from "@/server-actions";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import WorkspacesDropdown from "./WorkspacesDropdown";
-import PlanUsage from "./PlanUsage";
+import UsagePlan from "./UsagePlan";
+import NativeNavigation from "./NativeNavigation";
+import { ScrollArea } from "../ui/ScrollArea";
+import { validatUser } from "@/lib/validateUser";
+import Folders from "../folders";
+import UserCard from "../UserCard";
 
 interface SidebarProps {
   workspaceId: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
-  const session = await getAuthSession();
+  const { validatedUser, error } = await validatUser();
+  if (error) return redirect("/signout");
+  if (!validatedUser?.id) return redirect("/signout");
 
-  if (!session?.user) return notFound();
-  if (!session?.user.id) return notFound();
-
-  const { data } = await getUserSubscription(session.user.id);
+  const { data, error: subError } = await getUserSubscription(validatedUser.id);
 
   return (
-    <div className="w-[280px] border-r h-screen p-3 py-4">
-      <WorkspacesDropdown />
-      <PlanUsage subscription={data} />
+    <div className="fixed top-0 bottom-0 left-0">
+      <ScrollArea className="border-r">
+        <div className="w-[280px] h-screen p-3 py-4 pb-0 flex flex-col">
+          <WorkspacesDropdown user={validatedUser} />
+          <UsagePlan subscription={data} />
+          <NativeNavigation />
+          <Folders subscription={data} />
+          <div className="flex items-endpt-4 pb-3">
+            <UserCard user={validatedUser} subscription={data!} />
+          </div>
+        </div>
+      </ScrollArea>
     </div>
   );
 };

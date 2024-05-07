@@ -1,4 +1,4 @@
-import { file, folder, workspace } from "@prisma/client";
+import { File, Folder, Workspace } from "@prisma/client";
 import type { Session } from "next-auth";
 
 export type UserSession = {
@@ -7,8 +7,27 @@ export type UserSession = {
 
 export type User = Session["user"];
 
-export type WorkspaceTypes = workspace & {
-  folders: (folder & {
-    files: file[] | [];
+export type WorkspaceTypes = Workspace & {
+  folders: (Folder & {
+    files: File[];
   })[];
+  collaborators:
+    | {
+        user: User;
+      }[]
+    | [];
+};
+
+export type WorkspacePayload = Omit<Workspace, "createdAt" | "updatedAt">;
+
+export type FolderType = Folder & {
+  files: File[] | [];
+};
+
+export type ChangeInTrashStatusTypes = {
+  type: "folder" | "file";
+  id: string;
+  folderId?: string;
+  inTrashBy: string;
+  inTrash: boolean;
 };

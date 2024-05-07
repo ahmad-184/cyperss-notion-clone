@@ -34,7 +34,7 @@ export const uploader = async (
     );
 
     if (res.status === 200) {
-      const fileInfo = await getFileById(res.data.file, key);
+      const fileInfo = await getFileDataById(res.data.file, key);
 
       if (res.status === 200) return fileInfo;
     } else {
@@ -59,7 +59,7 @@ export const uploader = async (
   }
 };
 
-export const getFileById = async (file_id: string, key: string) => {
+export const getFileDataById = async (file_id: string, key: string) => {
   try {
     const url = `https://upload.uploadcare.com/info/?jsonerrors=1&pub_key=${key}&file_id=${file_id}`;
 

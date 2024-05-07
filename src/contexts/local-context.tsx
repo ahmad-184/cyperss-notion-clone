@@ -2,7 +2,11 @@
 
 import { createContext } from "react";
 
-export const Context = createContext({
+type ContextTypes = {
+  uploadcare_key: string;
+};
+
+export const Context = createContext<ContextTypes>({
   uploadcare_key: "",
 });
 

@@ -1,5 +1,5 @@
 import { User } from "@/types";
-import { Avatar, AvatarFallback } from "./ui/Avatar";
+import { Avatar, AvatarFallback } from "../ui/Avatar";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
@@ -27,7 +27,9 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({ user, className }) => {
           className="object-cover"
         />
       ) : null}
-      <AvatarFallback className="uppercase">{fallbackName}</AvatarFallback>
+      <AvatarFallback className="uppercase select-none">
+        {fallbackName}
+      </AvatarFallback>
     </Avatar>
   );
 };

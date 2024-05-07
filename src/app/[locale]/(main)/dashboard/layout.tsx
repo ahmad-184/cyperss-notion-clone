@@ -1,4 +1,5 @@
 import initTranslations from "@/lib/i18n";
+
 import ReduxStoreProvider from "@/providers/ReduxStoreProvider";
 import TranslationProvider from "@/providers/TranslationProvider";
 import { Metadata } from "next";

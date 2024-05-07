@@ -8,8 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/Dialog";
-import { cn } from "@/lib/utils";
+} from "../ui/Dialog";
 
 interface CustomDialogProps {
   header: string;

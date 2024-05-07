@@ -1,1 +1,22 @@
-{"trustedby-Alice-name":"Alice","trustedby-Bob-name":"Bob","trustedby-Charlie-name":"Charlie","trustedby-David-name":"David","trustedby-Ella-name":"Ella","trustedby-Frank-name":"Frank","trustedby-Grace-name":"Grace","trustedby-Hank-name":"Hank","trustedby-Ivy-name":"Ivy","trustedby-Jack-name":"Jack","trustedby-Katherine-name":"Katherine","trustedby-Liam-name":"Liam","trustedby-message":"Cypress has been a game-changer for our team. With its reliable end-to-end testing, we catch bugs early, leading to faster development cycles and improved collaboration.","trustedby-Mia-name":"Mia","trustedby-Nathan-name":"Nathan","trustedby-Olivia-name":"Olivia","trustedby-Paul-name":"Paul","trustedby-Quinn-name":"Quinn","trustedby-Rachel-name":"Rachel","trustedby-Sam-name":"Sam"}
+{
+  "trustedby-Alice-name": "Alice",
+  "trustedby-Bob-name": "Bob",
+  "trustedby-Charlie-name": "Charlie",
+  "trustedby-David-name": "David",
+  "trustedby-Ella-name": "Ella",
+  "trustedby-Frank-name": "Frank",
+  "trustedby-Grace-name": "Grace",
+  "trustedby-Hank-name": "Hank",
+  "trustedby-Ivy-name": "Ivy",
+  "trustedby-Jack-name": "Jack",
+  "trustedby-Katherine-name": "Katherine",
+  "trustedby-Liam-name": "Liam",
+  "trustedby-message": "Cypress has been a game-changer for our team. With its reliable end-to-end testing, we catch bugs early, leading to faster development cycles and improved collaboration.",
+  "trustedby-Mia-name": "Mia",
+  "trustedby-Nathan-name": "Nathan",
+  "trustedby-Olivia-name": "Olivia",
+  "trustedby-Paul-name": "Paul",
+  "trustedby-Quinn-name": "Quinn",
+  "trustedby-Rachel-name": "Rachel",
+  "trustedby-Sam-name": "Sam"
+}

@@ -7,49 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model account {
+model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-model session {
+model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  user         user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model user {
-  id              String         @id(map: "users_pkey") @default(cuid())
+model User {
+  id              String         @unique @default(cuid())
   name            String?
   image           String?
   billing_address Json?
   payment_method  Json?
-  updatedAt       DateTime?      @db.Timestamptz(6)
+  updatedAt       DateTime?      @updatedAt
   createdAt       DateTime       @default(now())
   email           String         @unique
   emailVerified   DateTime?
-  accounts        account[]
-  sessions        session[]
-  workspaces      workspace[]
-  collaborators   collaborator[]
-  folders         folder[]
-  files           file[]
+  accounts        Account[]
+  collaborators   Collaborator[]
+  files           File[]
+  folders         Folder[]
+  sessions        Session[]
+  subscriptions   Subscription[]
+  workspaces      Workspace[]
 }
 
 model VerificationToken {
@@ -60,16 +60,11 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum WorkspaceType {
-  private
-  shared
-}
-
-model workspace {
+model Workspace {
   id               String         @id @default(cuid())
   createdAt        DateTime       @default(now())
+  updatedAt        DateTime?      @updatedAt
   workspaceOwnerId String
-  workspaceOwner   user           @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?
@@ -77,65 +72,68 @@ model workspace {
   logo             String?
   bannerUrl        String?
   type             WorkspaceType  @default(private)
-  files            file[]
-  folders          folder[]
-  collaborators    collaborator[]
+  collaborators    Collaborator[]
+  files            File[]
+  folders          Folder[]
+  workspaceOwner   User           @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade)
 }
 
-model collaborator {
+model Collaborator {
   id          String    @id @default(cuid())
   userId      String
-  user        user      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   workspaceId String
-  workspace   workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([userId, workspaceId])
 }
 
-model folder {
+model Folder {
   id               String    @id @default(cuid())
   workspaceId      String
   workspaceOwnerId String
-  workspaceOwner   user      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?
   inTrash          Boolean
   bannerUrl        String?
-  files            file[]
-  workspace        workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  updatedAt        DateTime? @updatedAt
+  inTrashBy        String?
+  files            File[]
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceOwner   User      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade)
 }
 
-model file {
+model File {
   id               String    @id @default(cuid())
   workspaceId      String
   workspaceOwnerId String
-  wokrspaceOwner   user      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   title            String
   iconId           String?
   data             String?
   inTrash          Boolean
   bannerUrl        String?
   folderId         String
-  folder           folder    @relation(fields: [folderId], references: [id])
-  workspace        workspace @relation(fields: [workspaceId], references: [id])
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  inTrashBy        String?
+  folder           Folder    @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  workspace        Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  wokrspaceOwner   User      @relation(fields: [workspaceOwnerId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model customer {
-  id                 String  @id(map: "customers_pkey") @db.Uuid
+model Customer {
+  id                 String  @unique @default(cuid())
   stripe_customer_id String?
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model price {
-  id                String                 @id(map: "prices_pkey")
+model Price {
+  id                String                 @unique @default(cuid())
   product_id        String?
   active            Boolean?
   description       String?
@@ -149,8 +147,8 @@ model price {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model product {
-  id          String   @id(map: "products_pkey")
+model Product {
+  id          String   @unique @default(cuid())
   active      Boolean?
   name        String?
   description String?
@@ -159,22 +157,28 @@ model product {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model subscription {
-  id                   String               @id(map: "subscriptions_pkey")
-  user_id              String               @db.Uuid
+model Subscription {
+  id                   String               @unique @default(cuid())
+  user_id              String
   status               subscription_status?
   metadata             Json?
   price_id             String?
   quantity             Int?
   cancel_at_period_end Boolean?
-  created              DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  current_period_start DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  current_period_end   DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  ended_at             DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  cancel_at            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  canceled_at          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  trial_start          DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
-  trial_end            DateTime?            @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  created              DateTime             @default(dbgenerated("timezone('utc'::text, now())"))
+  current_period_start DateTime             @default(dbgenerated("timezone('utc'::text, now())"))
+  current_period_end   DateTime             @default(dbgenerated("timezone('utc'::text, now())"))
+  ended_at             DateTime?            @default(dbgenerated("timezone('utc'::text, now())"))
+  cancel_at            DateTime?            @default(dbgenerated("timezone('utc'::text, now())"))
+  canceled_at          DateTime?            @default(dbgenerated("timezone('utc'::text, now())"))
+  trial_start          DateTime?            @default(dbgenerated("timezone('utc'::text, now())"))
+  trial_end            DateTime?            @default(dbgenerated("timezone('utc'::text, now())"))
+  user                 User                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+enum WorkspaceType {
+  private
+  shared
 }
 
 enum pricing_plan_interval {

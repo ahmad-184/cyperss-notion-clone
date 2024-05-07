@@ -1,9 +1,6 @@
 import { db } from "@/lib/db";
-import { User } from "@/types";
-import {
-  collaborator as Collaborator,
-  workspace as Workspace,
-} from "@prisma/client";
+import { User, WorkspacePayload } from "@/types";
+import { Folder } from "@prisma/client";
 
 export const getUserSubscriptioQuery = async (userId: string) => {
   return db.subscription.findFirst({
@@ -13,12 +10,22 @@ export const getUserSubscriptioQuery = async (userId: string) => {
   });
 };
 
-export const createWorkspaceQuery = async (
-  data: Omit<Workspace, "createdAt">
-) => {
+export const createWorkspaceQuery = async (data: WorkspacePayload) => {
   return await db.workspace.create({
     data: data,
     include: {
+      collaborators: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
       folders: {
         include: {
           files: true,
@@ -34,11 +41,27 @@ export const privateWorkspacesQuery = async (userId: string) => {
       workspaceOwnerId: userId,
       type: "private",
     },
+    orderBy: { createdAt: "asc" },
     include: {
+      collaborators: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
       folders: {
         include: {
-          files: true,
+          files: {
+            orderBy: { createdAt: "asc" },
+          },
         },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -50,10 +73,26 @@ export const sharedWorkspacesQuery = async (userId: string) => {
       workspaceOwnerId: userId,
       type: "shared",
     },
+    orderBy: { createdAt: "asc" },
     include: {
       folders: {
         include: {
-          files: true,
+          files: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
+      collaborators: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+              email: true,
+            },
+          },
         },
       },
     },
@@ -72,10 +111,27 @@ export const collaboratingWorkspacesQuery = async (userId: string) => {
         },
       },
     },
+    orderBy: { createdAt: "asc" },
     include: {
-      collaborators: true,
+      collaborators: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
       folders: {
-        include: { files: true },
+        include: {
+          files: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
@@ -116,6 +172,15 @@ export const createCollaboratorQuery = async (
     data: {
       userId: collaborator.id as string,
       workspaceId,
+    },
+  });
+};
+
+export const createFolderQuery = async (payload: Folder) => {
+  return await db.folder.create({
+    data: payload,
+    include: {
+      files: true,
     },
   });
 };

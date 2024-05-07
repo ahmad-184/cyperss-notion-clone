@@ -1,9 +1,6 @@
 "use client";
 import { v4 as uuid4 } from "uuid";
-import type {
-  subscription as Subscription,
-  workspace as Workspace,
-} from "@prisma/client";
+import type { Subscription } from "@prisma/client";
 import {
   Card,
   CardContent,
@@ -11,13 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/Card";
-import { UserSession } from "@/types";
+import { UserSession, WorkspacePayload } from "@/types";
 import { Input } from "./ui/Input";
 import EmojiPicker from "./EmojiPicker";
 import { useEffect, useRef, useState } from "react";
 import type { EmojiClickData } from "emoji-picker-react";
 import { Label } from "./ui/Label";
-import { OctagonAlert } from "lucide-react";
 import useUpload from "@/hooks/useUpload";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -28,15 +24,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import ButtonWithLoaderAndProgress from "./ButtonWithLoaderAndProgress";
 import { createWorkspace, updateUserDetail } from "@/server-actions";
 import { useRouter } from "next/navigation";
+import WorkspaceNameInput from "./custom-inputs/WorkspaceNameInput";
+import WorkspaceLogoInput from "./custom-inputs/WorkspaceLogoInput";
+import AppLogo from "./AppLogo";
+import { cn } from "@/lib/utils";
+import { getDirByLang } from "@/lib/dir";
 
 interface DashboardSetupProps {
   subscription: Subscription | null;
   user: UserSession["user"];
+  locale: string;
 }
 
 const DashboardSetup: React.FC<DashboardSetupProps> = ({
   user,
   subscription,
+  locale,
 }) => {
   const router = useRouter();
 
@@ -59,7 +62,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   } = useForm<setupWorkspaceValidatorType>({
     defaultValues: {
       workspace_name: "",
-      username: "",
+      username: user?.name,
     },
     mode: "onSubmit",
     resolver: zodResolver(validator),
@@ -86,7 +89,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   const onSubmit = async (data: setupWorkspaceValidatorType) => {
     try {
       if (!user?.id) return;
-      let payload: Omit<Workspace, "createdAt"> = {
+      let payload: WorkspacePayload = {
         id: uuid4(),
         title: data.workspace_name,
         workspaceOwnerId: user.id!,
@@ -106,10 +109,11 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         }
       }
 
-      const [updatedUser, { data: resData, error }] = await Promise.all([
-        updateUserDetail({ name: data.username, id: user.id }),
-        createWorkspace(payload),
-      ]);
+      if (!user.name && data.username) {
+        await updateUserDetail({ name: data.username, id: user.id });
+      }
+
+      const { data: resData, error } = await createWorkspace(payload);
 
       if (error) return toast.error(error.message);
       if (resData) {
@@ -122,81 +126,67 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   };
 
   return (
-    <Card className="max-w-[600px] h-auto">
-      <CardHeader>
-        <CardTitle>Setup Your First Workspace</CardTitle>
-        <CardDescription>
-          Lets create a private workspace to get you started. You can add
-          collaborators later from the workspace setting tab.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-2">
-            <div className="w-full mb-2">
-              <Label htmlFor="username">Your Name</Label>
-              <Input
-                {...register("username")}
-                className="w-full"
-                placeholder="koorosh..."
-              />
-            </div>
-            <div className="flex gap-3 items-center">
-              <EmojiPicker
-                handleChangeEmoji={handleChangeEmoji}
-                emoji={emoji}
-                classNames="text-[40px] sm:text-[50px]"
-              />
-              <div className="flex flex-grow flex-col gap-1">
-                <Label htmlFor="workspace_name">Workspace Name</Label>
+    <>
+      <AppLogo
+        t={t}
+        className={cn("fixed top-4 md:top-6", {
+          "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
+          "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
+        })}
+      />
+      <Card className="max-w-[600px] h-auto">
+        <CardHeader>
+          <CardTitle>Setup Your First Workspace</CardTitle>
+          <CardDescription>
+            Lets create a private workspace to get you started. You can add
+            collaborators later from the workspace setting tab.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex flex-col gap-2">
+              <div className="w-full mb-2">
+                <Label htmlFor="username">Your Name</Label>
                 <Input
-                  {...register("workspace_name")}
-                  placeholder="something awesome..."
+                  {...register("username")}
+                  className="w-full"
+                  placeholder="koorosh..."
                 />
               </div>
-            </div>
-            {errors.workspace_name ? (
-              <small className="text-destructive">
-                {errors.workspace_name.message}
-              </small>
-            ) : null}
-            <div>
-              <Label htmlFor="logo">Workspace Logo</Label>
-              <Input
-                name="logo"
-                type="file"
-                accept="image/*"
-                placeholder="Workspace Logo"
-                ref={inputRef}
-                disabled={subscription?.status !== "active"}
-              />
-              {subscription?.status !== "active" ? (
-                <div className="text-gray-500 dark:text-gray-500 flex relative items-center gap-1 mt-2">
-                  <OctagonAlert className="w-4 h-4 bottom-[1.5px] relative" />
-                  <small className="underline">
-                    Only Pro Plans can choose logo
-                  </small>
+              <div className="flex gap-3 items-center">
+                <EmojiPicker
+                  handleChangeEmoji={handleChangeEmoji}
+                  emoji={emoji}
+                  classNames="text-[40px] sm:text-[50px]"
+                />
+                <div className="flex flex-grow flex-col gap-1">
+                  <Label htmlFor={"workspace_name"}>Workspace Name</Label>
+                  <Input
+                    {...register("workspace_name")}
+                    placeholder="something awesome..."
+                  />
                 </div>
-              ) : (
-                <div className="text-gray-500 dark:text-gray-500 flex relative items-center gap-1 mt-2">
-                  <OctagonAlert className="w-4 h-4 bottom-[1.5px] relative" />
-                  <small className="underline">Maxismum image size 1MB</small>
-                </div>
-              )}
+              </div>
+              {errors.workspace_name ? (
+                <small className="text-destructive">
+                  {errors.workspace_name.message}
+                </small>
+              ) : null}
+              <WorkspaceLogoInput ref={inputRef} subscription={subscription!} />
             </div>
-          </div>
-          <ButtonWithLoaderAndProgress
-            type="submit"
-            className="mt-3 w-full"
-            loading={isSubmitting}
-            isUploading={isUploading}
-            progress={progress}
-          >
-            Create
-          </ButtonWithLoaderAndProgress>
-        </form>
-      </CardContent>
-    </Card>
+            <ButtonWithLoaderAndProgress
+              type="submit"
+              className="mt-3 w-full"
+              loading={isSubmitting}
+              isUploading={isUploading}
+              progress={progress}
+            >
+              Create
+            </ButtonWithLoaderAndProgress>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

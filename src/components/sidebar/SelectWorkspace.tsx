@@ -4,9 +4,10 @@ import Logo from "@/assets/cypresslogo.svg";
 import { cn } from "@/lib/utils";
 
 interface SelectWorkspaceProps extends React.HTMLAttributes<HTMLDivElement> {
-  selectWorkspace(): void;
+  selectWorkspace: () => void;
   workspace: WorkspaceTypes;
   image_size?: number;
+  endIcon?: React.ReactNode;
 }
 
 const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
@@ -14,10 +15,11 @@ const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
   workspace,
   className,
   image_size,
+  endIcon,
 }) => {
   return (
     <div
-      onClick={() => selectWorkspace()}
+      onClick={selectWorkspace}
       className={cn(
         `w-full 
       bg-muted/50 
@@ -25,12 +27,13 @@ const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
       transition-all 
       duration-150
        hover:bg-muted
-    p-2 flex gap-4 my-1 items-center rounded-md`,
+       select-none
+    p-2 flex justify-start gap-4 my-1 items-center rounded-md`,
         className
       )}
     >
       <Image
-        src={workspace?.logo ? workspace.logo : Logo}
+        src={workspace?.logo || Logo}
         width={image_size || 25}
         height={image_size || 25}
         alt="workspace logo"
@@ -43,6 +46,11 @@ const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
       >
         {workspace?.title}
       </p>
+      {endIcon ? (
+        <div className="flex justify-end flex-grow h-full items-center">
+          {endIcon}
+        </div>
+      ) : null}
     </div>
   );
 };

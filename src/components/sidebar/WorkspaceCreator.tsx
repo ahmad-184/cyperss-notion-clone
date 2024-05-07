@@ -3,28 +3,24 @@ import { useForm } from "react-hook-form";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
 import { z } from "zod";
-import { Button } from "../ui/Button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/Select";
-import { Lock, Share } from "lucide-react";
 import SelectCollaborators from "../select-collaborators";
 import { useState } from "react";
-import { User } from "@/types";
-import { workspace as Workspace } from "@prisma/client";
+import { User, WorkspacePayload, WorkspaceTypes } from "@/types";
 import { useSession } from "next-auth/react";
-import { createCollaborators, createWorkspace } from "@/server-actions";
+import {
+  createCollaborators,
+  createWorkspace,
+  getWorkspaceById,
+} from "@/server-actions";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/store";
 import { addWorkspace } from "@/store/slices/workspace";
 import { useRouter } from "next/navigation";
 import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
+import PermissionSelectBox from "../PermissionSelectBox";
+import EmojiPicker from "../EmojiPicker";
+import type { EmojiClickData } from "emoji-picker-react";
 
 interface WorkspaceCreatorProps {}
 
@@ -40,13 +36,12 @@ const validator = z.object({
 
 type ValidatorTypes = z.infer<typeof validator>;
 
-type WorkspaceType = Pick<ValidatorTypes, "type">;
-
 const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
   const [selectedCollaborators, setSelectedCollaborators] = useState<
     User[] | []
   >([]);
   const [error, setError] = useState("");
+  const [emoji, setEmoji] = useState("💼");
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -65,16 +60,24 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
     resolver: zodResolver(validator),
   });
 
+  const handleChangePermission = (e: WorkspaceTypes["type"]) => {
+    setValue("type", e);
+  };
+
+  const handleChangeEmoji = (e: EmojiClickData) => {
+    setEmoji(e.emoji);
+  };
+
   const onSubmit = async (data: ValidatorTypes) => {
     try {
       const type = data.type;
       if (!session?.user) return;
-      const workspacePayload: Omit<Workspace, "createdAt"> = {
+      const workspacePayload: WorkspacePayload = {
         id: uuidv4(),
         type,
         bannerUrl: "",
         data: null,
-        iconId: "",
+        iconId: emoji,
         inTrash: false,
         logo: "",
         title: data.name,
@@ -103,15 +106,28 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
         if (error) throw new Error(workspaceCollaboratorsError?.message);
       }
 
-      dispatch(
-        addWorkspace({
-          type: newWorkspaceData.type,
-          data: newWorkspaceData,
-        })
+      const { data: dataToStore, error: err } = await getWorkspaceById(
+        newWorkspaceData.id
       );
-      router.push(`/dashboard/${newWorkspaceData.id}`);
 
-      return toast.success("Workspace created successfully");
+      if (err) {
+        console.log(error);
+        toast.error("Colud not fetch workspace");
+      }
+
+      if (dataToStore?.id) {
+        dispatch(
+          addWorkspace({
+            data: dataToStore,
+          })
+        );
+        router.push(`/dashboard/${newWorkspaceData.id}`);
+
+        return toast.success("Workspace created successfully");
+      } else {
+        toast.error("Something went wrong");
+        router.push(`/dashboard/${newWorkspaceData.id}`);
+      }
     } catch (err: any) {
       toast.error(err.message || "Something went wrong, please try again");
     }
@@ -129,56 +145,28 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
       className="flex flex-col w-full gap-3"
     >
       <div className="flex flex-col gap-3">
-        <div className="w-full">
-          <Label htmlFor="name">Name</Label>
-          <Input {...register("name")} placeholder="awesome workspace..." />
-          {errors.name ? (
-            <small className="text-destructive ml-1">
-              {errors.name.message}
-            </small>
-          ) : null}
+        <div className="w-full flex gap-3 items-center">
+          <EmojiPicker
+            handleChangeEmoji={handleChangeEmoji}
+            emoji={emoji}
+            classNames="text-[40px] sm:text-[50px]"
+          />
+          <div className="flex-grow">
+            <Label htmlFor="name">Name</Label>
+            <Input {...register("name")} placeholder="awesome workspace..." />
+            {errors.name ? (
+              <small className="text-destructive ml-1">
+                {errors.name.message}
+              </small>
+            ) : null}
+          </div>
         </div>
-        <div className="w-full">
-          <Label>Permission</Label>
-          <Select
-            onValueChange={(e: WorkspaceType["type"]) => {
-              setValue("type", e);
-            }}
-            defaultValue={typeValue}
-          >
-            <SelectTrigger className="w-full h-fit">
-              <SelectValue placeholder="Select a Permission" />
-            </SelectTrigger>
-            <SelectContent className="max-w-[90vw]">
-              <SelectGroup>
-                <SelectItem value="private">
-                  <div className="flex items-center w-full gap-4 p-1">
-                    <Lock />
-                    <div className="flex flex-col text-left">
-                      <span>Private</span>
-                      <p>
-                        Your workspace is private to you. you can choose to
-                        share it later.
-                      </p>
-                    </div>
-                  </div>
-                </SelectItem>
-
-                <SelectItem value="shared">
-                  <div className="flex items-center gap-4 p-1">
-                    <Share />
-                    <div className="flex flex-col text-left">
-                      <span className="">Shared</span>
-                      <p>You can invite collaborators.</p>
-                    </div>
-                  </div>
-                </SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
+        <PermissionSelectBox
+          defaultValue={"private"}
+          handleChange={handleChangePermission}
+        />
         {typeValue === "shared" ? (
-          <div className="my-1">
+          <div className="my-1 mb-3">
             <SelectCollaborators
               selectedCollaborators={selectedCollaborators}
               getValue={getValue}

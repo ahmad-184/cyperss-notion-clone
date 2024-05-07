@@ -1,15 +1,17 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 const StylesProviders = ({ children }: { children: React.ReactNode }) => {
   const { theme } = useTheme();
+  const pathname = usePathname();
 
   return (
     <>
       <style jsx global>{`
         ::-webkit-scrollbar {
-          width: 10px;
+          width: ${pathname.startsWith("/dashboard") ? "7" : "10"}px;
         }
         ::-webkit-scrollbar-track {
           //   border-radius: 10px;

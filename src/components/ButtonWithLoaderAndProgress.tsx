@@ -4,7 +4,9 @@ import { Button } from "./ui/Button";
 import { buttonVariants } from "./ui/Button";
 import { Progress } from "@/components/ui/Progress";
 
-interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface Props
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   children: React.ReactNode;
   loading?: boolean;
   disabled?: boolean;

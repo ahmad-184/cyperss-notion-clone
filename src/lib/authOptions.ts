@@ -10,7 +10,7 @@ import { db } from "@/lib/db";
 export const options: AuthOptions = {
   providers: [
     EmailProvider({
-      maxAge: 24 * 3 * 60 * 60000,
+      // maxAge: 24 * 3600000,
       async sendVerificationRequest(params) {
         const { identifier, url } = params;
         const locale = cookies().get("NEXT_LOCALE");

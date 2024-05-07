@@ -37,9 +37,9 @@ export default function Error({
   return (
     <div className="w-full h-screen flex items-center justify-center relative px-4 sm:px-4 py-6 bg-gradient-to-bl from-background to-purple-500/20">
       <AppLogo
-        className={cn("absolute top-6", {
-          "left-4 sm:left-12": getDirByLang(locale as string) === "ltr",
-          "right-4 sm:right-12": getDirByLang(locale as string) === "rtl",
+        className={cn("fixed top-4 md:top-6", {
+          "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
+          "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
         })}
       />
       <div className="flex flex-col gap-4 text-center justify-center items-center">

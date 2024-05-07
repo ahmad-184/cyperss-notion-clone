@@ -3,9 +3,7 @@
 import { useEffect, useState, useContext } from "react";
 import { uploadFile } from "@uploadcare/upload-client";
 import { toast } from "sonner";
-import { uploader } from "@/lib/uploader";
 import { Context } from "@/contexts/local-context";
-import { FormProvider } from "react-hook-form";
 
 interface Props {
   ref: React.MutableRefObject<HTMLInputElement | null>;
