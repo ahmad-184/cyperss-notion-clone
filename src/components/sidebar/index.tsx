@@ -20,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
   const { data, error: subError } = await getUserSubscription(validatedUser.id);
 
   return (
-    <div className="fixed top-0 bottom-0 left-0">
+    <div className="fixed top-0 bottom-0 left-0 bg-white dark:bg-background">
       <ScrollArea className="border-r">
         <div className="w-[280px] h-screen p-3 py-4 pb-0 flex flex-col">
           <WorkspacesDropdown user={validatedUser} />
