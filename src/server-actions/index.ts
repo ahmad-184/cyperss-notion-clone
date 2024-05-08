@@ -13,7 +13,6 @@ import {
   Collaborator,
   Folder,
   File,
-  Workspace,
   WorkspaceType,
 } from "@prisma/client";
 import {
@@ -31,6 +30,8 @@ import { validatUser } from "@/lib/validateUser";
 import { ZodError } from "zod";
 import { changeFileFolderTitleActionValidator } from "@/lib/validations";
 import { validate } from "uuid";
+import { rateLimit } from "@/lib/rateLimit";
+import { headers } from "next/headers";
 
 export const getUserSubscription = async (
   userId: string
@@ -948,6 +949,35 @@ export const deleteFolderFile = async (data: {
     return {
       error: {
         message: "Something went wrong, please try again",
+      },
+    };
+  }
+};
+
+export const rateLimitterAction = async ({
+  limit = 4,
+  duration = 10,
+  identifier,
+}: {
+  limit?: number;
+  duration?: number;
+  identifier?: string;
+}): Promise<{
+  status: "ok" | "err";
+  error?: { message: string };
+}> => {
+  try {
+    const header = await headers();
+    const ip = header.get("x-forwarded-for") as string;
+    const rateLimitter = await rateLimit({ limit, duration });
+    const { success } = await rateLimitter.limit(identifier || ip);
+    if (!success) throw new Error("Too many request");
+    return { status: "ok" };
+  } catch (err: any) {
+    return {
+      status: "err",
+      error: {
+        message: err.message || "Too many request",
       },
     };
   }
