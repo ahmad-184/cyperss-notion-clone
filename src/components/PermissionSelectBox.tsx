@@ -11,12 +11,12 @@ import {
 import { WorkspaceTypes } from "@/types";
 
 interface PermissionSelectBox {
-  defaultValue: WorkspaceTypes["type"];
+  value: WorkspaceTypes["type"];
   handleChange: (e: WorkspaceTypes["type"]) => void;
 }
 
 const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
-  defaultValue,
+  value,
   handleChange,
 }) => {
   return (
@@ -26,7 +26,7 @@ const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
         onValueChange={(e: WorkspaceTypes["type"]) => {
           handleChange(e);
         }}
-        defaultValue={defaultValue}
+        value={value}
       >
         <SelectTrigger className="w-full h-fit">
           <SelectValue placeholder="Select a Permission" />

@@ -272,7 +272,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
           <WorkspaceLogoInput subscription={subscription} ref={inputRef} />
           <PermissionSelectBox
             handleChange={handleChangePermission}
-            defaultValue={current_workspace?.type}
+            value={typeValue}
           />
           {typeValue === "shared" ? (
             <>
