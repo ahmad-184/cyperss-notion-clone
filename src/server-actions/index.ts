@@ -258,12 +258,12 @@ export const getWorkspaces = async (): Promise<{
   }
 };
 
-export const updateWorkspaceSettings = async (data: {
+export const updateWorkspace = async (data: {
   workspaceId: string;
-  title: string;
-  type: WorkspaceType;
+  title?: string;
+  type?: WorkspaceType;
   imageUrl?: string;
-  icon: string;
+  icon?: string;
   collaborators?: User[];
 }): Promise<{
   data?: WorkspaceTypes | null;

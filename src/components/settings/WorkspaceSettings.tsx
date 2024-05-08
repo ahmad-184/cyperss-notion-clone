@@ -20,7 +20,7 @@ import { Skeleton } from "../ui/Skeleton";
 import { toast } from "sonner";
 import { Button } from "../ui/Button";
 import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
-import { updateWorkspaceSettings } from "@/server-actions";
+import { updateWorkspace } from "@/server-actions";
 import { useDispatch } from "react-redux";
 import { replaceWorkspace } from "@/store/slices/workspace";
 import type { EmojiClickData } from "emoji-picker-react";
@@ -125,7 +125,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       if (data.type === "shared" && !selectedCollaborators.length)
         return setError("Atleast 1 collaborator required");
 
-      const { data: res, error } = await updateWorkspaceSettings(payload);
+      const { data: res, error } = await updateWorkspace(payload);
 
       if (error || !res) {
         console.log(error);
