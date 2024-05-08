@@ -44,7 +44,7 @@ export const WorkspaceSettingsValidator = (t: TFunction) => {
   return { validator };
 };
 
-export const changeFileFolderTitleActionValidator = z.object({
+export const changeItemTitleActionValidator = z.object({
   type: z.enum(["folder", "file"], { description: "data type required" }),
   id: z.string().min(1, { message: "id is required" }),
   title: z

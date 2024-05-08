@@ -19,11 +19,11 @@ import { useAppDispatch } from "@/store";
 import {
   addfile,
   changeEmoji,
-  changeFileFolderTitle,
+  changeItemTitle,
   removeFile,
 } from "@/store/slices/workspace";
 import {
-  changeFileFolderTitleAction,
+  changeItemTitleAction,
   changeIconAction,
   createFile,
 } from "@/server-actions";
@@ -97,15 +97,15 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         id: data.id,
         ...(type === "file" && { folderId: data.folderId }),
       };
-      dispatch(changeFileFolderTitle(payload));
-      const { data: resData, error } = await changeFileFolderTitleAction({
+      dispatch(changeItemTitle(payload));
+      const { data: resData, error } = await changeItemTitleAction({
         type,
         id: data.id,
         title,
       });
       if (error || !resData) {
         payload["title"] = currentTitle;
-        dispatch(changeFileFolderTitle(payload));
+        dispatch(changeItemTitle(payload));
         setTitle(currentTitle);
         toast.error(error?.message || "Could not update the icon");
 
