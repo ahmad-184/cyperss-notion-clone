@@ -214,7 +214,7 @@ const workspaceSlice = createSlice({
       state,
       action: PayloadAction<{
         emoji: string;
-        type: "file" | "folder";
+        type: "file" | "folder" | "workspace";
         folderId?: string;
         id: string;
       }>
@@ -225,6 +225,11 @@ const workspaceSlice = createSlice({
       const workspaceIndex = state.workspaces.findIndex(
         (e) => e.id === state.current_workspace?.id
       );
+
+      if (type === "workspace") {
+        state.current_workspace.iconId = emoji;
+        state.workspaces[workspaceIndex] = state.current_workspace;
+      }
 
       if (type === "folder") {
         const folderIndex = state.current_workspace?.folders.findIndex(
@@ -249,10 +254,10 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
     },
-    changeFileFolderTitle: (
+    changeItemTitle: (
       state,
       action: PayloadAction<{
-        type: "folder" | "file";
+        type: "folder" | "file" | "workspace";
         title: string;
         folderId?: string;
         id?: string;
@@ -266,6 +271,10 @@ const workspaceSlice = createSlice({
         (e) => e.id === state.current_workspace?.id
       );
 
+      if (type === "workspace") {
+        state.current_workspace.title = title;
+        state.workspaces[workspaceIndex] = state.current_workspace;
+      }
       if (type === "folder") {
         const folderIndex = state.current_workspace?.folders.findIndex(
           (e) => e.id === id
@@ -322,7 +331,7 @@ export const {
   addFolder,
   addfile,
   changeEmoji,
-  changeFileFolderTitle,
+  changeItemTitle,
   changeInTrashStatus,
   changeBgOverlayStatus,
 } = workspaceSlice.actions;
