@@ -7,7 +7,7 @@ import { useAppSelector } from "@/store";
 import WorkspaceLogoInput from "../custom-inputs/WorkspaceLogoInput";
 import { Subscription } from "@prisma/client";
 import { User, WorkspaceTypes } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useUpload from "@/hooks/useUpload";
 import PermissionSelectBox from "../PermissionSelectBox";
 import { useForm } from "react-hook-form";
@@ -163,7 +163,11 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
   useEffect(() => {
     if (!current_workspace) return;
-    if (typeValue !== "shared") return;
+    if (typeValue !== "shared" && current_workspace.type === "private") {
+      setIsWorkspaceCollaboratorsChange(false);
+
+      return;
+    }
 
     const currentState =
       current_workspace.collaborators?.map((e) => e.user) || [];
@@ -198,12 +202,19 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
     } else setIsWorkspaceEmojiChange(false);
   }, [current_workspace, emoji]);
 
-  const isStateChanged = [
+  const isStateChanged = useMemo(() => {
+    return [
+      isWorkspaceNameChange,
+      isWorkspaceTypeChange,
+      isWorkspaceCollaboratorsChange,
+      isWorkspaceEmojiChange,
+    ].some((e) => e === true);
+  }, [
     isWorkspaceNameChange,
     isWorkspaceTypeChange,
     isWorkspaceCollaboratorsChange,
     isWorkspaceEmojiChange,
-  ].some((e) => e === true);
+  ]);
 
   const handleCancelChanges = () => {
     if (!current_workspace) return;
@@ -215,6 +226,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
         current_workspace.collaborators?.map((e) => e.user)
       );
     }
+    setEmoji(current_workspace.iconId);
   };
 
   if (loading || !current_workspace)
@@ -282,7 +294,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
         <Button
           className="text-xs"
           form="w-form"
-          type="submit"
+          type="button"
           size="sm"
           variant={"secondary"}
           disabled={!isStateChanged || saveLoading}
