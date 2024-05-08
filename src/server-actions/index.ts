@@ -14,6 +14,7 @@ import {
   Folder,
   File,
   WorkspaceType,
+  Workspace,
 } from "@prisma/client";
 import {
   collaboratingWorkspacesQuery,
@@ -28,7 +29,7 @@ import {
 } from "./queries";
 import { validatUser } from "@/lib/validateUser";
 import { ZodError } from "zod";
-import { changeFileFolderTitleActionValidator } from "@/lib/validations";
+import { changeItemTitleActionValidator } from "@/lib/validations";
 import { validate } from "uuid";
 import { rateLimit } from "@/lib/rateLimit";
 import { headers } from "next/headers";
@@ -651,6 +652,41 @@ export const createFolder = async (data: {
   }
 };
 
+export const updateFolder = async (
+  data: Folder
+): Promise<{
+  data?: FolderType | null;
+  error?: {
+    message: string;
+  };
+}> => {
+  try {
+    const { id } = data;
+
+    let payload: Folder = data;
+
+    const updatedFile = await db.folder.update({
+      where: { id },
+      data: {
+        ...payload,
+      },
+      include: {
+        files: true,
+      },
+    });
+
+    return {
+      data: updatedFile,
+    };
+  } catch (err: any) {
+    return {
+      error: {
+        message: err.message || "Something went wrong, please try again",
+      },
+    };
+  }
+};
+
 export const getFolderbyId = async (
   id: string
 ): Promise<{
@@ -684,7 +720,7 @@ export const getFolderbyId = async (
   }
 };
 
-export type FileFolderType = "folder" | "file";
+export type FileFolderType = "folder" | "file" | "workspace";
 
 export const changeIconAction = async ({
   type,
@@ -695,7 +731,7 @@ export const changeIconAction = async ({
   id: string;
   emoji: string;
 }): Promise<{
-  data?: File | Folder;
+  data?: File | Folder | Workspace;
   error?: {
     message: string;
   };
@@ -713,9 +749,20 @@ export const changeIconAction = async ({
       };
     if (!emoji) return { error: { message: "emoji is required" } };
 
-    let data: File | Folder;
+    let data: File | Folder | Workspace;
 
-    if (type === "folder") {
+    if (type === "workspace") {
+      const res = await db.workspace.update({
+        where: { id },
+        data: { iconId: emoji },
+      });
+      data = res;
+      if (!data) return { error: { message: "Could not update the icon" } };
+
+      return {
+        data,
+      };
+    } else if (type === "folder") {
       const res = await db.folder.update({
         where: { id },
         data: { iconId: emoji },
@@ -753,7 +800,7 @@ export const changeIconAction = async ({
   }
 };
 
-export const changeFileFolderTitleAction = async (data: {
+export const changeItemTitleAction = async (data: {
   type: FileFolderType;
   id: string;
   title: string;
@@ -768,8 +815,9 @@ export const changeFileFolderTitleAction = async (data: {
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    const { type, id, title } =
-      await changeFileFolderTitleActionValidator.parse(data);
+    const { type, id, title } = await changeItemTitleActionValidator.parse(
+      data
+    );
 
     let resData: File | Folder;
 
@@ -842,6 +890,38 @@ export const createFile = async (
   } catch (err) {
     return {
       error: { message: "Something went wrong, please try again" },
+    };
+  }
+};
+
+export const updateFile = async (
+  data: File
+): Promise<{
+  data?: File | null;
+  error?: {
+    message: string;
+  };
+}> => {
+  try {
+    const { id } = data;
+
+    let payload: File = data;
+
+    const updatedFile = await db.file.update({
+      where: { id },
+      data: {
+        ...payload,
+      },
+    });
+
+    return {
+      data: updatedFile,
+    };
+  } catch (err: any) {
+    return {
+      error: {
+        message: err.message || "Something went wrong, please try again",
+      },
     };
   }
 };
