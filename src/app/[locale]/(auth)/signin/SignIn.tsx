@@ -21,6 +21,7 @@ import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgres
 import { cn } from "@/lib/utils";
 import AppLogo from "@/components/AppLogo";
 import { getDirByLang } from "@/lib/dir";
+import { rateLimitterAction } from "@/server-actions";
 
 interface SignUpProps {
   locale: string;
@@ -58,11 +59,18 @@ const SignUp: React.FC<SignUpProps> = ({ locale }) => {
   const onSubmit = async (data: signinValidatorType) => {
     try {
       setSubmittingError("");
+      const limit = await rateLimitterAction({
+        limit: 4,
+        duration: 120,
+      });
+      if (limit.status === "err" || limit.error)
+        return setSubmittingError("Too many request, try after 1 minute");
       const res = await signIn("email", {
         email: data.email,
         callbackUrl: callback_url || "/",
         redirect: false,
       });
+      if (res?.error) throw new Error();
       if (res?.ok) setEmailSent(true);
     } catch (err: any) {
       console.log(err?.code);
