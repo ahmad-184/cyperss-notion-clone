@@ -265,7 +265,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
               <Input
                 {...register("workspace_name")}
                 defaultValue={current_workspace?.title}
-                placeholder="..."
+                placeholder="Untitled"
               />
             </div>
           </div>

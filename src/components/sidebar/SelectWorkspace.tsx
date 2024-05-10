@@ -44,7 +44,7 @@ const SelectWorkspace: React.FC<SelectWorkspaceProps> = ({
         capitalize max-w-[206px]
       `}
       >
-        {workspace?.title}
+        {workspace?.title || "Untitled"}
       </p>
       {endIcon ? (
         <div className="flex justify-end flex-grow h-full items-center">

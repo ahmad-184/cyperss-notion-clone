@@ -13,8 +13,6 @@ import { ChangeInTrashStatusTypes, FolderType } from "@/types";
 import { File } from "@prisma/client";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import ToTrashAlerts from "@/components/ToTrashAlerts";
-import { TriangleAlert, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 type FuncsTypes = {
@@ -178,7 +176,7 @@ const useTrash = () => {
     };
 
     const toastId = toast(
-      `The "${payload.name}" ${payload.type} moved to trash`,
+      `The "${payload.name || "Untitled"}" ${payload.type} moved to trash`,
       {
         closeButton: true,
         duration: 7000,

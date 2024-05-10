@@ -276,8 +276,7 @@ export const updateWorkspace = async (data: {
     if (!validatedUser?.id) throw new Error();
 
     if (!data.workspaceId) throw new Error("workspace id required");
-    if (!data.title || !data.type)
-      throw new Error("workspace title and type required.");
+    if (!data.type) throw new Error("workspace title and type required.");
 
     const payload = {
       title: data.title,
@@ -361,125 +360,6 @@ export const updateWorkspace = async (data: {
     };
   }
 };
-
-// export const updateWorkspace = async ({
-//   workspaceId,
-//   data,
-// }: {
-//   workspaceId: string;
-//   data: Partial<Workspace>;
-// }): Promise<{
-//   data?: WorkspaceTypes;
-//   error?: { message: string };
-// }> => {
-//   try {
-//     if (!workspaceId) throw new Error("workspace id required");
-//     const isIdValid = validate(workspaceId);
-//     if (!isIdValid) throw new Error("invalid uuid type");
-
-//     const res = await db.workspace.update({
-//       where: { id: workspaceId },
-//       data,
-//       include: {
-//         folders: {
-//           include: {
-//             files: true,
-//           },
-//         },
-//         collaborators: {
-//           select: {
-//             user: {
-//               select: {
-//                 id: true,
-//                 image: true,
-//                 name: true,
-//                 email: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-
-//     if (!res.id) throw new Error();
-
-//     return {
-//       data: res,
-//     };
-//   } catch (err: any) {
-//     return {
-//       error: {
-//         message: err.message || "Something went wrong, please try again",
-//       },
-//     };
-//   }
-// };
-
-// export const changeWorkspaceType = async ({
-//   workspaceId,
-//   type,
-// }: {
-//   workspaceId: string;
-//   type: WorkspaceType;
-// }): Promise<{
-//   data?: WorkspaceTypes;
-//   error?: { message: string };
-// }> => {
-//   try {
-//     if (!workspaceId) throw new Error("workspace id required");
-//     const isIdValid = validate(workspaceId);
-//     if (!isIdValid) throw new Error("invalid uuid type");
-//     if (!type) throw new Error("workspace type required");
-
-//     await db.workspace.update({
-//       where: { id: workspaceId },
-//       data: {
-//         type,
-//       },
-//     });
-
-//     if (type === "private") {
-//       await db.collaborator.deleteMany({ where: { workspaceId } });
-//     }
-
-//     const updatedRes = await db.workspace.findUnique({
-//       where: {
-//         id: workspaceId,
-//       },
-//       include: {
-//         folders: {
-//           include: {
-//             files: true,
-//           },
-//         },
-//         collaborators: {
-//           select: {
-//             user: {
-//               select: {
-//                 id: true,
-//                 image: true,
-//                 name: true,
-//                 email: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-
-//     if (!updatedRes?.id) throw new Error();
-
-//     return {
-//       data: updatedRes,
-//     };
-//   } catch (err: any) {
-//     return {
-//       error: {
-//         message: err.message || "Something went wrong, please try again",
-//       },
-//     };
-//   }
-// };
 
 export const deleteWorkspace = async ({
   workspaceId,
@@ -737,10 +617,6 @@ export const changeIconAction = async ({
   };
 }> => {
   try {
-    const { validatedUser, error } = await validatUser();
-    if (error) throw new Error(error || "Unauthorized");
-    if (!validatedUser?.id) throw new Error();
-
     if (!type)
       return {
         error: {
@@ -805,22 +681,30 @@ export const changeItemTitleAction = async (data: {
   id: string;
   title: string;
 }): Promise<{
-  data?: File | Folder | null;
+  data?: File | Folder | Workspace | null;
   error?: {
     message: string;
   };
 }> => {
   try {
-    const { validatedUser, error } = await validatUser();
-    if (error) throw new Error(error || "Unauthorized");
-    if (!validatedUser?.id) throw new Error();
-
     const { type, id, title } = await changeItemTitleActionValidator.parse(
       data
     );
 
-    let resData: File | Folder;
+    let resData: File | Folder | Workspace;
 
+    if (type === "workspace") {
+      const res = await db.workspace.update({
+        where: { id },
+        data: { title },
+      });
+      resData = res;
+      if (!data) return { error: { message: "Could not update the icon" } };
+
+      return {
+        data: resData,
+      };
+    }
     if (type === "folder") {
       const res = await db.folder.update({
         where: { id },

@@ -20,7 +20,7 @@ export default async function Layout({
   if (error || !validatedUser) return redirect("/signout");
 
   return (
-    <div className="w-screen h-screen flex overflow-auto">
+    <div className="w-screen h-screen flex overflow-auto bg-gray-50 dark:bg-background">
       <TranslationsProvider
         locale={params.locale}
         resources={resources}
@@ -28,7 +28,7 @@ export default async function Layout({
       >
         <Sidebar workspaceId={params.workspaceId} />
         <div
-          className="flex flex-grow ml-[280px] h-[100vh] flex-col gap-2 bg-gray-50 dark:bg-background"
+          className="flex flex-grow ml-[280px] h-[100vh] flex-col gap-2"
           style={{ width: "100%" }}
         >
           <BackgroundOverlay />

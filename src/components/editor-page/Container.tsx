@@ -10,7 +10,10 @@ const Container: React.FC<ContaienrProps> = ({
   ...props
 }) => {
   return (
-    <div className={cn("py-6 px-6 w-full", className)} {...props}>
+    <div
+      className={cn("py-6 px-3 sm:px-6 w-full flex justify-center", className)}
+      {...props}
+    >
       <div className="w-full max-w-3xl flex flex-col gap-2">{children}</div>
     </div>
   );

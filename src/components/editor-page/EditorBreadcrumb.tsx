@@ -71,7 +71,9 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
                 <BreadcrumbPage>
                   <div className="flex items-center gap-1">
                     {p.icon ? <span className="text-lg">{p.icon}</span> : null}
-                    <p className="text-sm dark:text-gray-300">{p.title}</p>
+                    <p className="text-sm dark:text-gray-300">
+                      {p?.title || "Untitled"}
+                    </p>
                   </div>
                 </BreadcrumbPage>
               ) : (

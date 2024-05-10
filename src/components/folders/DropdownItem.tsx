@@ -87,9 +87,6 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
   const handleChangeTitle = async () => {
     try {
-      if (!title.length) return;
-      if (title.length <= 3)
-        return toast.error(`${type} name must have atleast 3 cahracters`);
       const currentTitle = data.title;
       const payload = {
         type,
@@ -128,7 +125,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       if (type === "file") return;
       const payload: File = {
         id: uuid4(),
-        title: "Untitled",
+        title: "",
         bannerUrl: "",
         createdAt: new Date(Date.now()),
         data: null,
@@ -180,7 +177,14 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         name: data.title,
         ...(type === "file" && { folderId: data.folderId }),
       };
-      router.back();
+      if (type === "folder") {
+        const url = `/dashboard/${data.workspaceId}`;
+        if (url !== pathname) router.push(url);
+      }
+      if (type === "file" && data?.folderId) {
+        const url = `/dashboard/${data.workspaceId}/${data.folderId}`;
+        if (url !== pathname) router.push(url);
+      }
       deleteItem(payload);
       return;
     } catch (err) {
@@ -221,7 +225,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
                 className="cursor-pointer"
                 onDoubleClick={handleDoubleClick}
               >
-                {data.title}
+                {data?.title || "Untitled"}
               </p>
             ) : (
               <Input

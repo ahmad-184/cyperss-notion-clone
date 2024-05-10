@@ -96,7 +96,7 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
           handleOpenDialog(false);
         }}
       >
-        {data.title}
+        {data?.title || "Untitled"}
       </p>
       <div className="flex gap-4 dark:text-gray-400 text-gray-600">
         <Undo2

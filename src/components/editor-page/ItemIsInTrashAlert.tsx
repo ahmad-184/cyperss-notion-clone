@@ -84,7 +84,14 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
                     folderId: data.data.folderId,
                   }),
                 });
-                router.back();
+                if (data.type === "folder") {
+                  router.push(`/dashboard/${data.data.workspaceId}`);
+                }
+                if (data.type === "file") {
+                  router.push(
+                    `/dashboard/${data.data.workspaceId}/${data.data.folderId}`
+                  );
+                }
               }}
               size={"sm"}
               variant={"destructive"}
@@ -96,11 +103,12 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
         {current_workspace?.type === "shared" ? (
           <>
             <div className="w-full text-center">
-              <p className="text-gray-200">
-                deleted by{" "}
+              <p className="text-gray-200 text-sm">
+                deleted by "
                 {session?.user.email === data.data.inTrashBy
                   ? "You"
                   : data.data.inTrashBy}
+                "
               </p>
             </div>
           </>

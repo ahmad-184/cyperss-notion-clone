@@ -47,7 +47,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
           iconId: "📁",
           inTrash: false,
           inTrashBy: "",
-          title: "Untitled",
+          title: "",
           workspaceId: workspace?.id,
           workspaceOwnerId: user.id,
           createdAt: new Date(Date.now()),
