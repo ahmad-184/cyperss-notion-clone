@@ -71,6 +71,7 @@ model Workspace {
   inTrash          Boolean
   logo             String?
   bannerUrl        String?
+  banner_public_id String?
   type             WorkspaceType  @default(private)
   collaborators    Collaborator[]
   files            File[]
@@ -98,6 +99,7 @@ model Folder {
   data             String?
   inTrash          Boolean
   bannerUrl        String?
+  banner_public_id String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime? @updatedAt
   inTrashBy        String?
@@ -115,6 +117,7 @@ model File {
   data             String?
   inTrash          Boolean
   bannerUrl        String?
+  banner_public_id String?
   folderId         String
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
