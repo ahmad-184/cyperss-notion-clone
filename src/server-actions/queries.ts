@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { User, WorkspacePayload } from "@/types";
-import { Folder } from "@prisma/client";
+import { User, WorkspacePayload, WorkspaceTypes } from "@/types";
+import { File, Folder } from "@prisma/client";
 
 export const getUserSubscriptioQuery = async (userId: string) => {
   return db.subscription.findFirst({
@@ -181,6 +181,102 @@ export const createFolderQuery = async (payload: Folder) => {
     data: payload,
     include: {
       files: true,
+    },
+  });
+};
+
+export const getWorkspaceByIdQuery = async (workspaceId: string) => {
+  return (await db.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+    include: {
+      folders: {
+        include: {
+          files: {
+            orderBy: { createdAt: "asc" },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
+      collaborators: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              image: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      },
+    },
+  })) as WorkspaceTypes;
+};
+
+export const getWorkspaceCollaboratorsQuery = async (workspaceId: string) => {
+  return await db.collaborator.findMany({
+    where: { workspaceId },
+    include: {
+      user: {
+        select: {
+          name: true,
+          image: true,
+          email: true,
+          id: true,
+        },
+      },
+    },
+  });
+};
+
+export const updateFolderQuery = async (
+  folderId: string,
+  payload: Partial<Folder>
+) => {
+  return await db.folder.update({
+    where: { id: folderId },
+    data: {
+      ...payload,
+    },
+    include: {
+      files: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+};
+
+export const getFolderByIdQuery = async (id: string) => {
+  return await db.folder.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      files: {
+        orderBy: { createdAt: "asc" },
+      },
+    },
+  });
+};
+
+export const updateFileQuery = async (
+  fileId: string,
+  payload: Partial<File>
+) => {
+  return await db.file.update({
+    where: { id: fileId },
+    data: {
+      ...payload,
+    },
+  });
+};
+
+export const getFileByIdQuery = async (id: string) => {
+  return await db.file.findUnique({
+    where: {
+      id,
     },
   });
 };

@@ -36,7 +36,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ data }) => {
       const editorContainer = document.createElement("div");
       wrapper.append(editorContainer);
       const Quill = await (await import("quill")).default;
-      new Quill(editorContainer, {
+      const a = new Quill(editorContainer, {
         theme: "snow",
         modules: {
           toolbar: TOOLBAR_OPTIONS,

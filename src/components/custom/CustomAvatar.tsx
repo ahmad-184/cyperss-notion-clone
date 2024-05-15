@@ -26,10 +26,11 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({ user, className }) => {
           height={60}
           className="object-cover"
         />
-      ) : null}
-      <AvatarFallback className="uppercase select-none">
-        {fallbackName}
-      </AvatarFallback>
+      ) : (
+        <AvatarFallback className="uppercase select-none">
+          {fallbackName}
+        </AvatarFallback>
+      )}
     </Avatar>
   );
 };

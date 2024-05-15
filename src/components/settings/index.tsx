@@ -40,6 +40,7 @@ const Settings: React.FC<Settings> = ({ subscription, user, workspaceId }) => {
       {/* workspace settings */}
       <div className="flex w-full flex-col gap-7">
         <WorkspaceSettings subscription={subscription} user={user} />
+        {/* // TODO security settings */}
         <div className="flex flex-col gap-3">
           <p className="dark:text-gray-300 font-medium text-lg">
             Delete workspace

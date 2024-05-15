@@ -83,7 +83,7 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
                 >
                   <div className="flex items-center gap-1">
                     {p.icon ? <span className="text-lg">{p.icon}</span> : null}
-                    <p className="text-sm">{p.title}</p>
+                    <p className="text-sm truncate max-w-24">{p.title}</p>
                   </div>
                 </Link>
               )}

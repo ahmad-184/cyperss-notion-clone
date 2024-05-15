@@ -58,7 +58,18 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
     <div className="w-full p-4 bg-rose-200 dark:bg-rose-800/50">
       <div className="flex flex-col justify-center gap-2">
         <div className="flex w-full items-center justify-center gap-3">
-          <p className="dark:text-gray-200 text-sm">This {type} is in trash</p>
+          <p className="dark:text-gray-200 text-sm">
+            This {type} is in trash{" "}
+            {current_workspace?.type === "shared" ? (
+              <>
+                by "
+                {session?.user.email === data.data.inTrashBy
+                  ? "You"
+                  : data.data.inTrashBy}
+                "
+              </>
+            ) : null}
+          </p>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
@@ -100,19 +111,6 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
             </Button>
           </div>
         </div>
-        {current_workspace?.type === "shared" ? (
-          <>
-            <div className="w-full text-center">
-              <p className="text-gray-200 text-sm">
-                deleted by "
-                {session?.user.email === data.data.inTrashBy
-                  ? "You"
-                  : data.data.inTrashBy}
-                "
-              </p>
-            </div>
-          </>
-        ) : null}
       </div>
     </div>
   );

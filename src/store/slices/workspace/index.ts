@@ -297,6 +297,57 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
     },
+    changeBanner: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        type: "folder" | "file" | "workspace";
+        bannerUrl: string;
+        banner_public_id: string;
+        folderId?: string;
+      }>
+    ) => {
+      const { id, type, bannerUrl, folderId, banner_public_id } =
+        action.payload;
+      if (!state.current_workspace) return;
+
+      const workspaceIndex = state.workspaces.findIndex(
+        (e) => e.id === state.current_workspace?.id
+      );
+
+      if (type === "workspace") {
+        state.current_workspace.bannerUrl = bannerUrl;
+        state.current_workspace.banner_public_id = banner_public_id;
+        state.workspaces[workspaceIndex] = state.current_workspace;
+      }
+      if (type === "folder") {
+        const folderIndex = state.current_workspace?.folders.findIndex(
+          (e) => e.id === id
+        );
+        state.current_workspace.folders[folderIndex].bannerUrl = bannerUrl;
+        state.current_workspace.folders[folderIndex].banner_public_id =
+          banner_public_id;
+
+        state.workspaces[workspaceIndex] = state.current_workspace;
+      }
+      if (type === "file") {
+        const folderIndex = state.current_workspace?.folders.findIndex(
+          (e) => e.id === folderId
+        );
+        const fileIndex = state.current_workspace?.folders[
+          folderIndex
+        ].files.findIndex((e) => e.id === id);
+
+        state.current_workspace.folders[folderIndex].files[
+          fileIndex
+        ].bannerUrl = bannerUrl;
+        state.current_workspace.folders[folderIndex].files[
+          fileIndex
+        ].banner_public_id = banner_public_id;
+
+        state.workspaces[workspaceIndex] = state.current_workspace;
+      }
+    },
   },
   extraReducers(builder) {
     builder
@@ -334,4 +385,5 @@ export const {
   changeItemTitle,
   changeInTrashStatus,
   changeBgOverlayStatus,
+  changeBanner,
 } = workspaceSlice.actions;

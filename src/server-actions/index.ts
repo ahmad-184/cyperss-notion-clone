@@ -13,7 +13,6 @@ import {
   Collaborator,
   Folder,
   File,
-  WorkspaceType,
   Workspace,
 } from "@prisma/client";
 import {
@@ -21,11 +20,17 @@ import {
   createCollaboratorQuery,
   createFolderQuery,
   createWorkspaceQuery,
+  getFileByIdQuery,
+  getFolderByIdQuery,
   getUsersQuery,
   getUserSubscriptioQuery,
   getUserWithoutMeQuery,
+  getWorkspaceByIdQuery,
+  getWorkspaceCollaboratorsQuery,
   privateWorkspacesQuery,
   sharedWorkspacesQuery,
+  updateFileQuery,
+  updateFolderQuery,
 } from "./queries";
 import { validatUser } from "@/lib/validateUser";
 import { ZodError } from "zod";
@@ -194,19 +199,7 @@ export const getWorkspaceCollaborators = async ({
   try {
     if (!workspaceId) throw new Error("workspace id required");
 
-    const res = await db.collaborator.findMany({
-      where: { workspaceId },
-      include: {
-        user: {
-          select: {
-            name: true,
-            image: true,
-            email: true,
-            id: true,
-          },
-        },
-      },
-    });
+    const res = await getWorkspaceCollaboratorsQuery(workspaceId);
 
     return {
       data: res,
@@ -259,12 +252,13 @@ export const getWorkspaces = async (): Promise<{
   }
 };
 
-export const updateWorkspace = async (data: {
+export const updateWorkspace = async ({
+  workspaceId,
+  data,
+  collaborators,
+}: {
   workspaceId: string;
-  title?: string;
-  type?: WorkspaceType;
-  imageUrl?: string;
-  icon?: string;
+  data: Partial<Workspace>;
   collaborators?: User[];
 }): Promise<{
   data?: WorkspaceTypes | null;
@@ -275,37 +269,32 @@ export const updateWorkspace = async (data: {
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    if (!data.workspaceId) throw new Error("workspace id required");
-    if (!data.type) throw new Error("workspace title and type required.");
+    if (!workspaceId) throw new Error("workspace id required");
 
-    const payload = {
-      title: data.title,
-      type: data.type,
-      iconId: data.icon,
-      ...(data.imageUrl && { image: data.imageUrl }),
-    };
+    const payload = { ...data };
 
     await db.workspace.update({
-      where: { id: data.workspaceId },
+      where: { id: workspaceId },
       data: payload,
     });
 
-    if (data.collaborators?.length && data.type === "shared") {
+    if (collaborators?.length && data.type === "shared") {
       await Promise.all([
-        data.collaborators.forEach(async (w) => {
+        collaborators.forEach(async (w) => {
+          // if (!data.id) throw new Error("workspace id required");
           const isColExists = await db.collaborator.findFirst({
-            where: { workspaceId: data.workspaceId, userId: w.id! },
+            where: { workspaceId: workspaceId, userId: w.id! },
           });
           if (!isColExists) {
-            await createCollaboratorQuery(data.workspaceId, w);
+            await createCollaboratorQuery(workspaceId, w);
           }
         }),
       ]);
 
-      const userIds = data.collaborators.map((e) => e.id!);
+      const userIds = collaborators.map((e) => e.id!);
       await db.collaborator.deleteMany({
         where: {
-          workspaceId: data.workspaceId,
+          workspaceId: workspaceId,
           userId: {
             notIn: userIds,
           },
@@ -315,39 +304,16 @@ export const updateWorkspace = async (data: {
 
     if (data.type === "private") {
       const thereIsCollaborators = await db.collaborator.findFirst({
-        where: { workspaceId: data.workspaceId },
+        where: { workspaceId: workspaceId },
       });
       if (thereIsCollaborators) {
         await db.collaborator.deleteMany({
-          where: { workspaceId: data.workspaceId },
+          where: { workspaceId: workspaceId },
         });
       }
     }
 
-    const updatedRes = await db.workspace.findUnique({
-      where: {
-        id: data.workspaceId,
-      },
-      include: {
-        folders: {
-          include: {
-            files: true,
-          },
-        },
-        collaborators: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                image: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
+    const updatedRes = await getWorkspaceByIdQuery(workspaceId);
 
     return {
       data: updatedRes,
@@ -394,7 +360,7 @@ export const deleteWorkspace = async ({
 export const getWorkspaceById = async (
   id: string
 ): Promise<{
-  data?: WorkspaceTypes | null;
+  data?: WorkspaceTypes;
   error?: {
     message: string | null;
   };
@@ -404,32 +370,7 @@ export const getWorkspaceById = async (
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    const options = {
-      where: {
-        id,
-      },
-      include: {
-        folders: {
-          include: {
-            files: true,
-          },
-        },
-        collaborators: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                image: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    };
-
-    const data = await db.workspace.findUnique(options);
+    const data = await getWorkspaceByIdQuery(id);
 
     if (!data?.id) throw new Error("Workspace not found");
 
@@ -532,28 +473,24 @@ export const createFolder = async (data: {
   }
 };
 
-export const updateFolder = async (
-  data: Folder
-): Promise<{
+export const updateFolder = async ({
+  folderId,
+  data,
+}: {
+  folderId: string;
+  data: Partial<Folder>;
+}): Promise<{
   data?: FolderType | null;
   error?: {
     message: string;
   };
 }> => {
   try {
-    const { id } = data;
+    if (!folderId) throw new Error("folder id required");
 
-    let payload: Folder = data;
+    let payload: Partial<Folder> = data;
 
-    const updatedFile = await db.folder.update({
-      where: { id },
-      data: {
-        ...payload,
-      },
-      include: {
-        files: true,
-      },
-    });
+    const updatedFile = await updateFolderQuery(folderId, payload);
 
     return {
       data: updatedFile,
@@ -577,14 +514,7 @@ export const getFolderbyId = async (
 }> => {
   try {
     if (!id) throw new Error("folder id required");
-    const folder = await db.folder.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        files: true,
-      },
-    });
+    const folder = await getFolderByIdQuery(id);
 
     if (!folder) throw new Error();
 
@@ -778,25 +708,24 @@ export const createFile = async (
   }
 };
 
-export const updateFile = async (
-  data: File
-): Promise<{
+export const updateFile = async ({
+  fileId,
+  data,
+}: {
+  fileId: string;
+  data: Partial<File>;
+}): Promise<{
   data?: File | null;
   error?: {
     message: string;
   };
 }> => {
   try {
-    const { id } = data;
+    if (!fileId) throw new Error("");
 
-    let payload: File = data;
+    let payload: Partial<File> = data;
 
-    const updatedFile = await db.file.update({
-      where: { id },
-      data: {
-        ...payload,
-      },
-    });
+    const updatedFile = await updateFileQuery(fileId, payload);
 
     return {
       data: updatedFile,
@@ -820,11 +749,7 @@ export const getFilebyId = async (
 }> => {
   try {
     if (!id) throw new Error("folder id required");
-    const file = await db.file.findUnique({
-      where: {
-        id,
-      },
-    });
+    const file = await getFileByIdQuery(id);
 
     if (!file) throw new Error();
 
