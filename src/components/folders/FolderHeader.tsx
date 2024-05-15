@@ -48,6 +48,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
           inTrash: false,
           inTrashBy: "",
           title: "",
+          banner_public_id: "",
           workspaceId: workspace?.id,
           workspaceOwnerId: user.id,
           createdAt: new Date(Date.now()),
@@ -88,7 +89,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
         {!loading ? (
           <>
             <p className="text-sm font-medium">FOLDERS</p>
-            <CustomTooltip description="Create New Folder">
+            <CustomTooltip side="left" description="Create New Folder">
               <Plus
                 onClick={createFolderHandler}
                 className={cn(

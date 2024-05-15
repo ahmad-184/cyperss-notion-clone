@@ -76,6 +76,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
         id: uuidv4(),
         type,
         bannerUrl: "",
+        banner_public_id: "",
         data: null,
         iconId: emoji,
         inTrash: false,
@@ -162,7 +163,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = () => {
           </div>
         </div>
         <PermissionSelectBox
-          defaultValue={"private"}
+          value={typeValue}
           handleChange={handleChangePermission}
         />
         {typeValue === "shared" ? (

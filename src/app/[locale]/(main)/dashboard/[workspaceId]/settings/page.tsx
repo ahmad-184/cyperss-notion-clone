@@ -1,6 +1,7 @@
 import Settings from "@/components/settings";
 import { validatUser } from "@/lib/validateUser";
 import { getUserSubscription, getWorkspaceById } from "@/server-actions";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const revalidate = 0;
@@ -10,6 +11,10 @@ interface PageProps {
     workspaceId: string;
   };
 }
+
+export const metadata: Metadata = {
+  title: "Settgins",
+};
 
 const Page = async ({ params }: PageProps) => {
   const { validatedUser, error } = await validatUser();

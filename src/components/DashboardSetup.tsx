@@ -14,7 +14,6 @@ import EmojiPicker from "./EmojiPicker";
 import { useEffect, useRef, useState } from "react";
 import type { EmojiClickData } from "emoji-picker-react";
 import { Label } from "./ui/Label";
-import useUpload from "@/hooks/useUpload";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -29,6 +28,7 @@ import WorkspaceLogoInput from "./custom-inputs/WorkspaceLogoInput";
 import AppLogo from "./AppLogo";
 import { cn } from "@/lib/utils";
 import { getDirByLang } from "@/lib/dir";
+import useUploadV2 from "@/hooks/useUploadV2";
 
 interface DashboardSetupProps {
   subscription: Subscription | null;
@@ -47,7 +47,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
 
-  const { startUpload, files, isUploading, progress } = useUpload({
+  const { startUpload, files, isUploading, progress } = useUploadV2({
     ref: inputRef,
     max_size: 1,
   });
@@ -96,6 +96,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         iconId: emoji,
         inTrash: false,
         bannerUrl: "",
+        banner_public_id: "",
         logo: "",
         data: null,
         type: "private",
@@ -105,7 +106,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         if (subscription?.status !== "active") return;
         const uploadedLogo = await startUpload();
         if (uploadedLogo) {
-          payload.logo = uploadedLogo.cdnUrl;
+          payload.logo = uploadedLogo[0].file.secure_url;
         }
       }
 

@@ -8,7 +8,6 @@ import WorkspaceLogoInput from "../custom-inputs/WorkspaceLogoInput";
 import { Subscription } from "@prisma/client";
 import { User, WorkspaceTypes } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
-import useUpload from "@/hooks/useUpload";
 import PermissionSelectBox from "../PermissionSelectBox";
 import { useForm } from "react-hook-form";
 import { WorkspaceSettingsValidator } from "@/lib/validations";
@@ -25,7 +24,7 @@ import { useDispatch } from "react-redux";
 import { replaceWorkspace } from "@/store/slices/workspace";
 import type { EmojiClickData } from "emoji-picker-react";
 import EmojiPicker from "../EmojiPicker";
-// import { changeWorkspaceType, updateWorkspace } from "@/server-actions";
+import useUploadV2 from "@/hooks/useUploadV2";
 
 interface WorkspaceSettingsProps {
   subscription: Subscription | null;
@@ -57,7 +56,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const { startUpload, files, isUploading, progress } = useUpload({
+  const { startUpload, files, isUploading, progress } = useUploadV2({
     ref: inputRef,
     max_size: 1,
   });
@@ -111,21 +110,21 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       setSaveLoading(true);
       setError("");
       const payload = {
-        workspaceId: current_workspace.id,
+        id: current_workspace.id,
         title: data.workspace_name,
         type: data.type,
-        imageUrl: "",
-        icon: emoji || "",
-        ...(isWorkspaceCollaboratorsChange &&
-          data.type === "shared" && {
-            collaborators: selectedCollaborators,
-          }),
+        logo: "",
+        iconId: emoji || "",
       };
 
       if (data.type === "shared" && !selectedCollaborators.length)
         return setError("Atleast 1 collaborator required");
 
-      const { data: res, error } = await updateWorkspace(payload);
+      const { data: res, error } = await updateWorkspace({
+        workspaceId: current_workspace.id,
+        data: payload,
+        collaborators: selectedCollaborators,
+      });
 
       if (error || !res) {
         console.log(error);

@@ -99,12 +99,13 @@ body {
 } */
 
 ::-webkit-scrollbar-thumb {
-  background: #6d28d973;
-  border-radius: 4px;
+  /* background: #6d28d973; */
+  /* border-radius: 4px; */
+  @apply bg-border;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6d28d9a3;
+  /* background: #6d28d9a3; */
 }
 
 .background-cover {
@@ -117,6 +118,7 @@ body {
 
 .ql-editor {
   min-height: 500px;
+  font-family: "__DM_Sans_0dfae3", "__Vazirmatn_c24549", sans-serif;
 }
 
 .ce-popover--opened {
@@ -137,7 +139,7 @@ body {
 
 .ce-toolbar__content,
 .ce-block__content {
-  max-width: 750px;
+  max-width: 768px;
 }
 
 .editorFocus {

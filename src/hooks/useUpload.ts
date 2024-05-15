@@ -5,25 +5,20 @@ import { uploadFile } from "@uploadcare/upload-client";
 import { toast } from "sonner";
 import { Context } from "@/contexts/local-context";
 
+// upload files using uploadcare storage
+("---------------------------------------------------");
+
 interface Props {
   ref: React.MutableRefObject<HTMLInputElement | null>;
   max_size: number;
 }
 
 const useUpload = ({ ref, max_size }: Props) => {
-  const [inputElem, setInputElem] = useState<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[] | []>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const { uploadcare_key } = useContext(Context);
-
-  useEffect(() => {
-    if (inputElem) return;
-    if (ref.current) {
-      setInputElem(ref.current);
-    }
-  }, [ref.current]);
 
   useEffect(() => {
     function handleGetFiles(e: any) {
@@ -33,13 +28,13 @@ const useUpload = ({ ref, max_size }: Props) => {
       }
     }
 
-    if (inputElem) {
-      inputElem.addEventListener("change", handleGetFiles);
+    if (ref.current) {
+      ref.current.addEventListener("change", handleGetFiles);
     }
     return () => {
-      inputElem?.removeEventListener("change", handleGetFiles);
+      ref.current?.removeEventListener("change", handleGetFiles);
     };
-  }, [inputElem]);
+  }, [ref.current]);
 
   const validateFile = (file: File) => {
     if (file.size > 1000000 * max_size)
@@ -79,10 +74,14 @@ const useUpload = ({ ref, max_size }: Props) => {
           }
         },
       });
-
-      return res;
+      if (res.cdnUrl) {
+        setFiles([]);
+        if (ref.current) {
+          ref.current.value = "";
+        }
+        return res;
+      } else throw new Error();
     } catch (err: any) {
-      console.log(err);
       toast.error("Getting error while uploading", {
         description:
           "We cant upload the image, please check your image size or network connection.",

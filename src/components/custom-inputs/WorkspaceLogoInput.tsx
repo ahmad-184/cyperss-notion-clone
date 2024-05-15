@@ -27,7 +27,7 @@ const WorkspaceLogoInput = forwardRef<Ref, WorkspaceLogoInputProps>(
           <div className="text-gray-500 dark:text-gray-500 flex items-center gap-1 mt-2">
             <OctagonAlert className="w-4 h-4" />
             <small className="underline">
-              Only Pro Plan users can have customn logo
+              Only Pro Plan users can have custom logo
             </small>
           </div>
         ) : (

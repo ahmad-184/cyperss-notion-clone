@@ -127,6 +127,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         id: uuid4(),
         title: "",
         bannerUrl: "",
+        banner_public_id: "",
         createdAt: new Date(Date.now()),
         data: null,
         folderId: data.id,
@@ -178,12 +179,14 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         ...(type === "file" && { folderId: data.folderId }),
       };
       if (type === "folder") {
-        const url = `/dashboard/${data.workspaceId}`;
-        if (url !== pathname) router.push(url);
+        const itemPath = `/dashboard/${data.workspaceId}/${data.id}`;
+        const urlToNavigate = `/dashboard/${data.workspaceId}`;
+        if (pathname === itemPath) router.push(urlToNavigate);
       }
       if (type === "file" && data?.folderId) {
-        const url = `/dashboard/${data.workspaceId}/${data.folderId}`;
-        if (url !== pathname) router.push(url);
+        const itemPath = `/dashboard/${data.workspaceId}/${data.folderId}/${data.id}`;
+        const urlToNavigate = `/dashboard/${data.workspaceId}/${data.folderId}`;
+        if (itemPath === pathname) router.push(urlToNavigate);
       }
       deleteItem(payload);
       return;

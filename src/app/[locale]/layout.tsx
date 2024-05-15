@@ -35,6 +35,12 @@ export default function RootLayout({
         <Providers
           locale={locale || "en"}
           uploadcare_key={process.env.UPLOADCARE_KEY as string}
+          CLOUDINARY_CLOUD_NAME={process.env.CLOUDINARY_CLOUD_NAME as string}
+          CLOUDINARY_UPLOAD_FOLDER={
+            process.env.CLOUDINARY_UPLOAD_FOLDER as string
+          }
+          CLOUDINARY_API_KEY={process.env.CLOUDINARY_API_KEY as string}
+          CLOUDINARY_PRESET={process.env.CLOUDINARY_PRESET as string}
         >
           {children}
         </Providers>
