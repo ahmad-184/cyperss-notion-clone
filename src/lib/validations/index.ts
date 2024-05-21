@@ -24,6 +24,7 @@ export const setupWorkspaceValidator = (t: TFunction) => {
       })
       .nullable()
       .optional(),
+    type: z.enum(["private", "shared"]),
   });
   return { validator };
 };

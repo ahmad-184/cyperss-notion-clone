@@ -37,6 +37,10 @@ export default async function Page({ params }: PageProps) {
           user={validatedUser}
           subscription={data}
           locale={params.locale}
+          first_setup={true}
+          title="Setup Your First Workspace"
+          description="Lets create a private workspace to get you started. You can add
+          collaborators later from the workspace setting tab."
         />
       </div>
     );

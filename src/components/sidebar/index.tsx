@@ -20,12 +20,12 @@ const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
   const { data, error: subError } = await getUserSubscription(validatedUser.id);
 
   return (
-    <div className="fixed top-0 bottom-0 left-0 bg-white dark:bg-background">
+    <div className="fixed top-0 bottom-0 left-0 bg-white dark:bg-background hidden md:block">
       <ScrollArea className="border-r">
         <div className="w-[280px] h-screen p-3 py-4 pb-0 flex flex-col">
           <WorkspacesDropdown user={validatedUser} />
           <UsagePlan subscription={data} />
-          <NativeNavigation />
+          <NativeNavigation user={validatedUser} />
           <Folders subscription={data} />
           <div className="flex items-endpt-4 pb-3">
             <UserCard user={validatedUser} subscription={data!} />

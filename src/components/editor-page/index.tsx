@@ -23,14 +23,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import EditorBreadCrumb from "./EditorBreadcrumb";
 import ItemIsInTrashAlert from "./ItemIsInTrashAlert";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Banner from "./Banner";
 import Container from "./Container";
 import QuillEditor from "./QuillEditor";
 import { File } from "@prisma/client";
 import { FolderType, WorkspaceTypes } from "@/types";
-import EmojiPicker from "../EmojiPicker";
-import type { EmojiClickData } from "emoji-picker-react";
 import { Input } from "../ui/Input";
 import _debounce from "lodash.debounce";
 import { Trash } from "lucide-react";
@@ -40,6 +38,7 @@ import useUploadV2 from "@/hooks/useUploadV2";
 import Collaborators from "./Collaborators";
 import { Badge } from "../ui/Badge";
 import { removeFileUpload } from "@/lib/removeFileUpload";
+import EmojiPickerMart from "../EmojiPickerMart";
 
 interface EditorPageProps {
   type: "workspace" | "folder" | "file";
@@ -115,11 +114,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
     }
   }, [data?.title, data?.iconId]);
 
-  const handleChangeEmoji = async (emoji: EmojiClickData) => {
+  const handleChangeEmoji = async (value: string) => {
     try {
       if (!current_workspace || !data) return;
       const currentIcon = data.iconId as string;
-      const newIcon = emoji.emoji;
+      const newIcon = value;
       const payload = {
         emoji: newIcon,
         type,
@@ -351,9 +350,9 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
       {data?.inTrash ? (
         <ItemIsInTrashAlert type={type === "folder" ? "folder" : "file"} />
       ) : null}
-      <div className="py-3 mt-1 px-3 flex gap-8 items-center w-full justify-between sm:px-6">
+      <div className="py-3 mt-1 px-3 flex flex-wrap gap-3 items-center w-full justify-between sm:px-6">
         <EditorBreadCrumb type={type} />
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 px-3 sm:px-0">
           <Collaborators />
           <Badge
             variant={"secondary"}
@@ -373,10 +372,10 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         <div className="flex w-full flex-col gap-3">
           <div className="w-full flex flex-col">
             <div className="flex w-full flex-col mb-2">
-              <EmojiPicker
+              <EmojiPickerMart
                 emoji={data?.iconId || ""}
-                handleChangeEmoji={handleChangeEmoji}
                 classNames="text-[70px] pl-[2px] w-fit"
+                onChangeEmoji={handleChangeEmoji}
               />
               <input ref={inputRef} hidden type="file" accept="image/*" />
               <div className="ml-3 flex gap-2">
@@ -396,10 +395,10 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
                   <>
                     <div
                       onClick={handleOpenInput}
-                      className="w-fit flex cursor-pointer 
+                      className="w-fit flex cursor-pointer
                   gap-2 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
                   duration-150 dark:text-gray-400 text-xs 
-                  bg-muted-foreground/10 
+                  bg-muted-foreground/10
                   dark:bg-muted/70 rounded-lg px-2 py-[3px]"
                     >
                       Change Banner

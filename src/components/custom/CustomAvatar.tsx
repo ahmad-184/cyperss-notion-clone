@@ -7,9 +7,14 @@ import { memo } from "react";
 interface CustomAvatarProps {
   user: User;
   className?: string;
+  onClick?: () => void;
 }
 
-const CustomAvatar: React.FC<CustomAvatarProps> = ({ user, className }) => {
+const CustomAvatar: React.FC<CustomAvatarProps> = ({
+  user,
+  className,
+  onClick,
+}) => {
   const fallbackName = user?.name
     ?.split(" ")
     .map((e) => e.split(""))
@@ -17,14 +22,14 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({ user, className }) => {
     .join("");
 
   return (
-    <Avatar className={cn("relative", className)}>
+    <Avatar className={cn("relative", className)} onClick={onClick}>
       {user?.image ? (
         <Image
           src={user.image}
           alt={`${user?.name} profile`}
           width={60}
           height={60}
-          className="object-cover"
+          className="object-cover w-full h-full"
         />
       ) : (
         <AvatarFallback className="uppercase select-none">

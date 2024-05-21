@@ -82,14 +82,16 @@ export const updateUserDetail = async (
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
+    const payload = {
+      name: data.name,
+      image: data.image,
+    };
+
     const updatedUser = await db.user.update({
       where: {
         id: validatedUser.id,
       },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.image && { image: data.image }),
-      },
+      data: payload,
     });
 
     const returnData = {

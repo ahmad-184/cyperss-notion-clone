@@ -10,15 +10,12 @@ import {
 import { Skeleton } from "../../ui/Skeleton";
 import { ScrollArea } from "../../ui/ScrollArea";
 import SelectWorkspace from "../SelectWorkspace";
-import Link from "next/link";
-import CustomDialog from "../../custom/CustomDialog";
-import WorkspaceCreator from "../WorkspaceCreator";
 import { cn } from "@/lib/utils";
 import { getAllWorkspacesThunk } from "@/store/slices/workspace/thunk-actions";
-import BackgroundOverlay from "../../BackgroundOverlay";
 import { User, WorkspaceTypes } from "@/types";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import WorkspacesLists from "./WorkspacesLists";
+import { getWorkspaceById } from "@/server-actions";
 
 interface WorkspacesDropdownProps {
   user: User;
@@ -33,7 +30,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
 
   const [openDropdown, setOpenDropdown] = useState(false);
 
-  const urlWorkspaceId = useMemo(
+  const workspaceIdParams = useMemo(
     () => params.workspaceId,
     [params.workspaceId]
   );
@@ -51,20 +48,29 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
   }, []);
 
   useEffect(() => {
-    const allWorkspaces = workspaces;
-    if (!allWorkspaces.length) return;
-    const workspace = allWorkspaces.find((w) => w.id === urlWorkspaceId);
-    if (!workspace) {
-      router.replace("/dashboard");
-      router.refresh();
-
-      return;
-    }
-    if (current_workspace && current_workspace.id === workspace.id) return;
-    dispatch(setCurrentWorkspace(workspace));
-    if (window) window.localStorage.setItem("active_workspace", workspace.id);
-    if (background_overlay) dispatch(changeBgOverlayStatus(false));
-  }, [urlWorkspaceId, workspaces]);
+    const update = async () => {
+      const allWorkspaces = workspaces;
+      if (!allWorkspaces.length) return;
+      const workspace = allWorkspaces.find((w) => w.id === workspaceIdParams);
+      if (!workspace) {
+        router.replace("/dashboard");
+        return;
+      }
+      if (current_workspace && current_workspace.id === workspace.id) return;
+      if (!allWorkspaces.length) return;
+      const { data, error } = await getWorkspaceById(
+        workspaceIdParams as string
+      );
+      if (error || !data) {
+        router.replace("/dashboard");
+        return;
+      }
+      dispatch(setCurrentWorkspace(data));
+      if (window) window.localStorage.setItem("active_workspace", workspace.id);
+      if (background_overlay) dispatch(changeBgOverlayStatus(false));
+    };
+    update();
+  }, [workspaceIdParams, workspaces]);
 
   const selectWorkspace = () => {
     setOpenDropdown((prev) => !prev);

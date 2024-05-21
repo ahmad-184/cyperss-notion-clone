@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 export const metadata: Metadata = {
-  title: "Settgins",
+  title: "Settings",
 };
 
 const Page = async ({ params }: PageProps) => {
@@ -23,7 +23,7 @@ const Page = async ({ params }: PageProps) => {
   const { data: subscription } = await getUserSubscription(validatedUser.id);
 
   return (
-    <div className="p-5 px-10 flex justify-center workspace-content">
+    <div className="p-5 px-3 sm:px-10 flex justify-center workspace-content">
       <Settings
         subscription={subscription!}
         user={validatedUser}

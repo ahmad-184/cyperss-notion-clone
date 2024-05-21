@@ -28,7 +28,7 @@ export default async function Layout({
       >
         <Sidebar workspaceId={params.workspaceId} />
         <div
-          className="flex flex-grow ml-[280px] h-[100vh] flex-col gap-2"
+          className="flex flex-grow md:ml-[280px] h-[100vh] flex-col gap-2"
           style={{ width: "100%" }}
         >
           <BackgroundOverlay />

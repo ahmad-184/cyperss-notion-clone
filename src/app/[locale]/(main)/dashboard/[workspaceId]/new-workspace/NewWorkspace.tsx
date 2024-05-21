@@ -1,34 +1,46 @@
 "use client";
 import { v4 as uuid4 } from "uuid";
 import type { Subscription } from "@prisma/client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/Card";
-import { UserSession, WorkspacePayload } from "@/types";
-import { Input } from "./ui/Input";
+
+import { User, UserSession, WorkspacePayload, WorkspaceTypes } from "@/types";
 import { useEffect, useRef, useState } from "react";
-import { Label } from "./ui/Label";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { setupWorkspaceValidator } from "@/lib/validations";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ButtonWithLoaderAndProgress from "./ButtonWithLoaderAndProgress";
-import { createWorkspace, updateUserDetail } from "@/server-actions";
+import {
+  createCollaborators,
+  createWorkspace,
+  getWorkspaceById,
+  updateUserDetail,
+} from "@/server-actions";
 import { useRouter } from "next/navigation";
-import WorkspaceLogoInput from "./custom-inputs/WorkspaceLogoInput";
-import AppLogo from "./AppLogo";
+
 import { cn } from "@/lib/utils";
 import { getDirByLang } from "@/lib/dir";
 import useUploadV2 from "@/hooks/useUploadV2";
-import EmojiPickerMart from "./EmojiPickerMart";
+import AppLogo from "@/components/AppLogo";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Label } from "@/components/ui/Label";
+import { Input } from "@/components/ui/Input";
+import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgress";
+import WorkspaceLogoInput from "@/components/custom-inputs/WorkspaceLogoInput";
+import EmojiPickerMart from "@/components/EmojiPickerMart";
+import { useSession } from "next-auth/react";
+import { useAppDispatch } from "@/store";
+import PermissionSelectBox from "@/components/PermissionSelectBox";
+import SelectCollaborators from "@/components/select-collaborators";
+import { addWorkspace } from "@/store/slices/workspace";
 
-interface DashboardSetupProps {
+interface NewWorkspaceProps {
   subscription: Subscription | null;
   user: UserSession["user"];
   locale: string;
@@ -37,7 +49,7 @@ interface DashboardSetupProps {
   first_setup: boolean;
 }
 
-const DashboardSetup: React.FC<DashboardSetupProps> = ({
+const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   user,
   subscription,
   locale,
@@ -45,11 +57,15 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   description,
   first_setup,
 }) => {
-  const router = useRouter();
-
-  const [emoji, setEmoji] = useState("💼");
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
+  const [selectedCollaborators, setSelectedCollaborators] = useState<
+    User[] | []
+  >([]);
+  const [error, setError] = useState("");
+  const [emoji, setEmoji] = useState("💼");
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const { startUpload, files, isUploading, progress } = useUploadV2({
     ref: inputRef,
@@ -63,10 +79,13 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
     handleSubmit,
     formState: { isSubmitting, errors },
     register,
+    setValue,
+    watch,
   } = useForm<setupWorkspaceValidatorType>({
     defaultValues: {
       workspace_name: "",
       username: user?.name,
+      type: "private",
     },
     mode: "onSubmit",
     resolver: zodResolver(validator),
@@ -90,11 +109,18 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
     setEmoji(e);
   };
 
+  const handleChangePermission = (e: WorkspaceTypes["type"]) => {
+    setValue("type", e);
+  };
+
   const onSubmit = async (data: setupWorkspaceValidatorType) => {
     try {
       if (!user?.id) return;
+      if (!first_setup && !data.type) return;
+
+      const newId = uuid4();
       let payload: WorkspacePayload = {
-        id: uuid4(),
+        id: newId,
         title: data.workspace_name,
         workspaceOwnerId: user.id!,
         iconId: emoji,
@@ -103,7 +129,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         banner_public_id: "",
         logo: "",
         data: null,
-        type: "private",
+        type: data.type || "private",
         // accessibility: "all",
       };
 
@@ -115,32 +141,86 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
         }
       }
 
-      if (!user.name && data.username) {
+      if (!user.name && data.username && first_setup) {
         await updateUserDetail({ name: data.username, id: user.id });
       }
 
-      const { data: resData, error } = await createWorkspace(payload);
+      if (first_setup) {
+        const { data: resData, error } = await createWorkspace(payload);
+        if (error) return toast.error(error.message);
+        if (resData) {
+          toast.success("Workspace created successfully.");
+          router.refresh();
+        } else throw new Error();
+        return;
+      } else {
+        if (data.type === "shared" && !selectedCollaborators.length)
+          return setError("Atleast 1 collabrator required.");
 
-      if (error) return toast.error(error.message);
-      if (resData) {
-        toast.success("Workspace created successfully.");
-        router.refresh();
-      } else throw new Error();
+        const { error: newWorkspaceError, data: newWorkspaceData } =
+          await createWorkspace(payload);
+        if (newWorkspaceError || !newWorkspaceData)
+          throw new Error(newWorkspaceError?.message as string);
+
+        if (!newWorkspaceData?.id) return;
+
+        if (data.type === "shared" && selectedCollaborators.length) {
+          const {
+            data: workspaceCollaboratorsData,
+            error: workspaceCollaboratorsError,
+          } = await createCollaborators({
+            workspaceId: newWorkspaceData.id,
+            collaborators: selectedCollaborators,
+          });
+          if (error) throw new Error(workspaceCollaboratorsError?.message);
+        }
+
+        const { data: dataToStore, error: err } = await getWorkspaceById(
+          newWorkspaceData.id
+        );
+
+        if (err || !dataToStore) {
+          console.log(error);
+          toast.error("Colud not fetch workspace");
+        }
+
+        if (dataToStore?.id) {
+          dispatch(
+            addWorkspace({
+              data: dataToStore,
+            })
+          );
+          router.push(`/dashboard/${newWorkspaceData.id}`);
+
+          return toast.success("Workspace created successfully");
+        } else {
+          toast.error("Something went wrong");
+          router.push(`/dashboard/${newWorkspaceData.id}`);
+        }
+      }
     } catch (err) {
       console.log(err);
       toast.error("Something went wrong, please try again.");
     }
   };
 
+  const getValue = (data: User[] | []) => {
+    setSelectedCollaborators(data);
+  };
+
+  const typeValue = watch("type");
+
   return (
     <>
-      <AppLogo
-        t={t}
-        className={cn("fixed top-4 md:top-6", {
-          "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
-          "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
-        })}
-      />
+      {first_setup && (
+        <AppLogo
+          t={t}
+          className={cn("fixed top-4 md:top-6", {
+            "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
+            "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
+          })}
+        />
+      )}
       <Card className="max-w-[600px] h-auto">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
@@ -179,6 +259,25 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
                 </small>
               ) : null}
               <WorkspaceLogoInput ref={inputRef} subscription={subscription!} />
+              {!first_setup ? (
+                <>
+                  <PermissionSelectBox
+                    value={typeValue}
+                    handleChange={handleChangePermission}
+                  />
+                  {typeValue === "shared" ? (
+                    <div className="my-1 mb-3 mt-3">
+                      <SelectCollaborators
+                        selectedCollaborators={selectedCollaborators}
+                        getValue={getValue}
+                      />
+                    </div>
+                  ) : null}
+                  {error ? (
+                    <small className="my-1 text-destructive">{error}</small>
+                  ) : null}
+                </>
+              ) : null}
             </div>
             <ButtonWithLoaderAndProgress
               type="submit"
@@ -196,4 +295,4 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   );
 };
 
-export default DashboardSetup;
+export default NewWorkspace;

@@ -11,7 +11,7 @@ import axios from "axios";
 
 interface Props {
   ref: React.MutableRefObject<HTMLInputElement | null>;
-  max_size: number;
+  max_size?: number;
 }
 
 type uploadedFileTypes = {
@@ -36,7 +36,7 @@ type uploadedFileTypes = {
   tags: string[];
 };
 
-export default function useUploadV2({ ref, max_size }: Props) {
+export default function useUploadV2({ ref, max_size = 3 }: Props) {
   const [files, setFiles] = useState<File[] | []>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);

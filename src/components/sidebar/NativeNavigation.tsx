@@ -6,10 +6,13 @@ import { useAppSelector } from "@/store";
 import CypressSettingsIcon from "../icons/SettingsIcon";
 import { Skeleton } from "../ui/Skeleton";
 import TrashBin from "../trash-bin";
+import { User } from "@/types";
 
-interface NativeNavigationProps {}
+interface NativeNavigationProps {
+  user: User;
+}
 
-const NativeNavigation: React.FC<NativeNavigationProps> = () => {
+const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
   const workspace = useAppSelector(
     (store) => store.workspace.current_workspace
   );
@@ -40,16 +43,18 @@ const NativeNavigation: React.FC<NativeNavigationProps> = () => {
                 <p>My Workspace</p>
               </div>
             </Link>
-            <Link href={`/dashboard/${workspace?.id}/settings`}>
-              <div
-                className="flex group/native w-full cursor-pointer transition-all
+            {user.id === workspace?.workspaceOwnerId && (
+              <Link href={`/dashboard/${workspace?.id}/settings`}>
+                <div
+                  className="flex group/native w-full cursor-pointer transition-all
           py-1 gap-2
           items-center dark:text-gray-400"
-              >
-                <CypressSettingsIcon />
-                <p>Settings</p>
-              </div>
-            </Link>
+                >
+                  <CypressSettingsIcon />
+                  <p>Settings</p>
+                </div>
+              </Link>
+            )}
             <TrashBin />
           </div>
         </div>

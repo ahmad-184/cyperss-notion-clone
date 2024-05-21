@@ -22,9 +22,9 @@ import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
 import { updateWorkspace } from "@/server-actions";
 import { useDispatch } from "react-redux";
 import { replaceWorkspace } from "@/store/slices/workspace";
-import type { EmojiClickData } from "emoji-picker-react";
-import EmojiPicker from "../EmojiPicker";
 import useUploadV2 from "@/hooks/useUploadV2";
+import EmojiPickerMart from "../EmojiPickerMart";
+import { useRouter } from "next/navigation";
 
 interface WorkspaceSettingsProps {
   subscription: Subscription | null;
@@ -36,6 +36,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
   subscription,
 }) => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { current_workspace, loading } = useAppSelector(
     (store) => store.workspace
   );
@@ -100,8 +101,8 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
   const typeValue = watch("type");
   const workspaceNameValue = watch("workspace_name");
 
-  const handleChangeEmoji = (e: EmojiClickData) => {
-    setEmoji(e.emoji);
+  const handleChangeEmoji = (e: string) => {
+    setEmoji(e);
   };
 
   const onSubmit = async (data: WorkspaceSettingsValidatorType) => {
@@ -135,7 +136,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
       dispatch(replaceWorkspace(res));
       toast.success("The changes were successfully applied");
-      return;
+      router.refresh();
     } catch (err: any) {
       console.log(err);
       toast.error("Could not update the changes");
@@ -220,11 +221,11 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
     if (!isStateChanged) return;
     setValue("workspace_name", current_workspace?.title);
     setValue("type", current_workspace?.type);
-    if (isWorkspaceCollaboratorsChange && typeValue === "shared") {
-      setSelectedCollaborators(
-        current_workspace.collaborators?.map((e) => e.user)
-      );
-    }
+    // if (isWorkspaceCollaboratorsChange && typeValue === "shared") {
+    setSelectedCollaborators(
+      current_workspace.collaborators?.map((e) => e.user)
+    );
+    // }
     setEmoji(current_workspace.iconId);
   };
 
@@ -249,13 +250,13 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
           Workspace settings
         </p>
         <form
-          id="w-form"
+          id="settings-form"
           onSubmit={handleSubmit(onSubmit)}
           className="flex flex-grow flex-col gap-5"
         >
           <div className="flex flex-grow gap-3 items-start">
-            <EmojiPicker
-              handleChangeEmoji={handleChangeEmoji}
+            <EmojiPickerMart
+              onChangeEmoji={handleChangeEmoji}
               emoji={emoji || ""}
               classNames="text-[40px] sm:text-[50px]"
             />
@@ -290,20 +291,22 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       </div>
       <hr />
       <div className="p-5 py-4 flex gap-2 justify-end items-center w-full">
-        <Button
-          className="text-xs"
-          form="w-form"
-          type="button"
-          size="sm"
-          variant={"secondary"}
-          disabled={!isStateChanged || saveLoading}
-          onClick={handleCancelChanges}
-        >
-          Cancel
-        </Button>
+        {isStateChanged ? (
+          <Button
+            className="text-xs"
+            form="settings-form"
+            type="button"
+            size="sm"
+            variant={"secondary"}
+            disabled={!isStateChanged || saveLoading}
+            onClick={handleCancelChanges}
+          >
+            Cancel
+          </Button>
+        ) : null}
         <ButtonWithLoaderAndProgress
           className="text-xs"
-          form="w-form"
+          form="settings-form"
           type="submit"
           size="sm"
           variant={"default"}

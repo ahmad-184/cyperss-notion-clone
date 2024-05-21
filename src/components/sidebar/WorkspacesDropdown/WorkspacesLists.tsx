@@ -4,8 +4,6 @@ import { useMemo } from "react";
 import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
-import CustomDialog from "@/components/custom/CustomDialog";
-import WorkspaceCreator from "../WorkspaceCreator";
 import { useAppDispatch } from "@/store";
 import { changeBgOverlayStatus } from "@/store/slices/workspace";
 
@@ -141,11 +139,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
           </div>
         ) : null}
       </div>
-      <CustomDialog
-        header={"New Workspace"}
-        description="Workspace give you the power to collaborate woth others. you can change your workspace privacy settings after creating workspace too."
-        content={<WorkspaceCreator />}
-      >
+      <Link href={`/dashboard/${current_workspace.id}/new-workspace`}>
         <div className="w-full">
           <div className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-muted/70 rounded-md transition-all duration-150">
             <div className="rounded-full relative bottom-[1.5px] w-4 h-4 flex items-center justify-center bg-muted dark:bg-slate-800 text-slate-500">
@@ -154,7 +148,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
             <p className="text-sm">Create New Workspace</p>
           </div>
         </div>
-      </CustomDialog>
+      </Link>
     </div>
   );
 };

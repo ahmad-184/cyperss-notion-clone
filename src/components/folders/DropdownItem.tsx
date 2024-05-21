@@ -28,6 +28,7 @@ import {
   createFile,
 } from "@/server-actions";
 import useTrash from "@/hooks/useTrash";
+import EmojiPickerMart from "../EmojiPickerMart";
 
 type DropdownItemProps =
   | {
@@ -51,10 +52,10 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
   const { deleteItem } = useTrash();
 
-  const handleChangeEmoji = async (emoji: EmojiClickData) => {
+  const handleChangeEmoji = async (value: string) => {
     try {
       const currentIcon = data.iconId as string;
-      const newIcon = emoji.emoji;
+      const newIcon = value;
       const payload = {
         emoji: newIcon,
         type,
@@ -202,7 +203,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={cn("pr-4", { "rtl:pl-4": type === "file" })}
+      className={cn("pr-4 w-[256px]", { "rtl:pl-4": type === "file" })}
     >
       <AccordionTrigger
         isFolder={type === "folder"}
@@ -210,22 +211,22 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       >
         <div
           className={cn(
-            "flex items-center gap-2 justify-between w-full group/common dark:text-gray-500",
+            "flex items-center w-[238px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
             {
               "group/folder": type === "folder",
               "group/file": type === "file",
             }
           )}
         >
-          <div className="flex items-center gap-2">
-            <EmojiPicker
-              handleChangeEmoji={handleChangeEmoji}
-              emoji={data.iconId!}
+          <div className="flex items-center gap-2 truncate">
+            <EmojiPickerMart
+              onChangeEmoji={handleChangeEmoji}
+              emoji={data.iconId! || ""}
             />
             {!isEditting ? (
               <p
                 onClick={handleChangeUrl}
-                className="cursor-pointer"
+                className="cursor-pointer truncate"
                 onDoubleClick={handleDoubleClick}
               >
                 {data?.title || "Untitled"}
@@ -241,7 +242,10 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
               />
             )}
           </div>
-          <div className="items-center pr-3 gap-2 hidden group-hover/common:flex transition-all duration-150">
+          <div
+            className="items-center pr-3 gap-2 hidden group-hover/common:flex
+          transition-all duration-150"
+          >
             <CustomTooltip
               description={
                 type === "folder"

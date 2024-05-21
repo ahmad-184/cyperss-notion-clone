@@ -29,18 +29,18 @@ const AccordionTrigger = React.forwardRef<
     <div className="flex items-center flex-grow transition-all py-2">
       {children}
     </div>
-    <AccordionPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        "flex items-center transition-all max-w-fit [&[data-state=open]>svg]:rotate-180",
-        className
-      )}
-      {...props}
-    >
-      {isFolder ? (
+    {isFolder ? (
+      <AccordionPrimitive.Trigger
+        ref={ref}
+        className={cn(
+          "flex items-center transition-all max-w-fit [&[data-state=open]>svg]:rotate-180",
+          className
+        )}
+        {...props}
+      >
         <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-      ) : null}
-    </AccordionPrimitive.Trigger>
+      </AccordionPrimitive.Trigger>
+    ) : null}
   </AccordionPrimitive.Header>
 ));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
