@@ -1,4 +1,4 @@
-import { getUsers } from "@/server-actions";
+import { getUsersAction } from "@/server-actions";
 import { User } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -27,7 +27,7 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
     const fetchUser = async () => {
       try {
         setLoading(true);
-        const { error, data } = await getUsers(false);
+        const { error, data } = await getUsersAction(false);
         if (error) {
           toast.error(error.message ? error.message : "Can not fetch users.");
           return;

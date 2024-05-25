@@ -1,3 +1,4 @@
+import SocketProvider from "@/contexts/socket-provider";
 import initTranslations from "@/lib/i18n";
 
 import ReduxStoreProvider from "@/providers/ReduxStoreProvider";
@@ -34,7 +35,9 @@ export default async function Layout({
         resources={resources}
         namespaces={namespaces}
       >
-        <ReduxStoreProvider>{children}</ReduxStoreProvider>
+        <ReduxStoreProvider>
+          <SocketProvider>{children}</SocketProvider>
+        </ReduxStoreProvider>
       </TranslationProvider>
     </main>
   );

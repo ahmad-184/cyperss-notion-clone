@@ -1,6 +1,9 @@
 "use client";
 
-import { changeInTrashStatusAction, deleteFolderFile } from "@/server-actions";
+import {
+  changeInTrashStatusAction,
+  deleteFolderFileAction,
+} from "@/server-actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   addfile,
@@ -14,6 +17,7 @@ import { File } from "@prisma/client";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
+import { findFile, findFolder, findFolderIndex } from "@/lib/utils";
 
 type FuncsTypes = {
   type: TrashAlertsType["type"];
@@ -106,7 +110,7 @@ const useTrash = () => {
       if (type === "folder") {
         currentItem = {
           type,
-          data: workspace.folders.find((f) => f.id === id)!,
+          data: findFolder(workspace, id),
         };
 
         if (!currentItem.data) throw new Error();
@@ -116,7 +120,7 @@ const useTrash = () => {
           id,
         };
         dispatch(removeFolder(payload));
-        const { data, error } = await deleteFolderFile(payload);
+        const { data, error } = await deleteFolderFileAction(payload);
 
         if (error) {
           console.log(error.message);
@@ -130,13 +134,10 @@ const useTrash = () => {
         return;
       } else if (type === "file") {
         if (!folderId) throw new Error("folder id required.");
-        const folderIndex = workspace.folders.findIndex(
-          (f) => f.id === folderId
-        );
 
         currentItem = {
           type,
-          data: workspace.folders[folderIndex].files.find((f) => f.id === id)!,
+          data: findFile(workspace, id, folderId),
         };
 
         const payload = {
@@ -147,7 +148,7 @@ const useTrash = () => {
 
         dispatch(removeFile({ id, folderId }));
 
-        const { data, error } = await deleteFolderFile(payload);
+        const { data, error } = await deleteFolderFileAction(payload);
 
         if (error) {
           console.log(error.message);
@@ -165,42 +166,6 @@ const useTrash = () => {
       toast.error(`Could not delete the ${type} permanently.`);
     }
   };
-
-  const createTrashAlertToast = (data: TrashAlertDataType) => {
-    if (!workspace) return;
-
-    const payload: TrashAlertsType = {
-      ...data,
-      restoreItemFunc: () => restoreDeletedItem(data),
-      deletePermanentlyFunc: () => deleteItemPermanently(data),
-    };
-
-    const toastId = toast(
-      `The "${payload.name || "Untitled"}" ${payload.type} moved to trash`,
-      {
-        closeButton: true,
-        duration: 7000,
-        position: "top-center",
-        classNames: { title: "dark:text-gray-300", icon: "dark:text-gray-300" },
-        action: (
-          <div className="flex items-center justify-end flex-grow">
-            <Button
-              onClick={() => {
-                payload.restoreItemFunc();
-                toast.dismiss(toastId);
-              }}
-              variant={"secondary"}
-              size={"sm"}
-              className="font-medium dark:text-gray-300"
-            >
-              Undo
-            </Button>
-          </div>
-        ),
-      }
-    );
-  };
-
   const deleteItem = async ({
     type,
     id,
@@ -213,16 +178,9 @@ const useTrash = () => {
 
       let currentItem;
 
-      if (type === "folder")
-        currentItem = workspace?.folders.find((f) => f.id === id);
-      if (type === "file") {
-        const folderIndex = workspace?.folders.findIndex(
-          (f) => f.id === folderId
-        );
-        currentItem = workspace?.folders[folderIndex].files.find(
-          (f) => f.id === id
-        );
-      }
+      if (type === "folder") currentItem = findFolder(workspace, id);
+      if (type === "file")
+        currentItem = findFile(workspace, id, folderId as string);
 
       if (!currentItem) return;
 
@@ -233,14 +191,6 @@ const useTrash = () => {
         inTrash: true,
         ...(type === "file" && folderId ? { folderId } : null),
       };
-
-      createTrashAlertToast({
-        type,
-        inTrashBy: payload.inTrashBy!,
-        id: payload.id,
-        name,
-        ...(type === "file" && { folderId: payload.folderId }),
-      });
 
       dispatch(changeInTrashStatus(payload));
 
@@ -266,7 +216,6 @@ const useTrash = () => {
   };
 
   return {
-    createTrashAlertToast,
     deleteItemPermanently,
     restoreDeletedItem,
     deleteItem,

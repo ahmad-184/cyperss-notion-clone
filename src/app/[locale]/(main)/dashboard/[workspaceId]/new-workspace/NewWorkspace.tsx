@@ -11,10 +11,10 @@ import { setupWorkspaceValidator } from "@/lib/validations";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  createCollaborators,
-  createWorkspace,
-  getWorkspaceById,
-  updateUserDetail,
+  createCollaboratorsAction,
+  createWorkspaceAction,
+  getFullDataWorkspaceByIdAction,
+  updateUserDetailAction,
 } from "@/server-actions";
 import { useRouter } from "next/navigation";
 
@@ -34,7 +34,6 @@ import { Input } from "@/components/ui/Input";
 import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgress";
 import WorkspaceLogoInput from "@/components/custom-inputs/WorkspaceLogoInput";
 import EmojiPickerMart from "@/components/EmojiPickerMart";
-import { useSession } from "next-auth/react";
 import { useAppDispatch } from "@/store";
 import PermissionSelectBox from "@/components/PermissionSelectBox";
 import SelectCollaborators from "@/components/select-collaborators";
@@ -55,7 +54,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   locale,
   title,
   description,
-  first_setup,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
@@ -84,7 +82,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   } = useForm<setupWorkspaceValidatorType>({
     defaultValues: {
       workspace_name: "",
-      username: user?.name,
       type: "private",
     },
     mode: "onSubmit",
@@ -116,7 +113,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   const onSubmit = async (data: setupWorkspaceValidatorType) => {
     try {
       if (!user?.id) return;
-      if (!first_setup && !data.type) return;
+      if (!data.type) return;
 
       const newId = uuid4();
       let payload: WorkspacePayload = {
@@ -141,62 +138,47 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
         }
       }
 
-      if (!user.name && data.username && first_setup) {
-        await updateUserDetail({ name: data.username, id: user.id });
+      if (data.type === "shared" && !selectedCollaborators.length)
+        return setError("Atleast 1 collabrator required.");
+
+      const { error: newWorkspaceError, data: newWorkspaceData } =
+        await createWorkspaceAction(payload);
+      if (newWorkspaceError || !newWorkspaceData)
+        throw new Error(newWorkspaceError?.message as string);
+
+      if (!newWorkspaceData?.id) return;
+
+      if (data.type === "shared" && selectedCollaborators.length) {
+        const {
+          data: workspaceCollaboratorsData,
+          error: workspaceCollaboratorsError,
+        } = await createCollaboratorsAction({
+          workspaceId: newWorkspaceData.id,
+          collaborators: selectedCollaborators,
+        });
+        if (error) throw new Error(workspaceCollaboratorsError?.message);
       }
 
-      if (first_setup) {
-        const { data: resData, error } = await createWorkspace(payload);
-        if (error) return toast.error(error.message);
-        if (resData) {
-          toast.success("Workspace created successfully.");
-          router.refresh();
-        } else throw new Error();
-        return;
-      } else {
-        if (data.type === "shared" && !selectedCollaborators.length)
-          return setError("Atleast 1 collabrator required.");
+      const { data: dataToStore, error: err } =
+        await getFullDataWorkspaceByIdAction(newWorkspaceData.id);
 
-        const { error: newWorkspaceError, data: newWorkspaceData } =
-          await createWorkspace(payload);
-        if (newWorkspaceError || !newWorkspaceData)
-          throw new Error(newWorkspaceError?.message as string);
+      if (err || !dataToStore) {
+        console.log(error);
+        toast.error("Colud not fetch workspace");
+      }
 
-        if (!newWorkspaceData?.id) return;
-
-        if (data.type === "shared" && selectedCollaborators.length) {
-          const {
-            data: workspaceCollaboratorsData,
-            error: workspaceCollaboratorsError,
-          } = await createCollaborators({
-            workspaceId: newWorkspaceData.id,
-            collaborators: selectedCollaborators,
-          });
-          if (error) throw new Error(workspaceCollaboratorsError?.message);
-        }
-
-        const { data: dataToStore, error: err } = await getWorkspaceById(
-          newWorkspaceData.id
+      if (dataToStore?.id) {
+        dispatch(
+          addWorkspace({
+            data: dataToStore,
+          })
         );
+        router.push(`/dashboard/${newWorkspaceData.id}`);
 
-        if (err || !dataToStore) {
-          console.log(error);
-          toast.error("Colud not fetch workspace");
-        }
-
-        if (dataToStore?.id) {
-          dispatch(
-            addWorkspace({
-              data: dataToStore,
-            })
-          );
-          router.push(`/dashboard/${newWorkspaceData.id}`);
-
-          return toast.success("Workspace created successfully");
-        } else {
-          toast.error("Something went wrong");
-          router.push(`/dashboard/${newWorkspaceData.id}`);
-        }
+        return toast.success("Workspace created successfully");
+      } else {
+        toast.error("Something went wrong");
+        router.push(`/dashboard/${newWorkspaceData.id}`);
       }
     } catch (err) {
       console.log(err);
@@ -212,15 +194,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
 
   return (
     <>
-      {first_setup && (
-        <AppLogo
-          t={t}
-          className={cn("fixed top-4 md:top-6", {
-            "left-4 md:left-12": getDirByLang(locale as string) === "ltr",
-            "right-4 md:right-12": getDirByLang(locale as string) === "rtl",
-          })}
-        />
-      )}
       <Card className="max-w-[600px] h-auto">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
@@ -229,16 +202,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-2">
-              {first_setup && (
-                <div className="w-full mb-2">
-                  <Label htmlFor="username">Your Name</Label>
-                  <Input
-                    {...register("username")}
-                    className="w-full"
-                    placeholder="koorosh..."
-                  />
-                </div>
-              )}
               <div className="flex gap-3 items-center">
                 <EmojiPickerMart
                   onChangeEmoji={handleChangeEmoji}
@@ -259,24 +222,20 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
                 </small>
               ) : null}
               <WorkspaceLogoInput ref={inputRef} subscription={subscription!} />
-              {!first_setup ? (
-                <>
-                  <PermissionSelectBox
-                    value={typeValue}
-                    handleChange={handleChangePermission}
+              <PermissionSelectBox
+                value={typeValue}
+                handleChange={handleChangePermission}
+              />
+              {typeValue === "shared" ? (
+                <div className="my-1 mb-3 mt-3">
+                  <SelectCollaborators
+                    selectedCollaborators={selectedCollaborators}
+                    getValue={getValue}
                   />
-                  {typeValue === "shared" ? (
-                    <div className="my-1 mb-3 mt-3">
-                      <SelectCollaborators
-                        selectedCollaborators={selectedCollaborators}
-                        getValue={getValue}
-                      />
-                    </div>
-                  ) : null}
-                  {error ? (
-                    <small className="my-1 text-destructive">{error}</small>
-                  ) : null}
-                </>
+                </div>
+              ) : null}
+              {error ? (
+                <small className="my-1 text-destructive">{error}</small>
               ) : null}
             </div>
             <ButtonWithLoaderAndProgress

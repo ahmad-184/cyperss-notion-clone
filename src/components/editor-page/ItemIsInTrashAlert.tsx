@@ -4,53 +4,26 @@ import { FolderType } from "@/types";
 import { File } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/Button";
-import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 
-type ItemIsInTrashAlertProps = {
-  type: "folder" | "file";
-};
+type ItemIsInTrashAlertProps =
+  | {
+      type: "folder";
+      data: FolderType | null;
+    }
+  | {
+      type: "file";
+      data: File | null;
+    };
 
-const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
+const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({
+  type,
+  data,
+}) => {
   const { current_workspace } = useAppSelector((store) => store.workspace);
-  const params = useParams();
   const router = useRouter();
   const { restoreDeletedItem, deleteItemPermanently } = useTrash();
   const { data: session } = useSession();
-
-  const data = useMemo(() => {
-    let res:
-      | {
-          data: FolderType;
-          type: "folder";
-        }
-      | {
-          data: File;
-          type: "file";
-        }
-      | null = null;
-
-    if (type === "folder")
-      res = {
-        type: "folder",
-        data: current_workspace?.folders.find(
-          (e) => e.id === params.folderId
-        ) as FolderType,
-      };
-
-    if (type === "file") {
-      const folderIndex = current_workspace?.folders.findIndex(
-        (e) => e.id === params.folderId
-      );
-      res = {
-        type: "file",
-        data: current_workspace?.folders[folderIndex!].files.find(
-          (e) => e.id === params.fileId
-        ) as File,
-      };
-    }
-    return res;
-  }, [type, params.folderId, params.fileId]);
 
   if (!data || data === undefined) return null;
 
@@ -63,9 +36,9 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
             {current_workspace?.type === "shared" ? (
               <>
                 by "
-                {session?.user.email === data.data.inTrashBy
+                {session?.user.email === data.inTrashBy
                   ? "You"
-                  : data.data.inTrashBy}
+                  : data.inTrashBy}
                 "
               </>
             ) : null}
@@ -74,10 +47,10 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
             <Button
               onClick={() => {
                 restoreDeletedItem({
-                  id: data.data.id,
+                  id: data.id,
                   type,
-                  ...(data.type === "file" && {
-                    folderId: data.data.folderId,
+                  ...(type === "file" && {
+                    folderId: data.folderId,
                   }),
                 });
               }}
@@ -89,18 +62,18 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({ type }) => {
             <Button
               onClick={() => {
                 deleteItemPermanently({
-                  id: data.data.id,
+                  id: data.id,
                   type,
-                  ...(data.type === "file" && {
-                    folderId: data.data.folderId,
+                  ...(type === "file" && {
+                    folderId: data.folderId,
                   }),
                 });
-                if (data.type === "folder") {
-                  router.push(`/dashboard/${data.data.workspaceId}`);
+                if (type === "folder") {
+                  router.push(`/dashboard/${data.workspaceId}`);
                 }
-                if (data.type === "file") {
+                if (type === "file") {
                   router.push(
-                    `/dashboard/${data.data.workspaceId}/${data.data.folderId}`
+                    `/dashboard/${data.workspaceId}/${data.folderId}`
                   );
                 }
               }}

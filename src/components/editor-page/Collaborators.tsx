@@ -1,5 +1,4 @@
 import { useAppSelector } from "@/store";
-import CustomTooltip from "../custom/CustomTooltip";
 import CustomAvatar from "../custom/CustomAvatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/Tooltip";
 

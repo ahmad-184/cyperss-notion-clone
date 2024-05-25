@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import CypressLogo from "@/components/CypressLogo";
-import { getWorkspaceById } from "@/server-actions";
+import { getWorkspaceByIdAction } from "@/server-actions";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { ShieldAlert } from "lucide-react";
@@ -27,7 +27,7 @@ const RedirectUser: React.FC<RedirectUserProps> = ({ id, user }) => {
         "active_workspace"
       ) as string;
       if (!active_workspace) return router.push(`dashboard/${id}`);
-      const { data, error } = await getWorkspaceById(active_workspace);
+      const { data, error } = await getWorkspaceByIdAction(active_workspace);
       if (error) {
         toast.error("Something went wrong.");
         return setError(true);

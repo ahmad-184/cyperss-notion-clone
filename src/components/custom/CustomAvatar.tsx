@@ -8,12 +8,16 @@ interface CustomAvatarProps {
   user: User;
   className?: string;
   onClick?: () => void;
+  width?: number;
+  height?: number;
 }
 
 const CustomAvatar: React.FC<CustomAvatarProps> = ({
   user,
   className,
   onClick,
+  width,
+  height,
 }) => {
   const fallbackName = user?.name
     ?.split(" ")
@@ -27,8 +31,7 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
         <Image
           src={user.image}
           alt={`${user?.name} profile`}
-          width={60}
-          height={60}
+          fill
           className="object-cover w-full h-full"
         />
       ) : (

@@ -5,7 +5,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/Accordion";
-import EmojiPicker from "../EmojiPicker";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { File } from "@prisma/client";
@@ -13,7 +12,6 @@ import { memo, useState } from "react";
 import { Input } from "../ui/Input";
 import CustomTooltip from "../custom/CustomTooltip";
 import { PlusIcon, TrashIcon } from "lucide-react";
-import type { EmojiClickData } from "emoji-picker-react";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/store";
 import {
@@ -25,7 +23,7 @@ import {
 import {
   changeItemTitleAction,
   changeIconAction,
-  createFile,
+  createFileAction,
 } from "@/server-actions";
 import useTrash from "@/hooks/useTrash";
 import EmojiPickerMart from "../EmojiPickerMart";
@@ -140,7 +138,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         workspaceOwnerId: data.workspaceOwnerId,
       };
       dispatch(addfile({ data: payload, folderId: data.id }));
-      const { data: resData, error } = await createFile(payload);
+      const { data: resData, error } = await createFileAction(payload);
       if (error || !resData) {
         dispatch(removeFile({ folderId: data.id, id: payload.id }));
         toast.error(
@@ -203,7 +201,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={cn("pr-4 w-[256px]", { "rtl:pl-4": type === "file" })}
+      className={cn("pr-4 w-[240px]", { "rtl:pl-4": type === "file" })}
     >
       <AccordionTrigger
         isFolder={type === "folder"}
@@ -211,14 +209,14 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       >
         <div
           className={cn(
-            "flex items-center w-[238px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
+            "flex items-center w-[200px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
             {
               "group/folder": type === "folder",
               "group/file": type === "file",
             }
           )}
         >
-          <div className="flex items-center gap-2 truncate">
+          <div className="flex items-center gap-2 truncate flex-grow">
             <EmojiPickerMart
               onChangeEmoji={handleChangeEmoji}
               emoji={data.iconId! || ""}
@@ -226,7 +224,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
             {!isEditting ? (
               <p
                 onClick={handleChangeUrl}
-                className="cursor-pointer truncate"
+                className="cursor-pointer truncate flex-grow text-sm"
                 onDoubleClick={handleDoubleClick}
               >
                 {data?.title || "Untitled"}

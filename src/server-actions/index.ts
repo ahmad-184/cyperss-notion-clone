@@ -22,13 +22,14 @@ import {
   createWorkspaceQuery,
   getFileByIdQuery,
   getFolderByIdQuery,
+  getFullDataFolderByIdQuery,
+  getFullDataWorkspaceByIdQuery,
   getUsersQuery,
   getUserSubscriptioQuery,
   getUserWithoutMeQuery,
+  getUserWorkspacesFullData,
   getWorkspaceByIdQuery,
   getWorkspaceCollaboratorsQuery,
-  privateWorkspacesQuery,
-  sharedWorkspacesQuery,
   updateFileQuery,
   updateFolderQuery,
 } from "./queries";
@@ -39,7 +40,7 @@ import { validate } from "uuid";
 import { rateLimit } from "@/lib/rateLimit";
 import { headers } from "next/headers";
 
-export const getUserSubscription = async (
+export const getUserSubscriptionAction = async (
   userId: string
 ): Promise<{
   data: Subscription | null;
@@ -69,7 +70,7 @@ export const getUserSubscription = async (
   }
 };
 
-export const updateUserDetail = async (
+export const updateUserDetailAction = async (
   data: User
 ): Promise<{
   data?: User;
@@ -116,10 +117,10 @@ export const updateUserDetail = async (
   }
 };
 
-export const createWorkspace = async (
+export const createWorkspaceAction = async (
   data: WorkspacePayload
 ): Promise<{
-  data?: WorkspaceTypes;
+  data?: Workspace;
   error?: {
     message: string | null;
   };
@@ -148,7 +149,7 @@ export const createWorkspace = async (
   }
 };
 
-export const createCollaborators = async ({
+export const createCollaboratorsAction = async ({
   workspaceId,
   collaborators,
 }: {
@@ -188,7 +189,7 @@ export const createCollaborators = async ({
   }
 };
 
-export const getWorkspaceCollaborators = async ({
+export const getWorkspaceCollaboratorsAction = async ({
   workspaceId,
 }: {
   workspaceId: string;
@@ -215,7 +216,7 @@ export const getWorkspaceCollaborators = async ({
   }
 };
 
-export const getWorkspaces = async (): Promise<{
+export const getWorkspacesAction = async (): Promise<{
   data?: WorkspaceTypes[];
   error?: {
     message: string | null;
@@ -228,16 +229,13 @@ export const getWorkspaces = async (): Promise<{
 
     const userId = validatedUser.id;
 
-    const [privateWorkspaces, sharedWorkspaces, collaboratingWorkspaces] =
-      await Promise.all([
-        privateWorkspacesQuery(userId),
-        sharedWorkspacesQuery(userId),
-        collaboratingWorkspacesQuery(userId),
-      ]);
+    const [userWorkspaces, collaboratingWorkspaces] = await Promise.all([
+      getUserWorkspacesFullData(userId),
+      collaboratingWorkspacesQuery(userId),
+    ]);
 
     const data: WorkspaceTypes[] = [
-      ...privateWorkspaces,
-      ...sharedWorkspaces,
+      ...userWorkspaces,
       ...collaboratingWorkspaces,
     ];
 
@@ -254,7 +252,7 @@ export const getWorkspaces = async (): Promise<{
   }
 };
 
-export const updateWorkspace = async ({
+export const updateWorkspaceAction = async ({
   workspaceId,
   data,
   collaborators,
@@ -263,7 +261,7 @@ export const updateWorkspace = async ({
   data: Partial<Workspace>;
   collaborators?: User[];
 }): Promise<{
-  data?: WorkspaceTypes | null;
+  data?: Workspace | null;
   error?: { message: string };
 }> => {
   try {
@@ -329,7 +327,7 @@ export const updateWorkspace = async ({
   }
 };
 
-export const deleteWorkspace = async ({
+export const deleteWorkspaceAction = async ({
   workspaceId,
 }: {
   workspaceId: string;
@@ -359,7 +357,7 @@ export const deleteWorkspace = async ({
   }
 };
 
-export const getWorkspaceById = async (
+export const getFullDataWorkspaceByIdAction = async (
   id: string
 ): Promise<{
   data?: WorkspaceTypes;
@@ -372,7 +370,7 @@ export const getWorkspaceById = async (
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    const data = await getWorkspaceByIdQuery(id);
+    const data = await getFullDataWorkspaceByIdQuery(id);
 
     if (!data?.id) throw new Error("Workspace not found");
 
@@ -389,7 +387,37 @@ export const getWorkspaceById = async (
   }
 };
 
-export const getUsers = async (
+export const getWorkspaceByIdAction = async (
+  id: string
+): Promise<{
+  data?: Workspace;
+  error?: {
+    message: string | null;
+  };
+}> => {
+  try {
+    const { validatedUser, error } = await validatUser();
+    if (error) throw new Error(error || "Unauthorized");
+    if (!validatedUser?.id) throw new Error();
+
+    const data = await getFullDataWorkspaceByIdQuery(id);
+
+    if (!data?.id) throw new Error("Workspace not found");
+
+    return {
+      data,
+    };
+  } catch (err: any) {
+    console.log(err);
+    return {
+      error: {
+        message: err.message || "Something went wrong, please try again.",
+      },
+    };
+  }
+};
+
+export const getUsersAction = async (
   include_me?: boolean
 ): Promise<{
   data?: Required<User[]>;
@@ -422,7 +450,7 @@ export const getUsers = async (
   }
 };
 
-export const createFolder = async (data: {
+export const createFolderAction = async (data: {
   folder: Folder;
   userId: string;
 }): Promise<{
@@ -436,9 +464,8 @@ export const createFolder = async (data: {
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    const { data: subscription, error: subsError } = await getUserSubscription(
-      validatedUser.id
-    );
+    const { data: subscription, error: subsError } =
+      await getUserSubscriptionAction(validatedUser.id);
 
     if (subsError)
       return {
@@ -475,14 +502,14 @@ export const createFolder = async (data: {
   }
 };
 
-export const updateFolder = async ({
+export const updateFolderAction = async ({
   folderId,
   data,
 }: {
   folderId: string;
   data: Partial<Folder>;
 }): Promise<{
-  data?: FolderType | null;
+  data?: Folder | null;
   error?: {
     message: string;
   };
@@ -506,10 +533,36 @@ export const updateFolder = async ({
   }
 };
 
-export const getFolderbyId = async (
+export const getFullDataFolderbyIdAction = async (
   id: string
 ): Promise<{
   data?: FolderType;
+  error?: {
+    message: string;
+  };
+}> => {
+  try {
+    if (!id) throw new Error("folder id required");
+    const folder = await getFullDataFolderByIdQuery(id);
+
+    if (!folder) throw new Error();
+
+    return {
+      data: folder,
+    };
+  } catch (err: any) {
+    return {
+      error: {
+        message: err.message || "Something went wrong, please try again",
+      },
+    };
+  }
+};
+
+export const getFolderByIdAction = async (
+  id: string
+): Promise<{
+  data?: Folder;
   error?: {
     message: string;
   };
@@ -681,7 +734,7 @@ export const changeItemTitleAction = async (data: {
   }
 };
 
-export const createFile = async (
+export const createFileAction = async (
   data: File
 ): Promise<{ data?: File; error?: { message: string } }> => {
   try {
@@ -710,7 +763,7 @@ export const createFile = async (
   }
 };
 
-export const updateFile = async ({
+export const updateFileAction = async ({
   fileId,
   data,
 }: {
@@ -741,7 +794,7 @@ export const updateFile = async ({
   }
 };
 
-export const getFilebyId = async (
+export const getFilebyIdAction = async (
   id: string
 ): Promise<{
   data?: File;
@@ -816,7 +869,7 @@ export const changeInTrashStatusAction = async (
   }
 };
 
-export const deleteFolderFile = async (data: {
+export const deleteFolderFileAction = async (data: {
   type: ChangeInTrashStatusTypes["type"];
   id: string;
 }): Promise<{

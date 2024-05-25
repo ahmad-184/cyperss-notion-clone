@@ -19,7 +19,10 @@ import { setupWorkspaceValidator } from "@/lib/validations";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ButtonWithLoaderAndProgress from "./ButtonWithLoaderAndProgress";
-import { createWorkspace, updateUserDetail } from "@/server-actions";
+import {
+  createWorkspaceAction,
+  updateUserDetailAction,
+} from "@/server-actions";
 import { useRouter } from "next/navigation";
 import WorkspaceLogoInput from "./custom-inputs/WorkspaceLogoInput";
 import AppLogo from "./AppLogo";
@@ -32,18 +35,12 @@ interface DashboardSetupProps {
   subscription: Subscription | null;
   user: UserSession["user"];
   locale: string;
-  title: string;
-  description: string;
-  first_setup: boolean;
 }
 
 const DashboardSetup: React.FC<DashboardSetupProps> = ({
   user,
   subscription,
   locale,
-  title,
-  description,
-  first_setup,
 }) => {
   const router = useRouter();
 
@@ -116,10 +113,10 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
       }
 
       if (!user.name && data.username) {
-        await updateUserDetail({ name: data.username, id: user.id });
+        await updateUserDetailAction({ name: data.username, id: user.id });
       }
 
-      const { data: resData, error } = await createWorkspace(payload);
+      const { data: resData, error } = await createWorkspaceAction(payload);
 
       if (error) return toast.error(error.message);
       if (resData) {
@@ -143,22 +140,23 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
       />
       <Card className="max-w-[600px] h-auto">
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          <CardDescription>{description}</CardDescription>
+          <CardTitle>Setup Your First Workspace</CardTitle>
+          <CardDescription>
+            Lets create a private workspace to get you started. You can add
+            collaborators later from the workspace setting tab.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-2">
-              {first_setup && (
-                <div className="w-full mb-2">
-                  <Label htmlFor="username">Your Name</Label>
-                  <Input
-                    {...register("username")}
-                    className="w-full"
-                    placeholder="koorosh..."
-                  />
-                </div>
-              )}
+              <div className="w-full mb-2">
+                <Label htmlFor="username">Your Name</Label>
+                <Input
+                  {...register("username")}
+                  className="w-full"
+                  placeholder="koorosh..."
+                />
+              </div>
               <div className="flex gap-3 items-center">
                 <EmojiPickerMart
                   onChangeEmoji={handleChangeEmoji}

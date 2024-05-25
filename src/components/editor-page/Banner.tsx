@@ -29,9 +29,9 @@ const Banner: React.FC<BannerProps> = ({ src, alt }) => {
                 )}
               ></div>
               <Image
-                src={imgSrc}
+                src={imgSrc || ""}
                 className={cn(
-                  "hidden w-full h-full inset-0 object-cover bg-center z-[0]",
+                  "hidden invisible w-full h-full inset-0 object-cover bg-center z-[0]",
                   {
                     "block visible": loaded,
                   }
@@ -39,10 +39,8 @@ const Banner: React.FC<BannerProps> = ({ src, alt }) => {
                 fill
                 alt={alt || "banner"}
                 loading="lazy"
-                onError={() => setError(true)}
                 onLoad={() => {
                   setLoaded(true);
-                  setError(false);
                 }}
               />
             </>

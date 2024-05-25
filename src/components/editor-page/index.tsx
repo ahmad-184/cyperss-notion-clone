@@ -3,12 +3,12 @@
 import {
   changeIconAction,
   changeItemTitleAction,
-  getFilebyId,
-  getFolderbyId,
-  getWorkspaceById,
-  updateFile,
-  updateFolder,
-  updateWorkspace,
+  getFilebyIdAction,
+  getFolderByIdAction,
+  getWorkspaceByIdAction,
+  updateFileAction,
+  updateFolderAction,
+  updateWorkspaceAction,
 } from "@/server-actions";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
@@ -17,28 +17,28 @@ import {
   changeItemTitle,
   replaceFile,
   replaceFolder,
-  replaceWorkspace,
+  updateWorkspace as updateWorkspaceStore,
+  updateFolder as updateFolderStore,
 } from "@/store/slices/workspace";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import EditorBreadCrumb from "./EditorBreadcrumb";
 import ItemIsInTrashAlert from "./ItemIsInTrashAlert";
-import { useParams } from "next/navigation";
 import Banner from "./Banner";
 import Container from "./Container";
 import QuillEditor from "./QuillEditor";
 import { File } from "@prisma/client";
-import { FolderType, WorkspaceTypes } from "@/types";
 import { Input } from "../ui/Input";
 import _debounce from "lodash.debounce";
 import { Trash } from "lucide-react";
 import Loader from "../Loader";
-import { cn } from "@/lib/utils";
+import { cn, findFile, findFolder, findWorkspace } from "@/lib/utils";
 import useUploadV2 from "@/hooks/useUploadV2";
 import Collaborators from "./Collaborators";
 import { Badge } from "../ui/Badge";
 import { removeFileUpload } from "@/lib/removeFileUpload";
 import EmojiPickerMart from "../EmojiPickerMart";
+import { FolderType, WorkspaceTypes } from "@/types";
 
 interface EditorPageProps {
   type: "workspace" | "folder" | "file";
@@ -49,7 +49,6 @@ interface EditorPageProps {
 const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   const dispatch = useAppDispatch();
   const { current_workspace } = useAppSelector((store) => store.workspace);
-  const params = useParams();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -64,17 +63,27 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
     try {
       if (current_workspace?.type !== "shared") return;
       if (type === "workspace") {
-        const { data: resData, error } = await getWorkspaceById(id);
+        const { data: resData, error } = await getWorkspaceByIdAction(id);
         if (error || !resData) throw new Error();
-        dispatch(replaceWorkspace(resData));
+        const payload: WorkspaceTypes = {
+          ...current_workspace,
+          ...resData,
+        };
+        dispatch(updateWorkspaceStore(payload));
       }
       if (type === "folder") {
-        const { data: resData, error } = await getFolderbyId(id);
+        const { data: resData, error } = await getFolderByIdAction(id);
         if (error || !resData) throw new Error();
-        dispatch(replaceFolder(resData));
+        const folder = findFolder(current_workspace, id);
+        if (!folder) return;
+        const payload: FolderType = {
+          ...folder,
+          ...resData,
+        };
+        dispatch(updateFolderStore(payload));
       }
       if (type === "file") {
-        const { data: resData, error } = await getFilebyId(id);
+        const { data: resData, error } = await getFilebyIdAction(id);
         if (error || !resData) throw new Error();
         dispatch(replaceFile(resData));
       }
@@ -89,24 +98,18 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   }, [type, id, folderId]);
 
   const data = useMemo(() => {
-    if (!id || !type) return null;
-    let res;
-    if (type === "workspace") {
-      res = current_workspace as WorkspaceTypes;
-    }
+    if (!current_workspace) return;
+    let res: File | FolderType | WorkspaceTypes | null | undefined = null;
+
+    if (type === "workspace") res = current_workspace as WorkspaceTypes;
     if (type === "folder") {
-      res = current_workspace?.folders.find((e) => e.id === id) as FolderType;
+      res = findFolder(current_workspace, id);
     }
     if (type === "file" && folderId) {
-      const folderIndex = current_workspace?.folders.findIndex(
-        (e) => e.id === folderId
-      );
-      res = current_workspace?.folders[folderIndex!].files.find(
-        (e) => e.id === id
-      ) as File;
+      res = findFile(current_workspace, id, folderId);
     }
     return res;
-  }, [current_workspace, type, id, folderId, params]);
+  }, [current_workspace, type, id, folderId]);
 
   useEffect(() => {
     if (data?.id) {
@@ -147,7 +150,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   const updateTitle = useCallback(
     _debounce(async (t) => {
       try {
-        if (!data) return;
+        if (!current_workspace || !data) return;
         const { data: resData, error } = await changeItemTitleAction({
           type,
           id: data.id,
@@ -160,7 +163,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         toast.error(`Could not change the ${type} name, please try again`);
       }
     }, 1000),
-    [data?.id, type]
+    [id, type, data?.id]
   );
 
   const handleChangeTitle = (e: any) => {
@@ -179,6 +182,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   };
 
   const handleOpenInput = async () => {
+    if (isUploading || isLoading) return;
     if (inputRef.current) {
       inputRef.current.click();
     }
@@ -188,6 +192,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
     try {
       if (!data?.id) return;
       if (!files.length) return;
+      if (!current_workspace) return;
+      if (isUploading || isLoading) return;
       setIsloading(true);
       const uploadedFile = await startUpload();
       if (!uploadedFile?.length) return;
@@ -196,7 +202,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
       console.log(uploadedFile);
       if (!fileUrl) throw new Error();
       if (type === "workspace") {
-        const res = await updateWorkspace({
+        const res = await updateWorkspaceAction({
           workspaceId: data.id,
           data: {
             bannerUrl: fileUrl,
@@ -204,9 +210,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
           },
         });
         if (res.error || !res.data) throw new Error();
-        dispatch(replaceWorkspace(res.data));
+        dispatch(
+          updateWorkspaceStore({
+            ...current_workspace,
+            ...res.data,
+          })
+        );
       } else if (type === "folder") {
-        const res = await updateFolder({
+        const res = await updateFolderAction({
           folderId: data.id,
           data: {
             bannerUrl: fileUrl,
@@ -214,9 +225,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
           },
         });
         if (res.error || !res.data) throw new Error();
-        dispatch(replaceFolder(res.data));
+        dispatch(
+          updateFolderStore({
+            ...findFolder(current_workspace, id),
+            ...res.data,
+          })
+        );
       } else if (type === "file") {
-        const res = await updateFile({
+        const res = await updateFileAction({
           fileId: data.id,
           data: {
             bannerUrl: fileUrl,
@@ -235,6 +251,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   }, [type, data, files]);
 
   useEffect(() => {
+    if (isUploading || isLoading) return;
     handleUploadBanner();
   }, [files]);
 
@@ -243,6 +260,8 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
       if (!data?.id) return;
       if (!data.bannerUrl) return;
       if (!data.banner_public_id) return;
+      if (!current_workspace) return;
+      if (isUploading || isLoading) return;
 
       const currentData = data;
 
@@ -259,7 +278,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
             type,
           })
         );
-        const res = await updateWorkspace({
+        const res = await updateWorkspaceAction({
           workspaceId: data.id,
           data: {
             bannerUrl: "",
@@ -277,7 +296,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
           );
           throw new Error();
         }
-        dispatch(replaceWorkspace(res.data));
+        dispatch(
+          updateWorkspaceStore({
+            ...current_workspace,
+            ...res.data,
+          })
+        );
       } else if (type === "folder") {
         dispatch(
           changeBanner({
@@ -287,7 +311,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
             type,
           })
         );
-        const res = await updateFolder({
+        const res = await updateFolderAction({
           folderId: data.id,
           data: {
             bannerUrl: "",
@@ -305,7 +329,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
           );
           throw new Error();
         }
-        dispatch(replaceFolder(res.data));
+        dispatch(
+          replaceFolder({
+            ...findFolder(current_workspace, id),
+            ...res.data,
+          })
+        );
       } else if (type === "file") {
         dispatch(
           changeBanner({
@@ -316,7 +345,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
             folderId: folderId,
           })
         );
-        const res = await updateFile({
+        const res = await updateFileAction({
           fileId: data.id,
           data: {
             bannerUrl: "",
@@ -348,7 +377,12 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
   return (
     <div className="w-full">
       {data?.inTrash ? (
-        <ItemIsInTrashAlert type={type === "folder" ? "folder" : "file"} />
+        <>
+          {type === "folder" || type === "file" ? (
+            //@ts-ignore
+            <ItemIsInTrashAlert type={type} data={data} />
+          ) : null}
+        </>
       ) : null}
       <div className="py-3 mt-1 px-3 flex flex-wrap gap-3 items-center w-full justify-between sm:px-6">
         <EditorBreadCrumb type={type} />
@@ -366,81 +400,88 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         </div>
       </div>
       <div className="w-full mb-4">
-        <Banner src={data?.bannerUrl || null} alt={`${data?.title} banner`} />
+        <Banner src={data?.bannerUrl} alt={`${data?.title} banner`} />
       </div>
-      <Container className="py-6 flex flex-col w-full gap-3 justify-center items-center">
-        <div className="flex w-full flex-col gap-3">
-          <div className="w-full flex flex-col">
-            <div className="flex w-full flex-col mb-2">
-              <EmojiPickerMart
-                emoji={data?.iconId || ""}
-                classNames="text-[70px] pl-[2px] w-fit"
-                onChangeEmoji={handleChangeEmoji}
-              />
-              <input ref={inputRef} hidden type="file" accept="image/*" />
-              <div className="ml-3 flex gap-2">
-                {data && !data?.bannerUrl ? (
-                  <div
-                    onClick={handleOpenInput}
-                    className="w-fit flex cursor-pointer 
+      <Container className="py-6">
+        <div className="flex flex-col w-full justify-center items-center">
+          <div className="flex w-full flex-col gap-3">
+            <div className="w-full flex flex-col group/container">
+              <div className="flex w-full flex-col mb-2">
+                <input ref={inputRef} hidden type="file" accept="image/*" />
+                <div className="ml-3">
+                  <div className="flex gap-2 md:invisible group-hover/container:visible">
+                    {data && !data?.bannerUrl ? (
+                      <div
+                        onClick={handleOpenInput}
+                        className="w-fit flex cursor-pointer 
                   gap-2 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
-                  duration-150 dark:text-gray-400 text-xs 
+                  duration-150 dark:text-gray-500 text-xs 
                   bg-muted-foreground/10 
-                  dark:bg-muted/70 rounded-lg px-2 py-[3px]"
-                  >
-                    Add Banner
-                  </div>
-                ) : null}
-                {data && data?.bannerUrl ? (
-                  <>
-                    <div
-                      onClick={handleOpenInput}
-                      className="w-fit flex cursor-pointer
-                  gap-2 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
-                  duration-150 dark:text-gray-400 text-xs 
-                  bg-muted-foreground/10
-                  dark:bg-muted/70 rounded-lg px-2 py-[3px]"
-                    >
-                      Change Banner
-                    </div>
-                    <div
-                      onClick={handleRemoveBanner}
-                      className="w-fit flex cursor-pointer 
-                  gap-1 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
-                  duration-150 dark:text-gray-400 text-xs 
-                  bg-muted-foreground/10 items-center 
-                  dark:bg-muted/70 rounded-lg px-2 py-[3px]"
-                    >
-                      <div>
-                        <Trash className="w-3 h-3" />
+                  dark:bg-muted/50 rounded-lg px-2 py-[3px]"
+                      >
+                        Add Banner +
                       </div>
+                    ) : null}
+                    {data && data?.bannerUrl ? (
+                      <>
+                        <div
+                          onClick={handleOpenInput}
+                          className="w-fit flex cursor-pointer
+                      gap-2 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
+                      duration-150 dark:text-gray-500 text-xs 
+                      bg-muted-foreground/10
+                      dark:bg-muted/50 rounded-lg px-2 py-[3px]"
+                        >
+                          Change Banner
+                        </div>
+                        <div
+                          onClick={handleRemoveBanner}
+                          className="w-fit flex cursor-pointer 
+                  gap-1 dark:hover:bg-muted/100 hover:bg-muted-foreground/20 transition-all 
+                  duration-150 dark:text-gray-500 text-xs 
+                  bg-muted-foreground/10 items-center 
+                  dark:bg-muted/50 rounded-lg px-2 py-[3px]"
+                        >
+                          <div>
+                            <Trash className="w-3 h-3" />
+                          </div>
+                        </div>
+                      </>
+                    ) : null}
+                    <div
+                      className={cn("hidden", {
+                        block: isUploading || isLoading,
+                      })}
+                    >
+                      <Loader className="w-5 h-5" />
                     </div>
-                  </>
-                ) : null}
-                <div
-                  className={cn("hidden", {
-                    block: isUploading || isLoading,
-                  })}
-                >
-                  <Loader className="w-5 h-5" />
+                  </div>
                 </div>
               </div>
-            </div>
-            <Input
-              value={data?.title || ""}
-              placeholder="Untitled"
-              className="text-3xl font-bold dark:text-gray-400 pl-[0.87rem]
-                border-none bg-transparent hover:bg-transparent
+              <div className="flex items-center">
+                <EmojiPickerMart
+                  emoji={data?.iconId || ""}
+                  classNames="text-[40px] pl-[5px] w-fit"
+                  onChangeEmoji={handleChangeEmoji}
+                />
+                <input
+                  value={data?.title || ""}
+                  placeholder="Untitled"
+                  className="text-3xl h-[3rem] font-bold dark:text-gray-400 pl-1 
+                border-none bg-transparent hover:bg-transparent flex-grow 
                 outline-none hover:outline-none hover:border-none focus-visible:border-none
                 focus-within:border-none focus:border-none focus-visible:outline-none
                 focus-within:outline-none focus:outline-none focus-visible:ring-0 
-                peer-focus-within:outline-red-400 rounded-none border-transparent
+                peer-focus-within:outline-red-400 rounded-none border-transparent 
+                placeholder:text-gray-300 placeholder:dark:text-gray-600/50
               "
-              onChange={handleChangeTitle}
-            />
+                  onChange={handleChangeTitle}
+                />
+              </div>
+            </div>
           </div>
+          <QuillEditor setSaving={setSaving} data={data} type={type} />
         </div>
-        <QuillEditor data={data} />
       </Container>
     </div>
   );

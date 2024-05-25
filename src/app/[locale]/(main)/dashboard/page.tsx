@@ -1,7 +1,7 @@
 import DashboardSetup from "@/components/DashboardSetup";
 import LanguageChanger from "@/components/LanguageChanger";
 import { db } from "@/lib/db";
-import { getUserSubscription } from "@/server-actions";
+import { getUserSubscriptionAction } from "@/server-actions";
 import { redirect } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import RedirectUser from "./RedirectUser";
@@ -24,7 +24,7 @@ export default async function Page({ params }: PageProps) {
     },
   });
 
-  const { data } = await getUserSubscription(validatedUser.id as string);
+  const { data } = await getUserSubscriptionAction(validatedUser.id as string);
 
   if (!existingWorkspace)
     return (
@@ -37,10 +37,6 @@ export default async function Page({ params }: PageProps) {
           user={validatedUser}
           subscription={data}
           locale={params.locale}
-          first_setup={true}
-          title="Setup Your First Workspace"
-          description="Lets create a private workspace to get you started. You can add
-          collaborators later from the workspace setting tab."
         />
       </div>
     );

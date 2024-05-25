@@ -8,7 +8,7 @@ import { v4 as uuid4 } from "uuid";
 import { addFolder, removeFolder } from "@/store/slices/workspace";
 import { Subscription } from "@prisma/client";
 import { toast } from "sonner";
-import { createFolder } from "@/server-actions";
+import { createFolderAction } from "@/server-actions";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils";
 
@@ -59,13 +59,12 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
             data: { ...payload, files: [] },
           })
         );
-        const { error } = await createFolder({
+        const { error } = await createFolderAction({
           folder: payload,
           userId: user.id,
         });
         if (error) {
           console.log(error.message);
-          // console.log("there is an error");
           toast.error(`Could not create the folder`);
           dispatch(
             removeFolder({
@@ -88,7 +87,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
       <div className="flex text-muted-foreground justify-between items-center w-full">
         {!loading ? (
           <>
-            <p className="text-sm font-medium">FOLDERS</p>
+            <p className="text-xs font-medium">FOLDERS</p>
             <CustomTooltip side="left" description="Create New Folder">
               <Plus
                 onClick={createFolderHandler}

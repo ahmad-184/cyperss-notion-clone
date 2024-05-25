@@ -1,6 +1,6 @@
 import { validatUser } from "@/lib/validateUser";
 import NewWorkspace from "./NewWorkspace";
-import { getUserSubscription } from "@/server-actions";
+import { getUserSubscriptionAction } from "@/server-actions";
 
 interface PageProps {
   params: {
@@ -13,7 +13,9 @@ const Page: React.FC<PageProps> = async ({ params }) => {
   if (error || !validatedUser) return;
   if (!validatedUser.id) return;
 
-  const { data: subscription } = await getUserSubscription(validatedUser.id);
+  const { data: subscription } = await getUserSubscriptionAction(
+    validatedUser.id
+  );
 
   return (
     <div className="py-6 flex flex-col w-full gap-3 justify-center items-center px-3 sm:px-6">

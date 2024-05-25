@@ -1,10 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 
 const StylesProviders = ({ children }: { children: React.ReactNode }) => {
-  const { theme } = useTheme();
   const pathname = usePathname();
 
   return (

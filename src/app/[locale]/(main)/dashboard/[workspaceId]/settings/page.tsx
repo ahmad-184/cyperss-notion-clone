@@ -1,6 +1,6 @@
 import Settings from "@/components/settings";
 import { validatUser } from "@/lib/validateUser";
-import { getUserSubscription, getWorkspaceById } from "@/server-actions";
+import { getUserSubscriptionAction } from "@/server-actions";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -20,7 +20,9 @@ const Page = async ({ params }: PageProps) => {
   const { validatedUser, error } = await validatUser();
   if (error || !validatedUser?.id) return redirect("/signout");
 
-  const { data: subscription } = await getUserSubscription(validatedUser.id);
+  const { data: subscription } = await getUserSubscriptionAction(
+    validatedUser.id
+  );
 
   return (
     <div className="p-5 px-3 sm:px-10 flex justify-center workspace-content">

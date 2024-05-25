@@ -19,7 +19,10 @@ import { Skeleton } from "../ui/Skeleton";
 import { toast } from "sonner";
 import { Button } from "../ui/Button";
 import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
-import { updateWorkspace } from "@/server-actions";
+import {
+  getFullDataWorkspaceByIdAction,
+  updateWorkspaceAction,
+} from "@/server-actions";
 import { useDispatch } from "react-redux";
 import { replaceWorkspace } from "@/store/slices/workspace";
 import useUploadV2 from "@/hooks/useUploadV2";
@@ -121,7 +124,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       if (data.type === "shared" && !selectedCollaborators.length)
         return setError("Atleast 1 collaborator required");
 
-      const { data: res, error } = await updateWorkspace({
+      const { data: res, error } = await updateWorkspaceAction({
         workspaceId: current_workspace.id,
         data: payload,
         collaborators: selectedCollaborators,
@@ -134,7 +137,16 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
         return;
       }
 
-      dispatch(replaceWorkspace(res));
+      const fetWorkspaceData = await getFullDataWorkspaceByIdAction(res.id);
+
+      if (fetWorkspaceData.error || !fetWorkspaceData.data) {
+        console.log(error);
+        toast.error("Something went wrong, please try again");
+
+        return;
+      }
+
+      dispatch(replaceWorkspace(fetWorkspaceData.data));
       toast.success("The changes were successfully applied");
       router.refresh();
     } catch (err: any) {

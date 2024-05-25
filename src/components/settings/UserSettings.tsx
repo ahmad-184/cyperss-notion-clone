@@ -1,6 +1,6 @@
 import { User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash, User as UserIcon } from "lucide-react";
+import { Edit, Trash, User as UserIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ import { Button } from "../ui/Button";
 import CustomAvatar from "../custom/CustomAvatar";
 import useUploadV2 from "@/hooks/useUploadV2";
 import Loader from "../Loader";
-import { updateUserDetail } from "@/server-actions";
+import { updateUserDetailAction } from "@/server-actions";
 import { useRouter } from "next/navigation";
 import CustomTooltip from "../custom/CustomTooltip";
 
@@ -62,7 +62,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
   const onSubmit = async (data: zodValidatorType) => {
     try {
       setSaveLoading(true);
-      const { data: resData, error } = await updateUserDetail({
+      const { data: resData, error } = await updateUserDetailAction({
         image: data.image,
         name: data.name,
         id: user.id,
@@ -159,6 +159,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
                   email: user.email,
                   name: user.name,
                 }}
+                width={96}
+                height={96}
                 className="w-full h-full cursor-pointer"
               />
               {!isUploading ? (
@@ -168,7 +170,9 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
                   }}
                   className="absolute group-hover/avatar:opacity-100 duration-500 inset-0 w-full h-full bg-muted-foreground/80 opacity-0 transition-all flex items-center justify-center text-center cursor-pointer"
                 >
-                  <p className="text-sm dark:text-gray-300">Change Profile</p>
+                  <p className="text-xs dark:text-gray-300">
+                    <Edit className="w-4 h-4 text-gray-100" />
+                  </p>
                 </div>
               ) : (
                 <div className="absolute duration-500 inset-0 w-full h-full bg-muted-foreground/80 opacity-80 transition-all flex items-center justify-center text-center cursor-pointer">

@@ -13,6 +13,16 @@ export const getUserSubscriptioQuery = async (userId: string) => {
 export const createWorkspaceQuery = async (data: WorkspacePayload) => {
   return await db.workspace.create({
     data: data,
+  });
+};
+
+export const privateWorkspacesQuery = async (userId: string) => {
+  return await db.workspace.findMany({
+    where: {
+      workspaceOwnerId: userId,
+      type: "private",
+    },
+    orderBy: { createdAt: "asc" },
     include: {
       collaborators: {
         select: {
@@ -28,18 +38,20 @@ export const createWorkspaceQuery = async (data: WorkspacePayload) => {
       },
       folders: {
         include: {
-          files: true,
+          files: {
+            orderBy: { createdAt: "asc" },
+          },
         },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
 };
 
-export const privateWorkspacesQuery = async (userId: string) => {
+export const getUserWorkspacesFullData = async (userId: string) => {
   return await db.workspace.findMany({
     where: {
       workspaceOwnerId: userId,
-      type: "private",
     },
     orderBy: { createdAt: "asc" },
     include: {
@@ -179,13 +191,10 @@ export const createCollaboratorQuery = async (
 export const createFolderQuery = async (payload: Folder) => {
   return await db.folder.create({
     data: payload,
-    include: {
-      files: true,
-    },
   });
 };
 
-export const getWorkspaceByIdQuery = async (workspaceId: string) => {
+export const getFullDataWorkspaceByIdQuery = async (workspaceId: string) => {
   return (await db.workspace.findUnique({
     where: {
       id: workspaceId,
@@ -215,6 +224,14 @@ export const getWorkspaceByIdQuery = async (workspaceId: string) => {
   })) as WorkspaceTypes;
 };
 
+export const getWorkspaceByIdQuery = async (workspaceId: string) => {
+  return await db.workspace.findUnique({
+    where: {
+      id: workspaceId,
+    },
+  });
+};
+
 export const getWorkspaceCollaboratorsQuery = async (workspaceId: string) => {
   return await db.collaborator.findMany({
     where: { workspaceId },
@@ -240,6 +257,14 @@ export const updateFolderQuery = async (
     data: {
       ...payload,
     },
+  });
+};
+
+export const getFullDataFolderByIdQuery = async (id: string) => {
+  return await db.folder.findUnique({
+    where: {
+      id,
+    },
     include: {
       files: {
         orderBy: { createdAt: "asc" },
@@ -252,11 +277,6 @@ export const getFolderByIdQuery = async (id: string) => {
   return await db.folder.findUnique({
     where: {
       id,
-    },
-    include: {
-      files: {
-        orderBy: { createdAt: "asc" },
-      },
     },
   });
 };

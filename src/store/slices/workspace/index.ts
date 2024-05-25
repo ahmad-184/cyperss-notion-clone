@@ -3,6 +3,14 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { getAllWorkspacesThunk } from "./thunk-actions";
 import { ChangeInTrashStatusTypes, FolderType, WorkspaceTypes } from "@/types";
 import { File } from "@prisma/client";
+import {
+  findFile,
+  findFileIndex,
+  findFolder,
+  findFolderIndex,
+  findWorkspace,
+  findWorkspaceIndex,
+} from "@/lib/utils";
 
 interface WorkspaceState {
   workspaces: WorkspaceTypes[];
@@ -41,10 +49,26 @@ const workspaceSlice = createSlice({
       if (payload.id === state.current_workspace?.id) {
         state.current_workspace = payload;
       }
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === payload.id
-      );
+      const workspaceIndex = findWorkspaceIndex(state.workspaces, payload.id);
+
       state.workspaces[workspaceIndex] = payload;
+    },
+    updateWorkspace: (state, action: PayloadAction<WorkspaceTypes>) => {
+      const { payload } = action;
+      if (!payload) return;
+      const workspaceIndex = findWorkspaceIndex(state.workspaces, payload.id);
+
+      if (payload.id === state.current_workspace?.id) {
+        state.current_workspace = {
+          ...state.current_workspace,
+          ...payload,
+        };
+      }
+
+      state.workspaces[workspaceIndex] = {
+        ...findWorkspace(state.workspaces, payload.id),
+        ...payload,
+      };
     },
     setCurrentWorkspace: (state, action: PayloadAction<WorkspaceTypes>) => {
       const { payload } = action;
@@ -61,7 +85,7 @@ const workspaceSlice = createSlice({
 
         state.current_workspace.folders.push(data);
 
-        const index = state.workspaces.findIndex((e) => e.id === workspaceId);
+        const index = findWorkspaceIndex(state.workspaces, workspaceId);
 
         state.workspaces[index].folders.push(data);
       }
@@ -71,39 +95,32 @@ const workspaceSlice = createSlice({
       if (!state.current_workspace || !data.id) return;
       if (!state.current_workspace) return;
 
-      const folderIndex = state.current_workspace.folders.findIndex(
-        (e) => e.id === data.id
-      );
+      const folderIndex = findFolderIndex(state.current_workspace, data.id);
 
       state.current_workspace.folders[folderIndex] = data;
 
       const workspaceId = state.current_workspace.id;
 
-      const WorkspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === workspaceId
-      );
+      const WorkspaceIndex = findWorkspaceIndex(state.workspaces, workspaceId);
+
       state.workspaces[WorkspaceIndex] = state.current_workspace;
     },
-    replaceFile: (state, action: PayloadAction<File>) => {
+    updateFolder: (state, action: PayloadAction<FolderType>) => {
       const data = action.payload;
       if (!state.current_workspace || !data.id) return;
       if (!state.current_workspace) return;
 
-      const folderIndex = state.current_workspace.folders.findIndex(
-        (e) => e.id === data.folderId
-      );
+      const folderIndex = findFolderIndex(state.current_workspace, data.id);
 
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
-      );
+      state.current_workspace.folders[folderIndex] = {
+        ...state.current_workspace.folders[folderIndex],
+        ...data,
+      };
 
-      const fileIndex = state.current_workspace.folders[
-        folderIndex
-      ].files.findIndex((e) => e.id === data.id);
+      const workspaceId = state.current_workspace.id;
+      const WorkspaceIndex = findWorkspaceIndex(state.workspaces, workspaceId);
 
-      state.current_workspace.folders[folderIndex].files[fileIndex] = data;
-
-      state.workspaces[workspaceIndex] = state.current_workspace;
+      state.workspaces[WorkspaceIndex] = state.current_workspace;
     },
     addfile: (
       state,
@@ -116,18 +133,70 @@ const workspaceSlice = createSlice({
         const workspaceId = state.current_workspace?.id;
         if (!workspaceId) return;
 
-        const workspaceIndex = state.workspaces.findIndex(
-          (e) => e.id === workspaceId
+        const workspaceIndex = findWorkspaceIndex(
+          state.workspaces,
+          workspaceId
         );
 
-        const folderIndex = state.current_workspace.folders.findIndex(
-          (e) => e.id === folderId
-        );
+        const folderIndex = findFolderIndex(state.current_workspace, folderId);
 
         state.current_workspace.folders[folderIndex].files.push(data);
 
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
+    },
+    replaceFile: (state, action: PayloadAction<File>) => {
+      const data = action.payload;
+      if (!state.current_workspace || !data.id) return;
+      if (!state.current_workspace) return;
+
+      const folderIndex = findFolderIndex(
+        state.current_workspace,
+        data.folderId
+      );
+
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
+      );
+
+      const fileIndex = findFileIndex(
+        state.current_workspace,
+        data.id,
+        data.folderId
+      );
+
+      state.current_workspace.folders[folderIndex].files[fileIndex] = data;
+
+      state.workspaces[workspaceIndex] = state.current_workspace;
+    },
+    updateFile: (state, action: PayloadAction<File>) => {
+      const data = action.payload;
+      if (!state.current_workspace || !data.id) return;
+      if (!state.current_workspace) return;
+
+      const folderIndex = findFolderIndex(
+        state.current_workspace,
+        data.folderId
+      );
+
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
+      );
+
+      const fileIndex = findFileIndex(
+        state.current_workspace,
+        data.id,
+        data.folderId
+      );
+
+      state.current_workspace.folders[folderIndex].files[fileIndex] = {
+        ...findFile(state.current_workspace, data.id, data.folderId),
+        ...data,
+      };
+
+      state.workspaces[workspaceIndex] = state.current_workspace;
     },
     removeFolder: (
       state,
@@ -145,7 +214,8 @@ const workspaceSlice = createSlice({
 
       const workspaceId = state.current_workspace.id;
 
-      const index = state.workspaces.findIndex((e) => e.id === workspaceId);
+      const index = findWorkspaceIndex(state.workspaces, workspaceId);
+
       state.workspaces[index] = state.current_workspace;
     },
     removeFile: (
@@ -158,12 +228,11 @@ const workspaceSlice = createSlice({
       const { folderId, id } = action.payload;
       if (!state.current_workspace) return;
       if (!folderId || !id) return;
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
       );
-      const folderIndex = state.current_workspace.folders.findIndex(
-        (e) => e.id === folderId
-      );
+      const folderIndex = findFolderIndex(state.current_workspace, folderId);
 
       state.current_workspace.folders[folderIndex].files =
         state.current_workspace.folders[folderIndex].files.filter(
@@ -179,30 +248,31 @@ const workspaceSlice = createSlice({
 
       if (!state.current_workspace) return;
 
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
       );
 
       const folId = folderId ? folderId : id;
-      const folderIndex = state.current_workspace?.folders.findIndex(
-        (e) => e.id === folId
-      );
+      const folderIndex = findFolderIndex(state.current_workspace, folId);
 
       if (type === "folder") {
         state.current_workspace.folders[folderIndex] = {
-          ...state.current_workspace.folders[folderIndex],
+          ...findFolder(state.current_workspace, folId),
           inTrash,
           inTrashBy,
         };
       }
 
       if (type === "file") {
-        const fileIndex = state.current_workspace.folders[
-          folderIndex
-        ].files.findIndex((e) => e.id === id);
+        const fileIndex = findFileIndex(
+          state.current_workspace,
+          id,
+          folderId as string
+        );
 
         state.current_workspace.folders[folderIndex].files[fileIndex] = {
-          ...state.current_workspace.folders[folderIndex].files[fileIndex],
+          ...findFile(state.current_workspace, id, folderId as string),
           inTrash,
           inTrashBy,
         };
@@ -222,8 +292,9 @@ const workspaceSlice = createSlice({
       const { emoji, id, type, folderId } = action.payload;
       if (!state.current_workspace) return;
 
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
       );
 
       if (type === "workspace") {
@@ -232,21 +303,23 @@ const workspaceSlice = createSlice({
       }
 
       if (type === "folder") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === id
-        );
+        const folderIndex = findFolderIndex(state.current_workspace, id);
         state.current_workspace.folders[folderIndex].iconId = emoji;
 
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
 
       if (type === "file") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === folderId
+        const folderIndex = findFolderIndex(
+          state.current_workspace,
+          folderId as string
         );
-        const fileIndex = state.current_workspace?.folders[
-          folderIndex
-        ].files.findIndex((e) => e.id === id);
+
+        const fileIndex = findFileIndex(
+          state.current_workspace,
+          id,
+          folderId as string
+        );
 
         state.current_workspace.folders[folderIndex].files[fileIndex].iconId =
           emoji;
@@ -267,8 +340,9 @@ const workspaceSlice = createSlice({
 
       if (!state.current_workspace) return;
 
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
       );
 
       if (type === "workspace") {
@@ -276,20 +350,24 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
       if (type === "folder") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === id
+        const folderIndex = findFolderIndex(
+          state.current_workspace,
+          id as string
         );
         state.current_workspace.folders[folderIndex].title = title;
 
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
       if (type === "file") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === folderId
+        const folderIndex = findFolderIndex(
+          state.current_workspace,
+          folderId as string
         );
-        const fileIndex = state.current_workspace?.folders[
-          folderIndex
-        ].files.findIndex((e) => e.id === id);
+        const fileIndex = findFileIndex(
+          state.current_workspace,
+          id as string,
+          folderId as string
+        );
 
         state.current_workspace.folders[folderIndex].files[fileIndex].title =
           title;
@@ -311,8 +389,9 @@ const workspaceSlice = createSlice({
         action.payload;
       if (!state.current_workspace) return;
 
-      const workspaceIndex = state.workspaces.findIndex(
-        (e) => e.id === state.current_workspace?.id
+      const workspaceIndex = findWorkspaceIndex(
+        state.workspaces,
+        state.current_workspace.id
       );
 
       if (type === "workspace") {
@@ -321,8 +400,9 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
       if (type === "folder") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === id
+        const folderIndex = findFolderIndex(
+          state.current_workspace,
+          folderId as string
         );
         state.current_workspace.folders[folderIndex].bannerUrl = bannerUrl;
         state.current_workspace.folders[folderIndex].banner_public_id =
@@ -331,12 +411,15 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
       if (type === "file") {
-        const folderIndex = state.current_workspace?.folders.findIndex(
-          (e) => e.id === folderId
+        const folderIndex = findFolderIndex(
+          state.current_workspace,
+          folderId as string
         );
-        const fileIndex = state.current_workspace?.folders[
-          folderIndex
-        ].files.findIndex((e) => e.id === id);
+        const fileIndex = findFileIndex(
+          state.current_workspace,
+          id as string,
+          folderId as string
+        );
 
         state.current_workspace.folders[folderIndex].files[
           fileIndex
@@ -374,8 +457,11 @@ export default workspaceSlice.reducer;
 export const {
   addWorkspace,
   replaceWorkspace,
+  updateWorkspace,
   setCurrentWorkspace,
   replaceFile,
+  updateFile,
+  updateFolder,
   replaceFolder,
   removeFolder,
   removeFile,

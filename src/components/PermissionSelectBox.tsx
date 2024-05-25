@@ -36,11 +36,11 @@ const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
             <SelectItem value="private">
               <div className="flex items-center w-full gap-4 p-1">
                 <div>
-                  <Lock size={20} />
+                  <Lock size={19} />
                 </div>
                 <div className="flex flex-col text-left">
                   <span>Private</span>
-                  <p>
+                  <p className="text-xs">
                     Your workspace is private to you. you can choose to share it
                     later.
                   </p>
@@ -50,11 +50,11 @@ const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
             <SelectItem value="shared">
               <div className="flex items-center gap-4 p-1">
                 <div>
-                  <Share size={20} />
+                  <Share size={19} />
                 </div>
                 <div className="flex flex-col text-left">
                   <span className="">Shared</span>
-                  <p>You can invite collaborators.</p>
+                  <p className="text-xs">You can invite collaborators.</p>
                 </div>
               </div>
             </SelectItem>

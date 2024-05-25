@@ -48,7 +48,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
               className="flex items-center cursor-pointer hover:text-primary 
             transition-all duration-150 
           hover:underline justify-start gap-[2px] 
-        text-gray-500 text-sm 
+        text-gray-500 text-xs 
           capitalize truncate"
             >
               {subscription?.status === "active" ? "Pro Plan" : "Free Plan"}

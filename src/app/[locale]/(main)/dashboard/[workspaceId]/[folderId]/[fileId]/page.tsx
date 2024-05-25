@@ -1,9 +1,10 @@
 import EditorPage from "@/components/editor-page";
+import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { validate } from "uuid";
 
 export const revalidate = 0;
-
+export const dynamic = "force-dynamic";
 interface PageProps {
   params: {
     fileId: string;
@@ -12,10 +13,12 @@ interface PageProps {
 }
 
 const Page = async ({ params }: PageProps) => {
-  if (params.fileId) {
-    const validateId = await validate(params.fileId);
-    if (!validateId) notFound();
-  }
+  const validateId = await validate(params.fileId);
+  if (!validateId) notFound();
+
+  const data = await db.file.findUnique({ where: { id: params.fileId } });
+
+  if (!data) return notFound();
 
   return (
     <div className="w-full">

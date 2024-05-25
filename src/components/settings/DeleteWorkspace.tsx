@@ -1,6 +1,6 @@
 "use client";
 
-import { OctagonAlert, Trash } from "lucide-react";
+import { OctagonAlert } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/Alert";
 import { Button } from "../ui/Button";
 import CustomDialog from "../custom/CustomDialog";
@@ -9,7 +9,7 @@ import { Input } from "../ui/Input";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
-import { deleteWorkspace } from "@/server-actions";
+import { deleteWorkspaceAction } from "@/server-actions";
 import { Skeleton } from "../ui/Skeleton";
 
 interface DeleteWorkspaceProps {}
@@ -34,7 +34,7 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
       setLoading(true);
       setError("");
 
-      const { status, error } = await deleteWorkspace({
+      const { status, error } = await deleteWorkspaceAction({
         workspaceId: current_workspace.id,
       });
 

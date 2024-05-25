@@ -40,7 +40,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
               >
                 <CypressHomeIcon />
-                <p>My Workspace</p>
+                <p className="text-sm">My Workspace</p>
               </div>
             </Link>
             {user.id === workspace?.workspaceOwnerId && (
@@ -51,7 +51,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
                 >
                   <CypressSettingsIcon />
-                  <p>Settings</p>
+                  <p className="text-sm">Settings</p>
                 </div>
               </Link>
             )}

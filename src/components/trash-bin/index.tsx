@@ -1,7 +1,6 @@
 "use client";
 
 import { useAppSelector } from "@/store";
-import CustomDialog from "../custom/CustomDialog";
 import CypressTrashIcon from "../icons/TrashIcon";
 import { FolderType, WorkspaceTypes } from "@/types";
 import { useMemo, useState } from "react";
@@ -133,7 +132,7 @@ const TrashBin = () => {
         <DialogTrigger asChild>
           <div className="flex group/native w-full cursor-pointer transition-all py-1 gap-2 items-center dark:text-gray-400">
             <CypressTrashIcon />
-            <p>Trash</p>
+            <p className="text-sm">Trash</p>
           </div>
         </DialogTrigger>
         <DialogContent className="overflow-auto max-h-[95vh]">

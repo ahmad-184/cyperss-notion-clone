@@ -15,7 +15,7 @@ import { getAllWorkspacesThunk } from "@/store/slices/workspace/thunk-actions";
 import { User, WorkspaceTypes } from "@/types";
 import { ChevronsUpDown } from "lucide-react";
 import WorkspacesLists from "./WorkspacesLists";
-import { getWorkspaceById } from "@/server-actions";
+import { getFullDataWorkspaceByIdAction } from "@/server-actions";
 
 interface WorkspacesDropdownProps {
   user: User;
@@ -58,14 +58,18 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
       }
       if (current_workspace && current_workspace.id === workspace.id) return;
       if (!allWorkspaces.length) return;
-      const { data, error } = await getWorkspaceById(
-        workspaceIdParams as string
-      );
-      if (error || !data) {
-        router.replace("/dashboard");
-        return;
+      if (workspace.type === "private") {
+        dispatch(setCurrentWorkspace(workspace));
+      } else if (workspace.type === "shared") {
+        const { data, error } = await getFullDataWorkspaceByIdAction(
+          workspaceIdParams as string
+        );
+        if (error || !data) {
+          router.replace("/dashboard");
+          return;
+        }
+        dispatch(setCurrentWorkspace(data));
       }
-      dispatch(setCurrentWorkspace(data));
       if (window) window.localStorage.setItem("active_workspace", workspace.id);
       if (background_overlay) dispatch(changeBgOverlayStatus(false));
     };
@@ -91,10 +95,11 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
               <SelectWorkspace
                 workspace={current_workspace}
                 selectWorkspace={selectWorkspace}
-                className="mb-2 bg-transparent"
+                className="mb-2 bg-transparent text-sm"
+                image_size={20}
                 endIcon={
                   <ChevronsUpDown
-                    className={cn("dark:text-gray-400 text-gray-500 w-4 h-4", {
+                    className={cn("dark:text-gray-400 text-gray-500 w-3 h-3", {
                       "dark:text-gray-200 text-gray-800": openDropdown,
                     })}
                   />

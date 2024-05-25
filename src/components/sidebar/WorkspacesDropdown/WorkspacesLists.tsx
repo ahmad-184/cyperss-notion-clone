@@ -48,7 +48,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
       <div className="w-full">
         {privateWorkspaces.length ? (
           <div className="flex flex-col w-full mb-2">
-            <p className="text-gray-500 text-sm">Private Workspaces</p>
+            <p className="text-gray-500 text-xs">Private Workspaces</p>
             {privateWorkspaces.map((e, i) => (
               <Link
                 key={e.id + i}
@@ -62,7 +62,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
                   workspace={e}
                   selectWorkspace={selectWorkspace}
                   className={cn("text-sm", {
-                    "border-[1.1px] border-primary hover:bg-primary/5  dark:hover:bg-primary/50 dark:bg-primary/20":
+                    "border-[1.1px] border-primary hover:bg-primary/5 dark:hover:bg-primary/50 dark:bg-primary/20":
                       current_workspace.id === e.id,
                   })}
                   image_size={20}
@@ -79,7 +79,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
 
         {sharedWorkspaces.length ? (
           <div className="flex flex-col w-full mb-2">
-            <p className="text-gray-500 text-sm">Shared Workspaces</p>
+            <p className="text-gray-500 text-xs">Shared Workspaces</p>
             {sharedWorkspaces.map((e, i) => (
               <Link
                 key={e.id + i}
@@ -110,7 +110,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
 
         {collaboratingWorkspaces.length ? (
           <div className="flex flex-col w-full">
-            <p className="text-gray-500 text-sm">Collaborating Workspaces</p>
+            <p className="text-gray-500 text-xs">Collaborating Workspaces</p>
             {collaboratingWorkspaces.map((e, i) => (
               <Link
                 key={e.id + i}
@@ -145,7 +145,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
             <div className="rounded-full relative bottom-[1.5px] w-4 h-4 flex items-center justify-center bg-muted dark:bg-slate-800 text-slate-500">
               +
             </div>
-            <p className="text-sm">Create New Workspace</p>
+            <p className="text-xs">Create New Workspace</p>
           </div>
         </div>
       </Link>

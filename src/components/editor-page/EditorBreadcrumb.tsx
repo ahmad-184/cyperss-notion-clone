@@ -1,7 +1,6 @@
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -70,8 +69,8 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
               {paths.length === i + 1 ? (
                 <BreadcrumbPage>
                   <div className="flex items-center gap-1">
-                    {p.icon ? <span className="text-lg">{p.icon}</span> : null}
-                    <p className="text-sm dark:text-gray-300">
+                    {p.icon ? <span className="text-sm">{p.icon}</span> : null}
+                    <p className="text-xs dark:text-gray-300">
                       {p?.title || "Untitled"}
                     </p>
                   </div>
@@ -82,8 +81,8 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
                   className="transition-colors hover:text-foreground dark:text-gray-500"
                 >
                   <div className="flex items-center gap-1">
-                    {p.icon ? <span className="text-lg">{p.icon}</span> : null}
-                    <p className="text-sm">{p?.title || "Untitled"}</p>
+                    {p.icon ? <span className="text-sm">{p.icon}</span> : null}
+                    <p className="text-xs">{p?.title || "Untitled"}</p>
                   </div>
                 </Link>
               )}

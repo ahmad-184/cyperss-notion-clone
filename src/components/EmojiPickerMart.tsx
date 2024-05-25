@@ -1,12 +1,11 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { memo, useMemo, useRef, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/Popover";
 import { createPortal } from "react-dom";
 import { useClickOutside } from "@mantine/hooks";
 
@@ -26,7 +25,6 @@ const EmojiPickerReact: React.FC<EmojiPickerProps> = ({
   const t = useMemo(() => theme || systemTheme, [theme]);
 
   const onClickEmoji = (e: any) => {
-    console.log(e);
     onChangeEmoji(e.native);
     setOpen(false);
   };
