@@ -3,7 +3,7 @@ import { v4 as uuid4 } from "uuid";
 import type { Subscription } from "@prisma/client";
 
 import { User, UserSession, WorkspacePayload, WorkspaceTypes } from "@/types";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -14,14 +14,10 @@ import {
   createCollaboratorsAction,
   createWorkspaceAction,
   getFullDataWorkspaceByIdAction,
-  updateUserDetailAction,
 } from "@/server-actions";
 import { useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils";
-import { getDirByLang } from "@/lib/dir";
 import useUploadV2 from "@/hooks/useUploadV2";
-import AppLogo from "@/components/AppLogo";
 import {
   Card,
   CardContent,

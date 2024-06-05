@@ -19,9 +19,7 @@ const Sidebar: React.FC<SidebarProps> = async ({ workspaceId, className }) => {
   if (error) return redirect("/signout");
   if (!validatedUser?.id) return redirect("/signout");
 
-  const { data, error: subError } = await getUserSubscriptionAction(
-    validatedUser.id
-  );
+  const { data } = await getUserSubscriptionAction(validatedUser.id);
 
   return (
     <div

@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, CardContent, CardHeader } from "../ui/Card";
 import { cn } from "@/lib/utils";
 

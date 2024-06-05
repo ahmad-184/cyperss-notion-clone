@@ -7,7 +7,7 @@ import { User } from "@/types";
 import { useAppSelector } from "@/store";
 import { Skeleton } from "../ui/Skeleton";
 import UserSettings from "./UserSettings";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { Context as LocalContext } from "@/contexts/local-context";
 import { Menu } from "lucide-react";
 
@@ -17,7 +17,7 @@ interface Settings {
   workspaceId: string;
 }
 
-const Settings: React.FC<Settings> = ({ subscription, user, workspaceId }) => {
+const Settings: React.FC<Settings> = ({ subscription, user }) => {
   const { loading, current_workspace } = useAppSelector(
     (store) => store.workspace
   );

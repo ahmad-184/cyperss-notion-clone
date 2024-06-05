@@ -76,7 +76,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
 
   const { mobileSidebarOpen } = useContext(LocalContext);
 
-  const { progress, isUploading, startUpload, files } = useUploadV2({
+  const { isUploading, startUpload, files } = useUploadV2({
     ref: inputRef,
     max_size: 3,
   });
@@ -604,7 +604,6 @@ const EditorPage: React.FC<EditorPageProps> = ({
             data={data}
             type={type}
             user={user}
-            onlineCollaborators={onlineCollaborators}
             setOnlineCollaborators={setOnlineCollaborators}
           />
         </div>

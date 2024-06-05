@@ -4,7 +4,7 @@ import { FolderType } from "@/types";
 import { File } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/Button";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type ItemIsInTrashAlertProps =
   | {

@@ -14,11 +14,10 @@ import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { getAllWorkspacesThunk } from "@/store/slices/workspace/thunk-actions";
 import { User, WorkspaceTypes } from "@/types";
-import { ChevronRight, ChevronsUpDown, Menu } from "lucide-react";
+import { ChevronRight, ChevronsUpDown } from "lucide-react";
 import WorkspacesLists from "./WorkspacesLists";
 import {
   getFullDataWorkspaceByIdAction,
-  getWorkspaceByIdAction,
   getWorkspacesListAction,
 } from "@/server-actions";
 import { Button } from "@/components/ui/Button";

@@ -1,7 +1,6 @@
 "use client";
 
 import { useSocket } from "@/hooks/useSocket";
-import { findFile, findFolder } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   addfile,
@@ -13,11 +12,8 @@ import {
   removeFile,
   removeFolder,
   replaceWorkspace,
-  updateFile,
-  updateFolder,
-  updateWorkspace,
 } from "@/store/slices/workspace";
-import { FileTypes, FolderType, User, WorkspaceTypes } from "@/types";
+import { FileTypes, FolderType, WorkspaceTypes } from "@/types";
 import { File } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";

@@ -1,4 +1,3 @@
-import { WorkspaceTypes } from "@/types";
 import Image from "next/image";
 import Logo from "@/assets/cypresslogo.svg";
 import { cn } from "@/lib/utils";

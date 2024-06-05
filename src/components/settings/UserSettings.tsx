@@ -32,7 +32,7 @@ type zodValidatorType = z.infer<typeof zodValidator>;
 const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
-  const { startUpload, files, isUploading, progress } = useUploadV2({
+  const { startUpload, files, isUploading } = useUploadV2({
     ref: inputRef,
     max_size: 1,
   });
