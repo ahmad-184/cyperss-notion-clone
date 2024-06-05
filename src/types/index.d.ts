@@ -31,3 +31,5 @@ export type ChangeInTrashStatusTypes = {
   inTrashBy: string;
   inTrash: boolean;
 };
+
+export type FileTypes = "folder" | "file" | "workspace";

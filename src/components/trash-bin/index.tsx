@@ -3,7 +3,7 @@
 import { useAppSelector } from "@/store";
 import CypressTrashIcon from "../icons/TrashIcon";
 import { FolderType, WorkspaceTypes } from "@/types";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { File } from "@prisma/client";
 import { ScrollArea } from "../ui/ScrollArea";
 import { Trash, Undo2 } from "lucide-react";
@@ -17,6 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/Dialog";
+import { Context as LocalContext } from "@/contexts/local-context";
+import CustomDialog from "../custom/CustomDialog";
+import { Button } from "../ui/Button";
 
 const getInTrashFilesFolders = (workspace: WorkspaceTypes) => {
   if (!workspace)
@@ -59,6 +62,7 @@ type TrashItemProps =
 
 const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
   const { restoreDeletedItem, deleteItemPermanently } = useTrash();
+  const { mobileSidebarOpen } = useContext(LocalContext);
   const router = useRouter();
 
   const handleDelete = () => {
@@ -93,6 +97,7 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
             );
           }
           handleOpenDialog(false);
+          mobileSidebarOpen(false);
         }}
       >
         {data?.title || "Untitled"}
@@ -102,10 +107,26 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
           onClick={handleRestore}
           className="w-5 h-5 cursor-pointer dark:hover:text-gray-300 hover:text-gray-800"
         />
-        <Trash
-          onClick={handleDelete}
-          className="w-5 h-5 cursor-pointer  dark:hover:text-gray-300 hover:text-gray-800"
-        />
+        <CustomDialog
+          header={`Are you sure?`}
+          description={
+            type === "file"
+              ? `By Doing this, this file will be delete forever`
+              : `By Doing this, this folder and all related files will delete forever`
+          }
+          content={
+            <div className="flex gap-3 w-full justify-end">
+              <Button onClick={handleDelete} variant="destructive">
+                Delete
+              </Button>
+            </div>
+          }
+        >
+          <Trash
+            // onClick={handleDelete}
+            className="w-5 h-5 cursor-pointer  dark:hover:text-gray-300 hover:text-gray-800"
+          />
+        </CustomDialog>
       </div>
     </div>
   );

@@ -146,7 +146,6 @@ export default function useUploadV2({ ref, max_size = 3 }: Props) {
           console.log(err);
         }
       }
-      console.log(uploadedFiles);
       return uploadedFiles;
     } catch (err) {
       console.log(err);

@@ -55,8 +55,10 @@ interface SheetContentProps
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
-  SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+  SheetContentProps & {
+    showCloseBtn?: boolean;
+  }
+>(({ side = "right", className, children, showCloseBtn, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
@@ -66,7 +68,7 @@ const SheetContent = React.forwardRef<
     >
       {children}
       <SheetPrimitive.Close className="absolute p-1 ltr:right-4 rtl:left-4 top-4 rounded-sm opacity-70 ">
-        <X className="h-[18px] w-[18px] " />
+        {showCloseBtn ? <X className="h-[18px] w-[18px] " /> : null}
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
     </SheetPrimitive.Content>

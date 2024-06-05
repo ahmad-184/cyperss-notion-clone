@@ -41,6 +41,13 @@ export default function RootLayout({
           }
           CLOUDINARY_API_KEY={process.env.CLOUDINARY_API_KEY as string}
           CLOUDINARY_PRESET={process.env.CLOUDINARY_PRESET as string}
+          REALTIMNE_SERVER_DEVELOPMENT={
+            process.env.REALTIMNE_SERVER_DEVELOPMENT as string
+          }
+          REALTIMNE_SERVER_PRODUCTION={
+            process.env.REALTIMNE_SERVER_PRODUCTION as string
+          }
+          APP_MODE={process.env.NODE_ENV}
         >
           {children}
         </Providers>

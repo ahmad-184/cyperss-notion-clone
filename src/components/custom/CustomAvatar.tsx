@@ -35,7 +35,7 @@ const CustomAvatar: React.FC<CustomAvatarProps> = ({
           className="object-cover w-full h-full"
         />
       ) : (
-        <AvatarFallback className="uppercase select-none">
+        <AvatarFallback className="uppercase select-none w-full h-full absolute">
           {fallbackName}
         </AvatarFallback>
       )}

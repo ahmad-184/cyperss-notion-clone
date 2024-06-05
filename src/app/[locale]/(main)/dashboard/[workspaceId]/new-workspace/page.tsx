@@ -18,7 +18,7 @@ const Page: React.FC<PageProps> = async ({ params }) => {
   );
 
   return (
-    <div className="py-6 flex flex-col w-full gap-3 justify-center items-center px-3 sm:px-6">
+    <>
       <NewWorkspace
         first_setup={false}
         title="New Workspace"
@@ -27,7 +27,7 @@ const Page: React.FC<PageProps> = async ({ params }) => {
         subscription={subscription}
         user={validatedUser}
       />
-    </div>
+    </>
   );
 };
 

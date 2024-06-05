@@ -25,7 +25,7 @@ const Page = async ({ params }: PageProps) => {
   );
 
   return (
-    <div className="p-5 px-3 sm:px-10 flex justify-center workspace-content">
+    <div className="w-full relative">
       <Settings
         subscription={subscription!}
         user={validatedUser}

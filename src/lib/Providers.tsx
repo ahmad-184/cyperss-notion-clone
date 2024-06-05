@@ -17,6 +17,9 @@ interface LayoutProps {
   CLOUDINARY_UPLOAD_FOLDER: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_PRESET: string;
+  REALTIMNE_SERVER_DEVELOPMENT: string;
+  REALTIMNE_SERVER_PRODUCTION: string;
+  APP_MODE: string;
 }
 
 const Providers: FC<LayoutProps> = ({
@@ -26,6 +29,9 @@ const Providers: FC<LayoutProps> = ({
   CLOUDINARY_UPLOAD_FOLDER,
   CLOUDINARY_API_KEY,
   CLOUDINARY_PRESET,
+  REALTIMNE_SERVER_DEVELOPMENT,
+  REALTIMNE_SERVER_PRODUCTION,
+  APP_MODE,
   children,
 }) => {
   return (
@@ -39,6 +45,9 @@ const Providers: FC<LayoutProps> = ({
               CLOUDINARY_UPLOAD_FOLDER={CLOUDINARY_UPLOAD_FOLDER}
               CLOUDINARY_API_KEY={CLOUDINARY_API_KEY}
               CLOUDINARY_PRESET={CLOUDINARY_PRESET}
+              REALTIMNE_SERVER_DEVELOPMENT={REALTIMNE_SERVER_DEVELOPMENT}
+              REALTIMNE_SERVER_PRODUCTION={REALTIMNE_SERVER_PRODUCTION}
+              APP_MODE={APP_MODE}
             >
               <TooltipProvider>{children}</TooltipProvider>
             </LocalContextProvider>

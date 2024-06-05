@@ -402,7 +402,7 @@ const workspaceSlice = createSlice({
       if (type === "folder") {
         const folderIndex = findFolderIndex(
           state.current_workspace,
-          folderId as string
+          id as string
         );
         state.current_workspace.folders[folderIndex].bannerUrl = bannerUrl;
         state.current_workspace.folders[folderIndex].banner_public_id =

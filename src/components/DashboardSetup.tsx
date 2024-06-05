@@ -64,6 +64,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
     defaultValues: {
       workspace_name: "",
       username: user?.name,
+      type: "private",
     },
     mode: "onSubmit",
     resolver: zodResolver(validator),

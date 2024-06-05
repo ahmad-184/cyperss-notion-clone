@@ -7,6 +7,8 @@ import CypressSettingsIcon from "../icons/SettingsIcon";
 import { Skeleton } from "../ui/Skeleton";
 import TrashBin from "../trash-bin";
 import { User } from "@/types";
+import { useContext } from "react";
+import { Context as LocalContext } from "@/contexts/local-context";
 
 interface NativeNavigationProps {
   user: User;
@@ -17,6 +19,11 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
     (store) => store.workspace.current_workspace
   );
   const loading = useAppSelector((store) => store.workspace.loading);
+  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+
+  const handleCloseSidebarMobile = () => {
+    if (mobile_sidebar_open) mobileSidebarOpen(false);
+  };
 
   return (
     <>
@@ -33,7 +40,10 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
       ) : (
         <div className="my-5 w-full">
           <div className="w-full flex flex-col gap-2">
-            <Link href={`/dashboard/${workspace?.id}`}>
+            <Link
+              href={`/dashboard/${workspace?.id}`}
+              onClick={handleCloseSidebarMobile}
+            >
               <div
                 className="flex group/native w-full cursor-pointer transition-all
           py-1 gap-2
@@ -43,18 +53,19 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
                 <p className="text-sm">My Workspace</p>
               </div>
             </Link>
-            {user.id === workspace?.workspaceOwnerId && (
-              <Link href={`/dashboard/${workspace?.id}/settings`}>
-                <div
-                  className="flex group/native w-full cursor-pointer transition-all
+            <Link
+              href={`/dashboard/${workspace?.id}/settings`}
+              onClick={handleCloseSidebarMobile}
+            >
+              <div
+                className="flex group/native w-full cursor-pointer transition-all
           py-1 gap-2
           items-center dark:text-gray-400"
-                >
-                  <CypressSettingsIcon />
-                  <p className="text-sm">Settings</p>
-                </div>
-              </Link>
-            )}
+              >
+                <CypressSettingsIcon />
+                <p className="text-sm">Settings</p>
+              </div>
+            </Link>
             <TrashBin />
           </div>
         </div>

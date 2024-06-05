@@ -8,12 +8,12 @@ import {
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { File } from "@prisma/client";
-import { memo, useState } from "react";
+import { memo, useContext, useState } from "react";
 import { Input } from "../ui/Input";
 import CustomTooltip from "../custom/CustomTooltip";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { EllipsisVertical, PlusIcon, TrashIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import {
   addfile,
   changeEmoji,
@@ -27,6 +27,14 @@ import {
 } from "@/server-actions";
 import useTrash from "@/hooks/useTrash";
 import EmojiPickerMart from "../EmojiPickerMart";
+import { Context as LocalContext } from "@/contexts/local-context";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/DropdownMenu";
+import { Context as SocketContext } from "@/contexts/socket-provider";
 
 type DropdownItemProps =
   | {
@@ -44,9 +52,12 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const pathname = usePathname();
+  const { current_workspace } = useAppSelector((store) => store.workspace);
 
   const [isEditting, setEdditing] = useState(false);
   const [title, setTitle] = useState(data.title || "");
+
+  const { socket } = useContext(SocketContext);
 
   const { deleteItem } = useTrash();
 
@@ -72,7 +83,25 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         toast.error(error?.message || "Could not update the icon");
         return;
       }
-      if (resData) return;
+      if (resData) {
+        if (
+          socket &&
+          socket.connected &&
+          data &&
+          current_workspace?.type === "shared"
+        ) {
+          socket?.emit(
+            "change_icon",
+            current_workspace?.id,
+            data.id,
+            newIcon,
+            type,
+            //@ts-ignore
+            data.folderId,
+            user.id
+          );
+        }
+      }
     } catch (err) {
       console.log(err);
       toast.error(`Could not change the ${type} icon, please try again`);
@@ -107,7 +136,25 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
         return;
       }
-      if (resData) return;
+      if (resData) {
+        if (
+          socket &&
+          socket.connected &&
+          data &&
+          current_workspace?.type === "shared"
+        ) {
+          socket.emit(
+            "change_title",
+            current_workspace?.id,
+            data.id,
+            resData.title,
+            type,
+            // @ts-ignore
+            data.folderId,
+            user.id
+          );
+        }
+      }
     } catch (err) {
       console.log(err);
       toast.error(`Could not change the ${type} name, please try again`);
@@ -147,8 +194,16 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
         return;
       }
-      if (resData) return;
-      else throw new Error();
+      if (resData) {
+        if (
+          socket &&
+          socket.connected &&
+          data &&
+          current_workspace?.type === "shared"
+        ) {
+          socket?.emit("add_file", current_workspace?.id, resData, user.id);
+        }
+      } else throw new Error();
     } catch (err) {
       console.log(err);
       toast.error("Could not create file, please try again");
@@ -195,13 +250,21 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
     }
   };
 
+  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+
+  const handleCloseSidebarMobile = () => {
+    if (mobile_sidebar_open) mobileSidebarOpen(false);
+  };
+
   return (
     <AccordionItem
       value={data.id}
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={cn("pr-4 w-[240px]", { "rtl:pl-4": type === "file" })}
+      className={cn("sm:pr-4 w-full sm:w-[256px]", {
+        "sm:rtl:pl-4": type === "file",
+      })}
     >
       <AccordionTrigger
         isFolder={type === "folder"}
@@ -209,7 +272,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       >
         <div
           className={cn(
-            "flex items-center w-[200px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
+            "flex items-center w-full sm:w-[236px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
             {
               "group/folder": type === "folder",
               "group/file": type === "file",
@@ -217,13 +280,29 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
           )}
         >
           <div className="flex items-center gap-2 truncate flex-grow">
-            <EmojiPickerMart
-              onChangeEmoji={handleChangeEmoji}
-              emoji={data.iconId! || ""}
-            />
+            <div className="hidden sm:block">
+              <EmojiPickerMart
+                onChangeEmoji={handleChangeEmoji}
+                emoji={data.iconId! || ""}
+              />
+            </div>
+            <div className="block sm:hidden">
+              <p
+                className={cn(`cursor-pointer`)}
+                onClick={() => {
+                  handleCloseSidebarMobile();
+                  handleChangeUrl();
+                }}
+              >
+                {data?.iconId}
+              </p>
+            </div>
             {!isEditting ? (
               <p
-                onClick={handleChangeUrl}
+                onClick={() => {
+                  handleCloseSidebarMobile();
+                  handleChangeUrl();
+                }}
                 className="cursor-pointer truncate flex-grow text-sm"
                 onDoubleClick={handleDoubleClick}
               >
@@ -241,8 +320,8 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
             )}
           </div>
           <div
-            className="items-center pr-3 gap-2 hidden group-hover/common:flex
-          transition-all duration-150"
+            className="items-center pr-3 gap-2 md:hidden md:group-hover/common:flex
+          transition-all duration-150 hidden"
           >
             <CustomTooltip
               description={
@@ -266,6 +345,28 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
                 />
               </CustomTooltip>
             ) : null}
+          </div>
+          <div className="md:hidden flex pr-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <EllipsisVertical className="w-5 h-5 dark:text-gray-500" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={handleMoveToTrash}>
+                  <div className="w-full flex items-center gap-1">
+                    <p className="text-sm dark:text-gray-200">Delete</p>
+                  </div>
+                </DropdownMenuItem>
+
+                {type === "folder" ? (
+                  <DropdownMenuItem onClick={handleCreateNewFile}>
+                    <div className="w-full flex items-center gap-1">
+                      <p className="text-sm dark:text-gray-200">Add File</p>
+                    </div>
+                  </DropdownMenuItem>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </AccordionTrigger>

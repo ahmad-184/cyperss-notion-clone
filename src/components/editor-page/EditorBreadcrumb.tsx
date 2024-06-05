@@ -61,37 +61,43 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
   }, [type, params.folderId, params.fileId, current_workspace]);
 
   return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        {paths?.map((p, i) => (
-          <Fragment key={i}>
-            <BreadcrumbItem>
-              {paths.length === i + 1 ? (
-                <BreadcrumbPage>
-                  <div className="flex items-center gap-1">
-                    {p.icon ? <span className="text-sm">{p.icon}</span> : null}
-                    <p className="text-xs dark:text-gray-300">
-                      {p?.title || "Untitled"}
-                    </p>
-                  </div>
-                </BreadcrumbPage>
-              ) : (
-                <Link
-                  href={p.path}
-                  className="transition-colors hover:text-foreground dark:text-gray-500"
-                >
-                  <div className="flex items-center gap-1">
-                    {p.icon ? <span className="text-sm">{p.icon}</span> : null}
-                    <p className="text-xs">{p?.title || "Untitled"}</p>
-                  </div>
-                </Link>
-              )}
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-          </Fragment>
-        ))}
-      </BreadcrumbList>
-    </Breadcrumb>
+    <div className="flex flex-grow">
+      <Breadcrumb>
+        <BreadcrumbList>
+          {paths?.map((p, i) => (
+            <Fragment key={i}>
+              <BreadcrumbItem>
+                {paths.length === i + 1 ? (
+                  <BreadcrumbPage>
+                    <div className="flex items-center gap-1">
+                      {p.icon ? (
+                        <span className="text-lg">{p.icon}</span>
+                      ) : null}
+                      <p className="text-sm dark:text-gray-300">
+                        {p?.title || "Untitled"}
+                      </p>
+                    </div>
+                  </BreadcrumbPage>
+                ) : (
+                  <Link
+                    href={p.path}
+                    className="transition-colors hover:text-foreground dark:text-gray-500"
+                  >
+                    <div className="flex items-center gap-1">
+                      {p.icon ? (
+                        <span className="text-lg">{p.icon}</span>
+                      ) : null}
+                      <p className="text-sm">{p?.title || "Untitled"}</p>
+                    </div>
+                  </Link>
+                )}
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </Fragment>
+          ))}
+        </BreadcrumbList>
+      </Breadcrumb>
+    </div>
   );
 };
 

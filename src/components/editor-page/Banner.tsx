@@ -5,9 +5,10 @@ import { useMemo, useState } from "react";
 interface BannerProps {
   src: string | null;
   alt: string | null;
+  isUploading: boolean;
 }
 
-const Banner: React.FC<BannerProps> = ({ src, alt }) => {
+const Banner: React.FC<BannerProps> = ({ src, alt, isUploading }) => {
   const [loaded, setLoaded] = useState(true);
   const [error, setError] = useState(false);
 
@@ -21,10 +22,10 @@ const Banner: React.FC<BannerProps> = ({ src, alt }) => {
             <>
               <div
                 className={cn(
-                  "w-full h-full bg-muted animate-pulse inset-0 z-[1]",
+                  "w-full h-full absolute bg-muted animate-pulse inset-0 z-[2]",
                   {
-                    "hidden text-nowrap": loaded,
-                    "block visible": !loaded,
+                    "hidden text-nowrap": !isUploading,
+                    "block visible": isUploading,
                   }
                 )}
               ></div>
@@ -56,6 +57,18 @@ const Banner: React.FC<BannerProps> = ({ src, alt }) => {
               </div>
             </>
           )}
+        </div>
+      ) : isUploading && !imgSrc ? (
+        <div className={cn("h-[200px] relative w-full z-[0]")}>
+          <div
+            className={cn(
+              "w-full h-full absolute bg-muted animate-pulse inset-0 z-[2]",
+              {
+                "hidden text-nowrap": !isUploading,
+                "block visible": isUploading,
+              }
+            )}
+          ></div>
         </div>
       ) : null}
     </div>

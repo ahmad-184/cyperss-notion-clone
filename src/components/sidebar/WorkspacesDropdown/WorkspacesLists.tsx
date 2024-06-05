@@ -1,14 +1,16 @@
 import { User, WorkspaceTypes } from "@/types";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 import { useAppDispatch } from "@/store";
 import { changeBgOverlayStatus } from "@/store/slices/workspace";
+import { Context as LocalContext } from "@/contexts/local-context";
+import { Workspace } from "@prisma/client";
 
 interface WorkspacesListsProps {
-  workspaces: WorkspaceTypes[];
+  workspaces: Workspace[];
   current_workspace: WorkspaceTypes;
   user: User;
   selectWorkspace: () => void;
@@ -21,6 +23,12 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
   selectWorkspace,
 }) => {
   const dispatch = useAppDispatch();
+
+  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+
+  const handleCloseSidebarMobile = () => {
+    if (mobile_sidebar_open) mobileSidebarOpen(false);
+  };
 
   const handleShowBackgroundOverlay = (id: string) => {
     if (current_workspace && current_workspace.id === id) return;
@@ -139,7 +147,10 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
           </div>
         ) : null}
       </div>
-      <Link href={`/dashboard/${current_workspace.id}/new-workspace`}>
+      <Link
+        href={`/dashboard/${current_workspace.id}/new-workspace`}
+        onClick={handleCloseSidebarMobile}
+      >
         <div className="w-full">
           <div className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-muted/70 rounded-md transition-all duration-150">
             <div className="rounded-full relative bottom-[1.5px] w-4 h-4 flex items-center justify-center bg-muted dark:bg-slate-800 text-slate-500">

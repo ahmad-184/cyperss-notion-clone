@@ -7,7 +7,7 @@ import { useAppSelector } from "@/store";
 import WorkspaceLogoInput from "../custom-inputs/WorkspaceLogoInput";
 import { Subscription } from "@prisma/client";
 import { User, WorkspaceTypes } from "@/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import PermissionSelectBox from "../PermissionSelectBox";
 import { useForm } from "react-hook-form";
 import { WorkspaceSettingsValidator } from "@/lib/validations";
@@ -28,6 +28,7 @@ import { replaceWorkspace } from "@/store/slices/workspace";
 import useUploadV2 from "@/hooks/useUploadV2";
 import EmojiPickerMart from "../EmojiPickerMart";
 import { useRouter } from "next/navigation";
+import { Context as SocketContext } from "@/contexts/socket-provider";
 
 interface WorkspaceSettingsProps {
   subscription: Subscription | null;
@@ -55,6 +56,8 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
   const [isWorkspaceTypeChange, setIsWorkspaceTypeChange] = useState(false);
   const [isWorkspaceCollaboratorsChange, setIsWorkspaceCollaboratorsChange] =
     useState(false);
+
+  const { socket } = useContext(SocketContext);
 
   const { t } = useTranslation();
 
@@ -146,8 +149,20 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
         return;
       }
 
+      if (
+        current_workspace.id &&
+        current_workspace.type === "shared" &&
+        socket &&
+        socket.connected
+      ) {
+        socket.emit(
+          "update_workspace_settings",
+          current_workspace.id,
+          fetWorkspaceData.data,
+          user.id
+        );
+      }
       dispatch(replaceWorkspace(fetWorkspaceData.data));
-      toast.success("The changes were successfully applied");
       router.refresh();
     } catch (err: any) {
       console.log(err);

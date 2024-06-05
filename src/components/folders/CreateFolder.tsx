@@ -11,21 +11,22 @@ import { toast } from "sonner";
 import { createFolderAction } from "@/server-actions";
 import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils";
+import { Context as SocketContext } from "@/contexts/socket-provider";
+import { useContext } from "react";
 
-interface FoldersHeaderProps {
+interface CreateFolderProps {
   user: User;
   subscription: Subscription | null;
 }
 
-const FoldersHeader: React.FC<FoldersHeaderProps> = ({
-  user,
-  subscription,
-}) => {
+const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
   const dispatch = useAppDispatch();
   const workspace = useAppSelector(
     (store) => store.workspace.current_workspace
   );
   const loading = useAppSelector((store) => store.workspace.loading);
+
+  const { socket } = useContext(SocketContext);
 
   const createFolderHandler = async () => {
     if (
@@ -59,7 +60,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
             data: { ...payload, files: [] },
           })
         );
-        const { error } = await createFolderAction({
+        const { error, data } = await createFolderAction({
           folder: payload,
           userId: user.id,
         });
@@ -72,6 +73,14 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
             })
           );
         }
+        if (socket && socket.connected && data && workspace.type === "shared") {
+          socket?.emit(
+            "add_folder",
+            workspace?.id,
+            { ...data, files: [] },
+            user.id
+          );
+        }
       } catch (err: any) {
         console.log(err);
       }
@@ -81,7 +90,7 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
   return (
     <div
       className="pt-1 flex w-full sticky top-0 z-20 bg-background
-      group/title justify-between items-center pr-4
+      group/title justify-between items-center
     "
     >
       <div className="flex text-muted-foreground justify-between items-center w-full">
@@ -92,10 +101,10 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
               <Plus
                 onClick={createFolderHandler}
                 className={cn(
-                  "w-4 h-4 group-hover/title:visible dark:text-gray-600 transition-all duration-150 group-hover/title:opacity-100 opacity-0 cursor-pointer dark:hover:text-gray-400",
+                  "w-4 h-4 md:group-hover/title:visible visible dark:text-gray-500 opacity-100 transition-all duration-150 md:group-hover/title:opacity-100 md:invisible md:opacity-0 cursor-pointer dark:hover:text-gray-400",
                   {
-                    invisible: workspace?.folders.length,
-                    "visible animate-bounce duration-10000 dark:text-gray-500 opacity-100":
+                    "md:invisible": workspace?.folders.length,
+                    "md:visible animate-bounce duration-10000 dark:text-gray-500 md:opacity-100":
                       !workspace?.folders.length,
                   }
                 )}
@@ -110,4 +119,4 @@ const FoldersHeader: React.FC<FoldersHeaderProps> = ({
   );
 };
 
-export default FoldersHeader;
+export default CreateFolder;

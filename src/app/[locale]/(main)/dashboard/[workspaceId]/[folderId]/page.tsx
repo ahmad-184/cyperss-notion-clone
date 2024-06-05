@@ -1,4 +1,5 @@
 import EditorPage from "@/components/editor-page";
+import { getAuthSession } from "@/lib/authOptions";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { validate } from "uuid";
@@ -19,9 +20,12 @@ const Page = async ({ params }: PageProps) => {
 
   if (!data) return notFound();
 
+  const session = await getAuthSession();
+  if (!session?.user) notFound();
+
   return (
     <div className="w-full">
-      <EditorPage id={params.folderId} type="folder" />
+      <EditorPage id={params.folderId} user={session.user} type="folder" />
     </div>
   );
 };

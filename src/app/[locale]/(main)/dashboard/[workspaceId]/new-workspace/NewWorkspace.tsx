@@ -3,7 +3,7 @@ import { v4 as uuid4 } from "uuid";
 import type { Subscription } from "@prisma/client";
 
 import { User, UserSession, WorkspacePayload, WorkspaceTypes } from "@/types";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -38,6 +38,8 @@ import { useAppDispatch } from "@/store";
 import PermissionSelectBox from "@/components/PermissionSelectBox";
 import SelectCollaborators from "@/components/select-collaborators";
 import { addWorkspace } from "@/store/slices/workspace";
+import { Context as LocalContext } from "@/contexts/local-context";
+import { Menu } from "lucide-react";
 
 interface NewWorkspaceProps {
   subscription: Subscription | null;
@@ -87,20 +89,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
     mode: "onSubmit",
     resolver: zodResolver(validator),
   });
-
-  useEffect(() => {
-    const isFirstLook = window.localStorage.getItem("FIRST_LOOK");
-    if (!isFirstLook) {
-      setTimeout(() => {
-        toast("Welcome to Cypress", {
-          icon: "🎉",
-          description: "Here you can setup your first Workspace",
-          position: "top-center",
-        });
-      }, 1000);
-      window.localStorage.setItem("FIRST_LOOK", "true");
-    }
-  }, []);
 
   const handleChangeEmoji = (e: string) => {
     setEmoji(e);
@@ -192,14 +180,30 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
 
   const typeValue = watch("type");
 
+  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+
+  const handleCloseSidebarMobile = () => {
+    if (mobile_sidebar_open) mobileSidebarOpen(false);
+  };
+
   return (
-    <>
-      <Card className="max-w-[600px] h-auto">
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
+    <div className="py-6 flex flex-col w-full gap-5 justify-center items-center px-3 sm:px-6">
+      <Card className="max-w-[600px] h-auto bg-transparent border-0 p-0 m-0 shadow-none">
+        <CardHeader className="p-0 mb-2">
+          <div className="flex items-center gap-3 mb-2">
+            <div
+              onClick={() => {
+                mobileSidebarOpen(true);
+              }}
+              className="md:hidden max-w-[600px] relative bottom-[2px]"
+            >
+              <Menu className="w-7 h-7" />
+            </div>
+            <CardTitle className="text-xl">{title}</CardTitle>
+          </div>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-2">
               <div className="flex gap-3 items-center">
@@ -250,7 +254,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
           </form>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 };
 

@@ -2,10 +2,11 @@ import { WorkspaceTypes } from "@/types";
 import Image from "next/image";
 import Logo from "@/assets/cypresslogo.svg";
 import { cn } from "@/lib/utils";
+import { Workspace } from "@prisma/client";
 
 interface SelectWorkspaceProps extends React.HTMLAttributes<HTMLDivElement> {
   selectWorkspace: () => void;
-  workspace: WorkspaceTypes;
+  workspace: Workspace;
   image_size?: number;
   endIcon?: React.ReactNode;
 }

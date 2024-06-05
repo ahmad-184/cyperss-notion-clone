@@ -6,11 +6,12 @@ import { Button } from "../ui/Button";
 import CustomDialog from "../custom/CustomDialog";
 import { useAppSelector } from "@/store";
 import { Input } from "../ui/Input";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { toast } from "sonner";
 import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
 import { deleteWorkspaceAction } from "@/server-actions";
 import { Skeleton } from "../ui/Skeleton";
+import { Context as SocketContext } from "@/contexts/socket-provider";
 
 interface DeleteWorkspaceProps {}
 
@@ -21,6 +22,8 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const { socket } = useContext(SocketContext);
 
   const handleDelete = async () => {
     try {
@@ -47,6 +50,13 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
       if (status === "ok") {
         window.localStorage.removeItem("active_workspace");
         toast.error("Workspace deleted successfully");
+        if (current_workspace.type === "shared" && socket && socket.connected) {
+          socket.emit(
+            "delete_workspace",
+            current_workspace.id,
+            current_workspace.workspaceOwnerId
+          );
+        }
         window.location.replace("/dashboard");
       } else {
         toast.error("Could not delete workspace");
@@ -95,7 +105,7 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
                   <div className="flex w-full flex-col gap-4">
                     <div className="dark:text-gray-600 flex gap-1 text-sm text-gray-500">
                       Type{" "}
-                      <p className="dark:text-gray-400 text-gray-800 font-medium">
+                      <p className="dark:text-gray-400 text-gray-800 font-semibold">
                         {current_workspace.title}
                       </p>{" "}
                       to confirm

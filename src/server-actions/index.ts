@@ -252,6 +252,52 @@ export const getWorkspacesAction = async (): Promise<{
   }
 };
 
+export const getWorkspacesListAction = async (
+  userId: string
+): Promise<{
+  data?: Workspace[] | null | [];
+  error?: { message: string };
+}> => {
+  try {
+    const { validatedUser, error } = await validatUser();
+    if (error) throw new Error(error || "Unauthorized");
+    if (!validatedUser?.id) throw new Error();
+
+    if (!userId) throw new Error("user id is required");
+
+    const [userOwn, collabrating] = await Promise.all([
+      await db.workspace.findMany({
+        where: { workspaceOwnerId: userId },
+        orderBy: { createdAt: "asc" },
+      }),
+      await db.workspace.findMany({
+        where: {
+          workspaceOwnerId: {
+            not: userId,
+          },
+          collaborators: {
+            some: {
+              userId: userId,
+            },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      }),
+    ]);
+
+    return {
+      data: [...userOwn, ...collabrating],
+    };
+  } catch (err: any) {
+    console.log(err);
+    return {
+      error: {
+        message: err.message || "Something went wrong, please try again",
+      },
+    };
+  }
+};
+
 export const updateWorkspaceAction = async ({
   workspaceId,
   data,

@@ -20,7 +20,14 @@ import {
   updateWorkspace as updateWorkspaceStore,
   updateFolder as updateFolderStore,
 } from "@/store/slices/workspace";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import EditorBreadCrumb from "./EditorBreadcrumb";
 import ItemIsInTrashAlert from "./ItemIsInTrashAlert";
@@ -28,29 +35,46 @@ import Banner from "./Banner";
 import Container from "./Container";
 import QuillEditor from "./QuillEditor";
 import { File } from "@prisma/client";
-import { Input } from "../ui/Input";
 import _debounce from "lodash.debounce";
-import { Trash } from "lucide-react";
+import { Menu, Trash } from "lucide-react";
 import Loader from "../Loader";
-import { cn, findFile, findFolder, findWorkspace } from "@/lib/utils";
+import { cn, findFile, findFolder } from "@/lib/utils";
 import useUploadV2 from "@/hooks/useUploadV2";
 import Collaborators from "./Collaborators";
 import { Badge } from "../ui/Badge";
 import { removeFileUpload } from "@/lib/removeFileUpload";
 import EmojiPickerMart from "../EmojiPickerMart";
-import { FolderType, WorkspaceTypes } from "@/types";
-
+import { FolderType, User, WorkspaceTypes } from "@/types";
+import { Context as LocalContext } from "@/contexts/local-context";
+import { useParams, useRouter } from "next/navigation";
+import { Context as SocketContext } from "@/contexts/socket-provider";
 interface EditorPageProps {
   type: "workspace" | "folder" | "file";
   id: string;
   folderId?: string;
+  user: User;
 }
 
-const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
+const EditorPage: React.FC<EditorPageProps> = ({
+  type,
+  id,
+  folderId,
+  user,
+}) => {
   const dispatch = useAppDispatch();
   const { current_workspace } = useAppSelector((store) => store.workspace);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
+  const [onlineCollaborators, setOnlineCollaborators] = useState<User[] | []>(
+    []
+  );
+
+  const { socket } = useContext(SocketContext);
+
+  const params = useParams();
+
+  const { mobileSidebarOpen } = useContext(LocalContext);
 
   const { progress, isUploading, startUpload, files } = useUploadV2({
     ref: inputRef,
@@ -59,7 +83,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
 
   const [isLoading, setIsloading] = useState(false);
 
-  const updateState = async () => {
+  const updateState = useCallback(async () => {
     try {
       if (current_workspace?.type !== "shared") return;
       if (type === "workspace") {
@@ -91,11 +115,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
       toast.error("Something went wrong, please try again");
       window.location.href = "/dashboard";
     }
-  };
+  }, [current_workspace, id, type, params]);
 
   useEffect(() => {
     updateState();
-  }, [type, id, folderId]);
+  }, [type, id, folderId, params]);
 
   const data = useMemo(() => {
     if (!current_workspace) return;
@@ -103,13 +127,16 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
 
     if (type === "workspace") res = current_workspace as WorkspaceTypes;
     if (type === "folder") {
-      res = findFolder(current_workspace, id);
+      res = findFolder(current_workspace, id) as FolderType;
     }
     if (type === "file" && folderId) {
-      res = findFile(current_workspace, id, folderId);
+      const isFolderInTrash = findFolder(current_workspace, folderId);
+      if (isFolderInTrash.inTrash)
+        return router.push(`/dashboard/${current_workspace.id}`);
+      res = findFile(current_workspace, id, folderId) as File;
     }
     return res;
-  }, [current_workspace, type, id, folderId]);
+  }, [current_workspace, type, id, folderId, params]);
 
   useEffect(() => {
     if (data?.id) {
@@ -140,7 +167,25 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         toast.error(error?.message || "Could not update the icon");
         return;
       }
-      if (resData) return;
+      if (resData) {
+        if (
+          socket &&
+          socket.connected &&
+          data &&
+          current_workspace?.type === "shared"
+        ) {
+          socket?.emit(
+            "change_icon",
+            current_workspace?.id,
+            data.id,
+            newIcon,
+            type,
+            //@ts-ignore
+            data.folderId,
+            user.id
+          );
+        }
+      }
     } catch (err) {
       console.log(err);
       toast.error(`Could not change the ${type} icon, please try again`);
@@ -178,6 +223,23 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         }),
       })
     );
+    if (
+      socket &&
+      socket.connected &&
+      data &&
+      current_workspace?.type === "shared"
+    ) {
+      socket.emit(
+        "change_title",
+        current_workspace?.id,
+        data.id,
+        e.target.value,
+        type,
+        // @ts-ignore
+        data.folderId,
+        user.id
+      );
+    }
     updateTitle(e.target.value);
   };
 
@@ -241,6 +303,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         });
         if (res.error || !res.data) throw new Error();
         dispatch(replaceFile(res.data));
+      }
+      if (
+        socket &&
+        socket.connected &&
+        data &&
+        current_workspace?.type === "shared"
+      ) {
+        socket?.emit(
+          "change_banner",
+          current_workspace?.id,
+          data.id,
+          fileUrl,
+          type,
+          //@ts-ignore
+          data.folderId,
+          file_public_id,
+          user.id
+        );
       }
     } catch (err: any) {
       console.log(err);
@@ -366,6 +446,24 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         }
         dispatch(replaceFile(res.data));
       }
+      if (
+        socket &&
+        socket.connected &&
+        data &&
+        current_workspace?.type === "shared"
+      ) {
+        socket?.emit(
+          "change_banner",
+          current_workspace?.id,
+          data.id,
+          "",
+          type,
+          //@ts-ignore
+          data.folderId,
+          "",
+          user.id
+        );
+      }
     } catch (err: any) {
       console.log(err);
       toast.error("Somethin went wrong, please try again");
@@ -384,15 +482,32 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
           ) : null}
         </>
       ) : null}
-      <div className="py-3 mt-1 px-3 flex flex-wrap gap-3 items-center w-full justify-between sm:px-6">
-        <EditorBreadCrumb type={type} />
-        <div className="flex items-center gap-3 px-3 sm:px-0">
-          <Collaborators />
+      <div className="py-3 mt-2 px-3 flex flex-wrap gap-3 items-center w-full justify-between sm:px-6">
+        <div className="flex items-center gap-3 flex-grow">
+          <div
+            onClick={() => {
+              mobileSidebarOpen(true);
+            }}
+            className="md:hidden dark:text-white relative bottom-[2px]"
+          >
+            <Menu className="w-7 h-7" />
+          </div>
+          <EditorBreadCrumb type={type} />
+        </div>
+        <div className="flex items-center gap-3 sm:px-0">
+          <Collaborators
+            user={user}
+            data={data}
+            onlineCollaborators={onlineCollaborators}
+            setOnlineCollaborators={setOnlineCollaborators}
+          />
           <Badge
             variant={"secondary"}
             className={cn("select-none", {
-              "dark:bg-green-700 bg-green-300": !saving,
-              "dark:bg-orange-700 bg-orange-300": saving,
+              "dark:bg-green-700 dark:hover:bg-green-700 bg-green-300 hover:bg-green-300":
+                !saving,
+              "dark:bg-orange-700 dark:hover:bg-orange-700 bg-orange-300 hover:bg-orange-300":
+                saving,
             })}
           >
             {saving ? "Saving..." : "Saved"}
@@ -400,7 +515,11 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
         </div>
       </div>
       <div className="w-full mb-4">
-        <Banner src={data?.bannerUrl} alt={`${data?.title} banner`} />
+        <Banner
+          src={data?.bannerUrl}
+          alt={`${data?.title} banner`}
+          isUploading={isUploading}
+        />
       </div>
       <Container className="py-6">
         <div className="flex flex-col w-full justify-center items-center">
@@ -408,7 +527,7 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
             <div className="w-full flex flex-col group/container">
               <div className="flex w-full flex-col mb-2">
                 <input ref={inputRef} hidden type="file" accept="image/*" />
-                <div className="ml-3">
+                <div className="md:ml-1">
                   <div className="flex gap-2 md:invisible group-hover/container:visible">
                     {data && !data?.bannerUrl ? (
                       <div
@@ -458,16 +577,16 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center gap-0 w-full overflow-hidden">
                 <EmojiPickerMart
                   emoji={data?.iconId || ""}
-                  classNames="text-[40px] pl-[5px] w-fit"
+                  classNames="text-[40px] w-fit"
                   onChangeEmoji={handleChangeEmoji}
                 />
                 <input
                   value={data?.title || ""}
                   placeholder="Untitled"
-                  className="text-3xl h-[3rem] font-bold dark:text-gray-400 pl-1 
+                  className="text-3xl h-[3rem] font-bold dark:text-gray-400 pl-0
                 border-none bg-transparent hover:bg-transparent flex-grow 
                 outline-none hover:outline-none hover:border-none focus-visible:border-none
                 focus-within:border-none focus:border-none focus-visible:outline-none
@@ -480,7 +599,14 @@ const EditorPage: React.FC<EditorPageProps> = ({ type, id, folderId }) => {
               </div>
             </div>
           </div>
-          <QuillEditor setSaving={setSaving} data={data} type={type} />
+          <QuillEditor
+            setSaving={setSaving}
+            data={data}
+            type={type}
+            user={user}
+            onlineCollaborators={onlineCollaborators}
+            setOnlineCollaborators={setOnlineCollaborators}
+          />
         </div>
       </Container>
     </div>

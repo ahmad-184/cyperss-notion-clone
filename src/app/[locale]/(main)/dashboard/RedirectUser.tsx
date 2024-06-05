@@ -32,8 +32,7 @@ const RedirectUser: React.FC<RedirectUserProps> = ({ id, user }) => {
         toast.error("Something went wrong.");
         return setError(true);
       }
-      if (data?.id && data.workspaceOwnerId === user.id)
-        return router.push(`dashboard/${data.id}`);
+      if (data?.id) return router.push(`dashboard/${data.id}`);
       else {
         window.localStorage.removeItem("active_workspace");
         return router.push(`dashboard/${id}`);

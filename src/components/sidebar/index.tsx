@@ -7,12 +7,14 @@ import { ScrollArea } from "../ui/ScrollArea";
 import { validatUser } from "@/lib/validateUser";
 import Folders from "../folders";
 import UserCard from "../UserCard";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   workspaceId: string;
+  className?: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
+const Sidebar: React.FC<SidebarProps> = async ({ workspaceId, className }) => {
   const { validatedUser, error } = await validatUser();
   if (error) return redirect("/signout");
   if (!validatedUser?.id) return redirect("/signout");
@@ -22,9 +24,11 @@ const Sidebar: React.FC<SidebarProps> = async ({ workspaceId }) => {
   );
 
   return (
-    <div className="fixed top-0 bottom-0 left-0 bg-white dark:bg-background hidden md:block">
-      <ScrollArea className="border-r">
-        <div className="w-[250px] h-screen p-3 py-4 pb-0 flex flex-col">
+    <div
+      className={cn("bg-white dark:bg-background hidden md:block", className)}
+    >
+      <ScrollArea className="border-r w-full" type="hover">
+        <div className="w-screen sm:w-[280px] h-screen p-3 px-5 sm:px-3 py-4 pb-0 flex flex-col">
           <WorkspacesDropdown user={validatedUser} />
           <UsagePlan subscription={data} />
           <NativeNavigation user={validatedUser} />

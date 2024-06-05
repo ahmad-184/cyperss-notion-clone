@@ -117,6 +117,7 @@ body {
 }
 
 .ql-editor {
+  margin-top: 5px;
   min-height: 500px;
   font-family: "__DM_Sans_0dfae3", "__Vazirmatn_c24549", sans-serif;
 }

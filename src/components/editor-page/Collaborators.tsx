@@ -1,26 +1,43 @@
 import { useAppSelector } from "@/store";
 import CustomAvatar from "../custom/CustomAvatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/Tooltip";
+import { cn } from "@/lib/utils";
+import { FolderType, User, WorkspaceTypes } from "@/types";
+import { File } from "@prisma/client";
 
-interface CollaboratorsProps {}
+interface CollaboratorsProps {
+  user: User;
+  data: FolderType | WorkspaceTypes | File | null;
+  onlineCollaborators: User[];
+  setOnlineCollaborators: (u: User[]) => void;
+}
 
-const Collaborators: React.FC<CollaboratorsProps> = () => {
+const Collaborators: React.FC<CollaboratorsProps> = ({
+  onlineCollaborators,
+}) => {
   const { current_workspace } = useAppSelector((store) => store.workspace);
 
   return (
     <div className="flex">
       {current_workspace?.type === "shared" ? (
         <>
-          {current_workspace.collaborators.map((c, i) => (
-            <div className="-ml-3" key={c.user.id}>
+          {onlineCollaborators.map((c, i) => (
+            <div
+              className={cn("my-0 py-0 flex", {
+                "-ml-3": i !== 0,
+              })}
+              key={c.id}
+            >
               <Tooltip>
                 <TooltipTrigger>
-                  <CustomAvatar
-                    className="border-2 w-9 h-9 border-gray-600 dark:border-gray-500"
-                    user={c.user}
-                  />
+                  <div className="w-9 h-9">
+                    <CustomAvatar
+                      className="w-full h-full outline-dashed outline-[1.5px] outline-offset-1 outline-green-500 dark:outline-green-400"
+                      user={c}
+                    />
+                  </div>
                 </TooltipTrigger>
-                <TooltipContent>{c.user.name}</TooltipContent>
+                <TooltipContent>{c.name}</TooltipContent>
               </Tooltip>
             </div>
           ))}

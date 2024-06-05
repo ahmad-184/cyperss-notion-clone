@@ -16,8 +16,9 @@ import { ChangeInTrashStatusTypes, FolderType } from "@/types";
 import { File } from "@prisma/client";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
-import { Button } from "@/components/ui/Button";
-import { findFile, findFolder, findFolderIndex } from "@/lib/utils";
+import { findFile, findFolder } from "@/lib/utils";
+import { Context as SocketContext } from "@/contexts/socket-provider";
+import { useContext } from "react";
 
 type FuncsTypes = {
   type: TrashAlertsType["type"];
@@ -44,6 +45,7 @@ const useTrash = () => {
   );
 
   const { data: session } = useSession();
+  const { socket } = useContext(SocketContext);
 
   const restoreDeletedItem = async ({ type, id, folderId }: FuncsTypes) => {
     try {
@@ -86,7 +88,23 @@ const useTrash = () => {
       }
 
       if (!data) throw new Error();
-
+      if (
+        workspace &&
+        workspace.type === "shared" &&
+        socket &&
+        socket.connected
+      ) {
+        socket.emit(
+          "to_trash_file/folder",
+          workspace.id,
+          id,
+          folderId,
+          type,
+          session?.user?.id,
+          false,
+          ""
+        );
+      }
       return;
     } catch (err) {
       console.log(err);
@@ -131,7 +149,6 @@ const useTrash = () => {
         }
 
         if (!data) throw new Error();
-        return;
       } else if (type === "file") {
         if (!folderId) throw new Error("folder id required.");
 
@@ -159,7 +176,21 @@ const useTrash = () => {
         }
 
         if (!data) throw new Error();
-        return;
+      }
+      if (
+        workspace &&
+        workspace.type === "shared" &&
+        socket &&
+        socket.connected
+      ) {
+        socket.emit(
+          "delete_file/folder",
+          workspace.id,
+          id,
+          type,
+          folderId,
+          session?.user.id
+        );
       }
     } catch (err) {
       console.log(err);
@@ -207,7 +238,23 @@ const useTrash = () => {
       }
 
       if (!data) throw new Error();
-
+      if (
+        workspace &&
+        workspace.type === "shared" &&
+        socket &&
+        socket.connected
+      ) {
+        socket.emit(
+          "to_trash_file/folder",
+          workspace.id,
+          id,
+          folderId,
+          type,
+          session?.user?.id,
+          true,
+          session?.user.email
+        );
+      }
       return;
     } catch (err) {
       console.log(err);

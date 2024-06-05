@@ -67,8 +67,8 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
         name: data.name,
         id: user.id,
       });
-      console.log(resData);
       if (error || !resData) throw new Error();
+      console.log(resData);
 
       setValue("name", resData?.name || "");
       setValue("image", resData?.image || "");
