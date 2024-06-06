@@ -39,24 +39,24 @@ export function authMiddleware(middleware: CustomMiddleware) {
       ...i18nConfig.locales,
     ]);
 
-    if (!token && protectedPathWithLocale.includes(pathname)) {
-      const signInUrl = new URL("/signin", request.url);
-      signInUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(signInUrl);
-    }
+    // if (!token && protectedPathWithLocale.includes(pathname)) {
+    //   const signInUrl = new URL("/signin", request.url);
+    //   signInUrl.searchParams.set("callbackUrl", pathname);
+    //   return NextResponse.redirect(signInUrl);
+    // }
 
     const routesThatAccessMustDenyAfterSigninWithLocale = getProtectedRoutes(
       routesThatAccessMustDenyAfterSignin,
       [...i18nConfig.locales]
     );
 
-    if (
-      token &&
-      routesThatAccessMustDenyAfterSigninWithLocale.includes(pathname)
-    ) {
-      const home_page = new URL("/", request.url);
-      return NextResponse.redirect(home_page);
-    }
+    // if (
+    //   token &&
+    //   routesThatAccessMustDenyAfterSigninWithLocale.includes(pathname)
+    // ) {
+    //   const home_page = new URL("/", request.url);
+    //   return NextResponse.redirect(home_page);
+    // }
 
     return middleware(request, event, response);
   };
