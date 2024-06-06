@@ -20,6 +20,7 @@ import {
 import { Context as LocalContext } from "@/contexts/local-context";
 import CustomDialog from "../custom/CustomDialog";
 import { Button } from "../ui/Button";
+import Link from "next/link";
 
 const getInTrashFilesFolders = (workspace: WorkspaceTypes) => {
   if (!workspace)
@@ -62,7 +63,7 @@ type TrashItemProps =
 
 const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
   const { restoreDeletedItem, deleteItemPermanently } = useTrash();
-  const { mobileSidebarOpen } = useContext(LocalContext);
+  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
   const router = useRouter();
 
   const handleDelete = () => {
@@ -83,25 +84,23 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
     restoreDeletedItem(payload);
   };
 
+  const href =
+    type === "folder"
+      ? `/dashboard/${data.workspaceId}/${data.id}`
+      : `/dashboard/${data.workspaceId}/${data.folderId}/${data.id}`;
+
   return (
     <div className="w-full dark:bg-transparent border-b px-2 py-2 rounded-md flex justify-between gap-3">
-      <p
+      <Link
         className="dark:text-gray-400 text-gray-700 cursor-pointer"
         onClick={() => {
-          if (type === "folder") {
-            router.push(`/dashboard/${data.workspaceId}/${data.id}`);
-          }
-          if (type === "file") {
-            router.push(
-              `/dashboard/${data.workspaceId}/${data.folderId}/${data.id}`
-            );
-          }
           handleOpenDialog(false);
-          mobileSidebarOpen(false);
+          if (mobile_sidebar_open) mobileSidebarOpen(false);
         }}
+        href={href}
       >
         {data?.title || "Untitled"}
-      </p>
+      </Link>
       <div className="flex gap-4 dark:text-gray-400 text-gray-600">
         <Undo2
           onClick={handleRestore}
@@ -149,7 +148,11 @@ const TrashBin = () => {
 
   return (
     <>
-      <Dialog open={openDialog} onOpenChange={handleOpenDialog}>
+      <Dialog
+        open={openDialog}
+        defaultOpen={false}
+        onOpenChange={handleOpenDialog}
+      >
         <DialogTrigger asChild>
           <div className="flex group/native w-full cursor-pointer transition-all py-1 gap-2 items-center dark:text-gray-400">
             <CypressTrashIcon />
