@@ -48,8 +48,7 @@ export const Provider = ({
 }: ProviderProps) => {
   const [mobile_sidebar_open, setMobile_sidebar_open] = useState(false);
 
-  const mobileSidebarOpen = (e: boolean) =>
-    setMobile_sidebar_open((prev) => e || !prev);
+  const mobileSidebarOpen = (e: boolean) => setMobile_sidebar_open((prev) => e);
 
   return (
     <Context.Provider
