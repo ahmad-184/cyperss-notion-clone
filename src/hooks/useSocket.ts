@@ -28,13 +28,18 @@ export const useSocket = () => {
     APP_MODE === "production"
       ? REALTIMNE_SERVER_PRODUCTION
       : REALTIMNE_SERVER_DEVELOPMENT;
-  console.log(REALTIMNE_SERVER_PRODUCTION);
+
+  console.log("mode :", APP_MODE);
+  console.log("priduction address:", REALTIMNE_SERVER_PRODUCTION);
+  console.log("development address:", REALTIMNE_SERVER_DEVELOPMENT);
+
   useEffect(() => {
     if (!session?.user.id) return;
     if (!current_workspace) return;
     if (!current_workspace?.id) return;
 
     if (current_workspace.type === "shared") {
+      console.log(session.user.id);
       const s = io(REALTIMNE_SERVER_PRODUCTION, {
         auth: {
           userId: session.user.id,
