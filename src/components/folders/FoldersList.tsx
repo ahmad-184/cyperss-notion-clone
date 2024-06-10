@@ -6,6 +6,9 @@ import DropdownItem from "./DropdownItem";
 import { useParams } from "next/navigation";
 import { Skeleton } from "../ui/Skeleton";
 import { User } from "@/types";
+import { Context as LangContext } from "@/contexts/language-context";
+import { useContext } from "react";
+import { getDirByLang } from "@/lib/dir";
 
 interface FoldersListProps {
   user: User;
@@ -34,9 +37,10 @@ const FoldersList: React.FC<FoldersListProps> = ({ user }) => {
   );
   const loading = useAppSelector((store) => store.workspace.loading);
   const params = useParams();
+  const { lang } = useContext(LangContext);
 
   return (
-    <div className="py-2">
+    <div className="py-2" dir={getDirByLang(lang)}>
       <Accordion
         type="multiple"
         className="w-full h-full max-h-[400px] pb-20"

@@ -8,6 +8,7 @@ import data from "@emoji-mart/data";
 import { cn } from "@/lib/utils";
 import { createPortal } from "react-dom";
 import { useClickOutside } from "@mantine/hooks";
+import ClientPortal from "./ClientPortal";
 
 interface EmojiPickerProps {
   onChangeEmoji: (emoji: string) => void;
@@ -41,7 +42,7 @@ const EmojiPickerReact: React.FC<EmojiPickerProps> = ({
       >
         {emoji}
       </p>
-      {createPortal(
+      <ClientPortal show selector="mart-emoji-picker">
         <div
           className={cn(
             "fixed z-[500] inset w-full h-full left-0 top-0 bottom-0 right-0",
@@ -65,9 +66,8 @@ const EmojiPickerReact: React.FC<EmojiPickerProps> = ({
               />
             </div>
           </div>
-        </div>,
-        document.body
-      )}
+        </div>
+      </ClientPortal>
     </div>
   );
 };

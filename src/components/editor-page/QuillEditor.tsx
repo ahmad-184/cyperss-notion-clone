@@ -3,7 +3,7 @@
 import { File, Folder, Workspace } from "@prisma/client";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Context as SocketContext } from "@/contexts/socket-provider";
-import { useAppSelector } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { toast } from "sonner";
 import type QuillType from "quill";
 import { useParams } from "next/navigation";
@@ -16,6 +16,12 @@ import {
 } from "@/server-actions";
 import { User } from "@/types";
 import { supabase } from "@/lib/supabase";
+import {
+  updateFile,
+  updateFolder,
+  updateWorkspace,
+} from "@/store/slices/workspace";
+import { findFile, findFolder } from "@/lib/utils";
 
 interface QuillEditorProps {
   data: Folder | Workspace | File | null | undefined;
@@ -54,16 +60,12 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
   setOnlineCollaborators,
 }) => {
   const { socket } = useContext(SocketContext);
-
   const params = useParams();
-
   const { current_workspace } = useAppSelector((store) => store.workspace);
-
   const [localCursors, setLocalCursors] = useState<any>([]);
-
   const [quill, setQuill] = useState<QuillType | null>(null);
-
   const timeOut = useRef<ReturnType<typeof setTimeout>>();
+  const dispatch = useAppDispatch();
 
   const wrapperRef = useCallback(async (wrapper: HTMLDivElement) => {
     if (typeof window !== "undefined") {
@@ -99,7 +101,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
     try {
       if (!data || !current_workspace || !quill || !type) return;
       if (type === "file") {
-        await updateFileAction({
+        const res = await updateFileAction({
           fileId: data.id,
           data: {
             data: JSON.stringify(content),
@@ -107,7 +109,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         });
       }
       if (type === "workspace") {
-        await updateWorkspaceAction({
+        const res = await updateWorkspaceAction({
           workspaceId: data.id,
           data: {
             data: JSON.stringify(content),
@@ -115,7 +117,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         });
       }
       if (type === "folder") {
-        await updateFolderAction({
+        const res = await updateFolderAction({
           folderId: data.id,
           data: {
             data: JSON.stringify(content),

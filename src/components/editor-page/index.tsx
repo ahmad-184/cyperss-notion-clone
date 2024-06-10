@@ -85,7 +85,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
 
   const updateState = useCallback(async () => {
     try {
-      if (current_workspace?.type !== "shared") return;
+      if (!current_workspace) return;
       if (type === "workspace") {
         const { data: resData, error } = await getWorkspaceByIdAction(id);
         if (error || !resData) throw new Error();

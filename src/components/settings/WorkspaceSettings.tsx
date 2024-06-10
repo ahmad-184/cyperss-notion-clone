@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase } from "lucide-react";
+import { Briefcase, Trash } from "lucide-react";
 import { Label } from "../ui/Label";
 import { Input } from "../ui/Input";
 import { useAppSelector } from "@/store";
@@ -29,6 +29,8 @@ import useUploadV2 from "@/hooks/useUploadV2";
 import EmojiPickerMart from "../EmojiPickerMart";
 import { useRouter } from "next/navigation";
 import { Context as SocketContext } from "@/contexts/socket-provider";
+import Image from "next/image";
+import Logo from "@/assets/cypresslogo.svg";
 
 interface WorkspaceSettingsProps {
   subscription: Subscription | null;
@@ -68,6 +70,17 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
     max_size: 1,
   });
 
+  useEffect(() => {
+    (async () => {
+      if (current_workspace && files[0]) {
+        const uploadedLogo = await startUpload();
+        if (uploadedLogo) {
+          setValue("logo", uploadedLogo[0].file.secure_url);
+        }
+      }
+    })();
+  }, [files, current_workspace]);
+
   const { validator } = WorkspaceSettingsValidator(t);
   type WorkspaceSettingsValidatorType = z.infer<typeof validator>;
 
@@ -81,6 +94,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
     defaultValues: {
       type: current_workspace?.type,
       workspace_name: current_workspace?.title,
+      logo: current_workspace?.logo,
     },
     mode: "onSubmit",
     resolver: zodResolver(validator),
@@ -106,10 +120,13 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
   const typeValue = watch("type");
   const workspaceNameValue = watch("workspace_name");
+  const logo = watch("logo");
 
   const handleChangeEmoji = (e: string) => {
     setEmoji(e);
   };
+
+  const handlDeleteLogo = () => setValue("logo", "");
 
   const onSubmit = async (data: WorkspaceSettingsValidatorType) => {
     try {
@@ -120,7 +137,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
         id: current_workspace.id,
         title: data.workspace_name,
         type: data.type,
-        logo: "",
+        logo: data.logo,
         iconId: emoji || "",
       };
 
@@ -190,6 +207,14 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
   useEffect(() => {
     if (!current_workspace) return;
+
+    if (current_workspace.logo !== logo) {
+      setIsWorkspaceLogoChanged(true);
+    } else setIsWorkspaceLogoChanged(false);
+  }, [logo, current_workspace]);
+
+  useEffect(() => {
+    if (!current_workspace) return;
     if (typeValue !== "shared" && current_workspace.type === "private") {
       setIsWorkspaceCollaboratorsChange(false);
 
@@ -235,12 +260,14 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       isWorkspaceTypeChange,
       isWorkspaceCollaboratorsChange,
       isWorkspaceEmojiChange,
+      isWorkspaceLogoChanged,
     ].some((e) => e === true);
   }, [
     isWorkspaceNameChange,
     isWorkspaceTypeChange,
     isWorkspaceCollaboratorsChange,
     isWorkspaceEmojiChange,
+    isWorkspaceLogoChanged,
   ]);
 
   const handleCancelChanges = () => {
@@ -248,6 +275,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
     if (!isStateChanged) return;
     setValue("workspace_name", current_workspace?.title);
     setValue("type", current_workspace?.type);
+    setValue("logo", current_workspace.logo);
     // if (isWorkspaceCollaboratorsChange && typeValue === "shared") {
     setSelectedCollaborators(
       current_workspace.collaborators?.map((e) => e.user)
@@ -296,7 +324,35 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
               />
             </div>
           </div>
-          <WorkspaceLogoInput subscription={subscription} ref={inputRef} />
+          <div className="flex items-center gap-6">
+            {/* {logo ? ( */}
+            <div className="w-14 h-14 relative left-1 rounded-full outline-dashed outline-[1.3px] dark:outline-gray-500 outline-offset-8">
+              <Image
+                src={logo || Logo}
+                fill
+                alt={`${current_workspace?.title} logo`}
+              />
+              {logo ? (
+                <div className="absolute bg-muted-foreground/40 rounded-full visible opacity-100 transition-all duration-300 md:opacity-0 md:hover:visible md:hover:opacity-100  flex inset-0 w-full h-full items-center justify-center">
+                  <Button
+                    type="button"
+                    onClick={handlDeleteLogo}
+                    size={"sm"}
+                    variant="ghost"
+                    className="w-7 h-7"
+                  >
+                    <div>
+                      <Trash className="w-5 h-5 dark:text-gray-300" />
+                    </div>
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+            {/* ) : null} */}
+            <div className="flex-grow">
+              <WorkspaceLogoInput subscription={subscription} ref={inputRef} />
+            </div>
+          </div>
           <PermissionSelectBox
             handleChange={handleChangePermission}
             value={typeValue}
@@ -339,6 +395,8 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
           variant={"default"}
           disabled={!isStateChanged || saveLoading}
           loading={saveLoading}
+          isUploading={isUploading}
+          progress={progress}
         >
           Save
         </ButtonWithLoaderAndProgress>

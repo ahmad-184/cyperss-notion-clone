@@ -510,22 +510,22 @@ export const createFolderAction = async (data: {
     if (error) throw new Error(error || "Unauthorized");
     if (!validatedUser?.id) throw new Error();
 
-    const { data: subscription, error: subsError } =
-      await getUserSubscriptionAction(validatedUser.id);
+    // const { data: subscription, error: subsError } =
+    //   await getUserSubscriptionAction(validatedUser.id);
 
-    if (subsError)
-      return {
-        error: {
-          message: subsError || "Something went wrong, please try again",
-        },
-      };
+    // if (subsError)
+    //   return {
+    //     error: {
+    //       message: subsError || "Something went wrong, please try again",
+    //     },
+    //   };
 
-    const folders = await db.folder.findMany({
-      where: { workspaceId: data.folder.workspaceId },
-    });
+    // const folders = await db.folder.findMany({
+    //   where: { workspaceId: data.folder.workspaceId },
+    // });
 
-    if (subscription?.status !== "active" && folders.length >= 3)
-      return { error: { message: "Reached to limit folder" } };
+    // if (subscription?.status !== "active" && folders.length >= 3)
+    //   return { error: { message: "Reached to limit folder" } };
 
     const payload = data.folder;
 

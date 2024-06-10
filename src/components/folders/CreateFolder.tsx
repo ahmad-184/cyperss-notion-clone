@@ -29,62 +29,62 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
   const { socket } = useContext(SocketContext);
 
   const createFolderHandler = async () => {
-    if (
-      subscription?.status !== "active" &&
-      workspace &&
-      workspace.folders.length >= 3
-    ) {
-      toast.warning("Reached to limit folder number");
-      return;
-    } else {
-      try {
-        if (!workspace) return;
-        if (!user?.id) return;
+    // if (
+    //   subscription?.status !== "active" &&
+    //   workspace &&
+    //   workspace.folders.length >= 3
+    // ) {
+    //   toast.warning("Reached to limit folder number");
+    //   return;
+    // } else {
+    try {
+      if (!workspace) return;
+      if (!user?.id) return;
 
-        const payload: Omit<FolderType, "files"> = {
-          id: uuid4(),
-          bannerUrl: "",
-          data: null,
-          iconId: "📁",
-          inTrash: false,
-          inTrashBy: "",
-          title: "",
-          banner_public_id: "",
-          workspaceId: workspace?.id,
-          workspaceOwnerId: user.id,
-          createdAt: new Date(Date.now()),
-          updatedAt: new Date(Date.now()),
-        };
-        await dispatch(
-          addFolder({
-            data: { ...payload, files: [] },
+      const payload: Omit<FolderType, "files"> = {
+        id: uuid4(),
+        bannerUrl: "",
+        data: null,
+        iconId: "📁",
+        inTrash: false,
+        inTrashBy: "",
+        title: "",
+        banner_public_id: "",
+        workspaceId: workspace?.id,
+        workspaceOwnerId: user.id,
+        createdAt: new Date(Date.now()),
+        updatedAt: new Date(Date.now()),
+      };
+      await dispatch(
+        addFolder({
+          data: { ...payload, files: [] },
+        })
+      );
+      const { error, data } = await createFolderAction({
+        folder: payload,
+        userId: user.id,
+      });
+      if (error) {
+        console.log(error.message);
+        toast.error(`Could not create the folder`);
+        dispatch(
+          removeFolder({
+            id: payload.id,
           })
         );
-        const { error, data } = await createFolderAction({
-          folder: payload,
-          userId: user.id,
-        });
-        if (error) {
-          console.log(error.message);
-          toast.error(`Could not create the folder`);
-          dispatch(
-            removeFolder({
-              id: payload.id,
-            })
-          );
-        }
-        if (socket && socket.connected && data && workspace.type === "shared") {
-          socket?.emit(
-            "add_folder",
-            workspace?.id,
-            { ...data, files: [] },
-            user.id
-          );
-        }
-      } catch (err: any) {
-        console.log(err);
       }
+      if (socket && socket.connected && data && workspace.type === "shared") {
+        socket?.emit(
+          "add_folder",
+          workspace?.id,
+          { ...data, files: [] },
+          user.id
+        );
+      }
+    } catch (err: any) {
+      console.log(err);
     }
+    // }
   };
 
   return (

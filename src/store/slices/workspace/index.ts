@@ -17,6 +17,7 @@ interface WorkspaceState {
   current_workspace: WorkspaceTypes | null;
   loading: boolean;
   background_overlay: boolean;
+  upgrade_to_pro_modal: boolean;
 }
 
 const initialState: WorkspaceState = {
@@ -24,6 +25,7 @@ const initialState: WorkspaceState = {
   current_workspace: null,
   loading: false,
   background_overlay: false,
+  upgrade_to_pro_modal: false,
 };
 
 const workspaceSlice = createSlice({
@@ -431,6 +433,17 @@ const workspaceSlice = createSlice({
         state.workspaces[workspaceIndex] = state.current_workspace;
       }
     },
+    openCloseUpgradeToProModal: (
+      state,
+      action: PayloadAction<"close" | "open">
+    ) => {
+      const status = action.payload;
+      if (status === "close") {
+        state.upgrade_to_pro_modal = false;
+      } else if (status === "open") {
+        state.upgrade_to_pro_modal = true;
+      }
+    },
   },
   extraReducers(builder) {
     builder
@@ -472,4 +485,5 @@ export const {
   changeInTrashStatus,
   changeBgOverlayStatus,
   changeBanner,
+  openCloseUpgradeToProModal,
 } = workspaceSlice.actions;

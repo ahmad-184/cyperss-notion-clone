@@ -22,14 +22,22 @@ import type { Socket } from "socket.io-client";
 
 type ContextType = {
   socket: Socket | null;
+  connection: boolean;
+  reconnect: () => void;
+  ping: number;
+  reconnecting: boolean;
 };
 
 export const Context = createContext<ContextType>({
   socket: null,
+  connection: false,
+  reconnect: () => {},
+  ping: 0,
+  reconnecting: false,
 });
 
 const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const { socket } = useSocket();
+  const { socket, connection, reconnect, ping, reconnecting } = useSocket();
   const session = useSession();
   const router = useRouter();
   const params = useParams();
@@ -261,7 +269,13 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     params,
   ]);
 
-  return <Context.Provider value={{ socket }}>{children}</Context.Provider>;
+  return (
+    <Context.Provider
+      value={{ socket, connection, reconnect, ping, reconnecting }}
+    >
+      {children}
+    </Context.Provider>
+  );
 };
 
 export default SocketProvider;

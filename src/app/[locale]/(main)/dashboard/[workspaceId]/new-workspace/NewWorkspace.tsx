@@ -115,7 +115,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
       };
 
       if (files[0]) {
-        if (subscription?.status !== "active") return;
         const uploadedLogo = await startUpload();
         if (uploadedLogo) {
           payload.logo = uploadedLogo[0].file.secure_url;
