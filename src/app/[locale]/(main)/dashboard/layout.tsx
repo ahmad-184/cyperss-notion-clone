@@ -7,7 +7,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { validate } from "uuid";
 
-const namespaces = ["common"];
+const namespaces = ["common", "dashboard", "validators"];
 
 export const metadata: Metadata = {
   title: "Dashboard",

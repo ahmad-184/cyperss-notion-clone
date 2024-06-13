@@ -1,14 +1,15 @@
 "use client";
-import { useContext } from "react";
 import { Sheet, SheetContent } from "../ui/Sheet";
-import { Context as LocalContext } from "@/contexts/local-context";
+import { useLocal } from "@/contexts/local-context";
+import { getDirByLang } from "@/lib/dir";
 
 interface MobileSidebarProps {
   children: React.ReactNode;
+  locale: string;
 }
 
-const MobileSidebar: React.FC<MobileSidebarProps> = ({ children }) => {
-  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+const MobileSidebar: React.FC<MobileSidebarProps> = ({ locale, children }) => {
+  const { mobileSidebarOpen, mobile_sidebar_open } = useLocal();
 
   return (
     <>
@@ -18,7 +19,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ children }) => {
       >
         <SheetContent
           className="w-fit p-0 m-0"
-          side={"left"}
+          side={getDirByLang(locale) === "en" ? "left" : "right"}
           showCloseBtn={false}
         >
           {children}

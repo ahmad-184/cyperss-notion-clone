@@ -5,6 +5,7 @@ import { useEffect, useState, useContext } from "react";
 import { toast } from "sonner";
 import { Context } from "@/contexts/local-context";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
 // upload files using cloudinary storage
 ("---------------------------------------------------");
@@ -40,6 +41,7 @@ export default function useUploadV2({ ref, max_size = 3 }: Props) {
   const [files, setFiles] = useState<File[] | []>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const { t } = useTranslation();
 
   const {
     CLOUDINARY_CLOUD_NAME,
@@ -68,13 +70,13 @@ export default function useUploadV2({ ref, max_size = 3 }: Props) {
     if (file.size > 1000000 * max_size)
       return {
         error: {
-          message: `File too large, size: more than ${max_size}MB`,
+          message: t("dashboard:file-too-large", { num: max_size }),
         },
       };
     if (!file.type.startsWith("image/"))
       return {
         error: {
-          message: "File type incorrect, just 'image type' allowed",
+          message: t("dasboard:file-type-incorrect"),
         },
       };
   };
@@ -142,14 +144,14 @@ export default function useUploadV2({ ref, max_size = 3 }: Props) {
             type: fileType,
           });
         } catch (err) {
-          toast.error("Could not upload file");
+          toast.error(t("dashboard:error-message"));
           console.log(err);
         }
       }
       return uploadedFiles;
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong please try again");
+      toast.error(t("dashboard:error-message"));
     } finally {
       setIsUploading(false);
       setFiles([]);

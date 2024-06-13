@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 type ContextTypes = {
   uploadcare_key: string;
@@ -34,6 +34,8 @@ export const Context = createContext<ContextTypes>({
   mobile_sidebar_open: false,
   mobileSidebarOpen: () => {},
 });
+
+export const useLocal = () => useContext(Context);
 
 export const Provider = ({
   uploadcare_key,

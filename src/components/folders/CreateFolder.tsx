@@ -13,6 +13,7 @@ import { Skeleton } from "../ui/Skeleton";
 import { cn } from "@/lib/utils";
 import { Context as SocketContext } from "@/contexts/socket-provider";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CreateFolderProps {
   user: User;
@@ -25,6 +26,7 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
     (store) => store.workspace.current_workspace
   );
   const loading = useAppSelector((store) => store.workspace.loading);
+  const { t } = useTranslation();
 
   const { socket } = useContext(SocketContext);
 
@@ -66,7 +68,7 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
       });
       if (error) {
         console.log(error.message);
-        toast.error(`Could not create the folder`);
+        toast.error(t("dashboard:could-not-create-folder"));
         dispatch(
           removeFolder({
             id: payload.id,
@@ -96,7 +98,9 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
       <div className="flex text-muted-foreground justify-between items-center w-full">
         {!loading ? (
           <>
-            <p className="text-xs font-medium">FOLDERS</p>
+            <p className="text-xs font-medium uppercase">
+              {t("dashboard:folders")}
+            </p>
             <CustomTooltip side="left" description="Create New Folder">
               <Plus
                 onClick={createFolderHandler}

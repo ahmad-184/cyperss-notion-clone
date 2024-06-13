@@ -6,7 +6,6 @@ import { memo, useMemo, useState } from "react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { cn } from "@/lib/utils";
-import { createPortal } from "react-dom";
 import { useClickOutside } from "@mantine/hooks";
 import ClientPortal from "./ClientPortal";
 

@@ -12,6 +12,8 @@ import ButtonWithLoaderAndProgress from "../ButtonWithLoaderAndProgress";
 import { deleteWorkspaceAction } from "@/server-actions";
 import { Skeleton } from "../ui/Skeleton";
 import { Context as SocketContext } from "@/contexts/socket-provider";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 interface DeleteWorkspaceProps {}
 
@@ -19,9 +21,10 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
   const { current_workspace, loading: loadingGlob } = useAppSelector(
     (store) => store.workspace
   );
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { t } = useTranslation();
 
   const { socket } = useContext(SocketContext);
 
@@ -30,12 +33,9 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
       if (!current_workspace) return;
       if (!inputRef.current) return;
       const input = inputRef.current.value;
-      if (input !== current_workspace.title)
-        return setError(
-          `Invalid literal value, expected "${current_workspace.title}"`
-        );
+      if (input !== current_workspace.title) return setError(true);
       setLoading(true);
-      setError("");
+      setError(false);
 
       const { status, error } = await deleteWorkspaceAction({
         workspaceId: current_workspace.id,
@@ -43,13 +43,13 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
 
       if (error || status === "error") {
         console.log(error);
-        toast.error("Could not delete workspace");
+        toast.error(t("dashboard:could-not-delete-workspace"));
         window.location.replace("/dashboard");
       }
 
       if (status === "ok") {
         window.localStorage.removeItem("active_workspace");
-        toast.error("Workspace deleted successfully");
+        toast.error(t("dashboard:workspace-deleted"));
         if (current_workspace.type === "shared" && socket && socket.connected) {
           socket.emit(
             "delete_workspace",
@@ -59,11 +59,11 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
         }
         window.location.replace("/dashboard");
       } else {
-        toast.error("Could not delete workspace");
+        toast.error(t("dashboard:could-not-delete-workspace"));
         window.location.replace("/dashboard");
       }
     } catch (err: any) {
-      toast.error("Could not delete workspace");
+      toast.error(t("dashboard:could-not-delete-workspace"));
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,9 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="dark:text-gray-300 font-medium text-lg">Delete workspace</p>
+      <p className="dark:text-gray-300 font-medium text-lg">
+        {t("dashboard:delete-workspace")}
+      </p>
       <div className="w-full p-5 py-6 rounded-md z-[1] bg-white dark:bg-black/15 border">
         <Alert
           variant={"destructive"}
@@ -89,36 +91,34 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
             style={{ letterSpacing: 0.2 }}
             className="text-gray-700 dark:text-gray-200 font-normal"
           >
-            Warning!
+            {t("dashboard:warning")}
           </AlertTitle>
           <AlertDescription className="text-xs">
-            deleting your workspace will permanently delete all data related to
-            this workspace
+            {t("dashboard:delete-workspace-warning-desc")}
           </AlertDescription>
           <div className="w-full mt-3">
             <CustomDialog
-              header={`Confirm deletion of Workspace`}
-              description="deleting your workspace will permanently delete all data related to
-            this workspace"
+              header={t("dashboard:confirm-deletion-of-workspace")}
+              description={t("dashboard:delete-workspace-warning-desc")}
               content={
                 <>
                   <div className="flex w-full flex-col gap-4">
                     <div className="dark:text-gray-600 flex gap-1 text-sm text-gray-500">
-                      Type{" "}
+                      {t("dashboard:type")}{" "}
                       <p className="dark:text-gray-400 text-gray-800 font-semibold">
                         {current_workspace.title}
                       </p>{" "}
-                      to confirm
+                      {t("dashboard:to-confirm")}
                     </div>
                     <div className="w-full flex gap-1 flex-col">
                       <Input
                         ref={inputRef}
                         autoFocus
-                        placeholder="Type workspace name in here"
+                        placeholder={t("dashboard:type-workspace-name-here")}
+                        className={cn({
+                          "border-rose-600": error,
+                        })}
                       />
-                      {error ? (
-                        <small className="text-rose-500 ml-1">{error}</small>
-                      ) : null}
                     </div>
                     <ButtonWithLoaderAndProgress
                       loading={loading}
@@ -129,7 +129,7 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
                     "
                       onClick={handleDelete}
                     >
-                      I understand, delete this workspace
+                      {t("dashboard:i-understand-delete-workspace")}
                     </ButtonWithLoaderAndProgress>
                   </div>
                 </>
@@ -140,7 +140,7 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
                 variant={"destructive"}
                 size={"sm"}
               >
-                Delete Workspace
+                {t("dashboard:delete-workspace")}
               </Button>
             </CustomDialog>
           </div>

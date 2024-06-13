@@ -1,4 +1,8 @@
 {
   "email": "Invalid email address",
-  "email-min": "Email is required"
+  "email-min": "Email is required",
+  "workspace-name-required": "workspace name required",
+  "workspace-max": "Workspace name can not have more than 30 characters.",
+  "username-min": "Name must have more than 3 characters.",
+  "username-max": "Name can not have more than 30 characters."
 }

@@ -9,6 +9,7 @@ import { useAppSelector } from "@/store";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Fragment, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 type EditorBreadCrumbProps = {
   type: "workspace" | "folder" | "file";
@@ -19,6 +20,7 @@ type CrumbsType = { icon: string; title: string; path: string }[];
 const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
   const params = useParams();
   const { current_workspace } = useAppSelector((store) => store.workspace);
+  const { t } = useTranslation();
 
   const paths = useMemo(() => {
     if (!current_workspace) return [];
@@ -74,7 +76,7 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
                         <span className="text-lg">{p.icon}</span>
                       ) : null}
                       <p className="text-sm dark:text-gray-300">
-                        {p?.title || "Untitled"}
+                        {p?.title || t("dashboard:untitled")}
                       </p>
                     </div>
                   </BreadcrumbPage>
@@ -87,7 +89,9 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({ type }) => {
                       {p.icon ? (
                         <span className="text-lg">{p.icon}</span>
                       ) : null}
-                      <p className="text-sm">{p?.title || "Untitled"}</p>
+                      <p className="text-sm">
+                        {p?.title || t("dashboard:untitled")}
+                      </p>
                     </div>
                   </Link>
                 )}

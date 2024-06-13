@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   Ellipsis as DotsHorizontalIcon,
   ChevronRight as ChevronRightIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from "lucide-react";
 import { Slot } from "@radix-ui/react-slot";
 
@@ -86,7 +87,12 @@ const BreadcrumbSeparator = ({
     className={cn("[&>svg]:size-3.5", className)}
     {...props}
   >
-    {children ?? <ChevronRightIcon />}
+    {children ?? (
+      <>
+        <ChevronRightIcon className="rtl:hidden" />
+        <ChevronLeftIcon className="ltr:hidden" />
+      </>
+    )}
   </li>
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";

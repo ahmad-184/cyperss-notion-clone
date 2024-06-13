@@ -21,9 +21,11 @@ import {
   getWorkspacesListAction,
 } from "@/server-actions";
 import { Button } from "@/components/ui/Button";
-import { Context as LocalContext } from "@/contexts/local-context";
+import { useLocal } from "@/contexts/local-context";
 import { Workspace } from "@prisma/client";
 import Loader from "@/components/Loader";
+import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface WorkspacesDropdownProps {
   user: User;
@@ -35,12 +37,12 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
   const params = useParams();
   const dispatch = useAppDispatch();
   const router = useRouter();
-
+  const { t } = useTranslation();
   const [workspacesList, setWorkspacesList] = useState<
     Workspace[] | WorkspaceTypes[] | []
   >([]);
 
-  const { mobileSidebarOpen } = useContext(LocalContext);
+  const { mobileSidebarOpen } = useLocal();
 
   const [openDropdown, setOpenDropdown] = useState(false);
   const [isLoading, setIsloading] = useState(false);
@@ -140,7 +142,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
             <Skeleton className="w-full h-9 my-2" />
           ) : !current_workspace ? (
             <div className="w-full bg-muted/50 text-center text-sm cursor-pointer transition-all duration-150  hover:bg-muted p-2 gap-4 my-2 rounded-md">
-              <p>Select a Workspace</p>
+              <p>{t("dashboard:select-workspace")}</p>
             </div>
           ) : (
             <div className="w-full flex-col">
@@ -149,7 +151,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                   workspace={current_workspace}
                   selectWorkspace={selectWorkspace}
                   className="bg-transparent text-sm"
-                  image_size={20}
+                  image_size={25}
                   endIcon={
                     <ChevronsUpDown
                       className={cn(

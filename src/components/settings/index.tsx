@@ -7,9 +7,10 @@ import { User } from "@/types";
 import { useAppSelector } from "@/store";
 import { Skeleton } from "../ui/Skeleton";
 import UserSettings from "./UserSettings";
-import { useContext } from "react";
-import { Context as LocalContext } from "@/contexts/local-context";
+import { useLocal } from "@/contexts/local-context";
 import { Menu } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import GeneralSettings from "./GeneralSettings";
 
 interface Settings {
   subscription: Subscription;
@@ -21,8 +22,9 @@ const Settings: React.FC<Settings> = ({ subscription, user }) => {
   const { loading, current_workspace } = useAppSelector(
     (store) => store.workspace
   );
+  const { t } = useTranslation();
 
-  const { mobileSidebarOpen } = useContext(LocalContext);
+  const { mobileSidebarOpen } = useLocal();
 
   return (
     <div className="h-fit">
@@ -39,7 +41,9 @@ const Settings: React.FC<Settings> = ({ subscription, user }) => {
             >
               <Menu className="w-7 h-7" />
             </div>
-            <h1 className="dark:text-white  font-semibold text-xl">Settings</h1>
+            <h1 className="dark:text-white  font-semibold text-xl">
+              {t("dashboard:settings")}
+            </h1>
           </div>
         </div>
       )}
@@ -51,6 +55,7 @@ const Settings: React.FC<Settings> = ({ subscription, user }) => {
               {user.id === current_workspace?.workspaceOwnerId ? (
                 <WorkspaceSettings subscription={subscription} user={user} />
               ) : null}
+              {loading || !current_workspace ? null : <GeneralSettings />}
               {loading || !current_workspace ? null : (
                 <UserSettings user={user} />
               )}

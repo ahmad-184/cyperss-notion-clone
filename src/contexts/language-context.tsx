@@ -1,10 +1,12 @@
 "use client";
 
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
 export const Context = createContext({
   lang: "en",
 });
+
+export const useLanguage = () => useContext(Context);
 
 export const Provider = ({
   lang,

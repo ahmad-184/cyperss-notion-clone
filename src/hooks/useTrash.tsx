@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { findFile, findFolder } from "@/lib/utils";
 import { Context as SocketContext } from "@/contexts/socket-provider";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 type FuncsTypes = {
   type: TrashAlertsType["type"];
@@ -43,7 +44,7 @@ const useTrash = () => {
   const workspace = useAppSelector(
     (store) => store.workspace.current_workspace
   );
-
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const { socket } = useContext(SocketContext);
 
@@ -81,7 +82,7 @@ const useTrash = () => {
         payload["inTrash"] = true;
 
         console.log(error.message);
-        toast.error(`Could not restore the ${type}`);
+        toast.error(t("dashboard:could-not-restor", { type }));
         dispatch(changeInTrashStatus(payload));
 
         return;
@@ -108,7 +109,7 @@ const useTrash = () => {
       return;
     } catch (err) {
       console.log(err);
-      toast.error(`Could restore the ${type}.`);
+      toast.error(t("dashboard:could-not-restor", { type }));
     }
   };
 
@@ -142,7 +143,7 @@ const useTrash = () => {
 
         if (error) {
           console.log(error.message);
-          toast.error(`Could not delete the ${type} permanently`);
+          toast.error(t("dashboard:could-not-delete", { type }));
           dispatch(addFolder({ data: currentItem.data }));
 
           return;
@@ -150,7 +151,7 @@ const useTrash = () => {
 
         if (!data) throw new Error();
       } else if (type === "file") {
-        if (!folderId) throw new Error("folder id required.");
+        if (!folderId) throw new Error();
 
         currentItem = {
           type,
@@ -169,7 +170,7 @@ const useTrash = () => {
 
         if (error) {
           console.log(error.message);
-          toast.error(`Could not delete the ${type} permanently`);
+          toast.error(t("dashboard:could-not-delete", { type }));
           dispatch(addfile({ data: currentItem.data, folderId }));
 
           return;
@@ -194,7 +195,7 @@ const useTrash = () => {
       }
     } catch (err) {
       console.log(err);
-      toast.error(`Could not delete the ${type} permanently.`);
+      toast.error(t("dashboard:could-not-delete", { type }));
     }
   };
   const deleteItem = async ({
@@ -232,7 +233,7 @@ const useTrash = () => {
         payload["inTrash"] = false;
 
         console.log(error.message);
-        toast.error(`Could not delete the ${type}`);
+        toast.error(t("dashboard:could-not-delete", { type }));
         dispatch(changeInTrashStatus(payload));
         return;
       }
@@ -258,7 +259,7 @@ const useTrash = () => {
       return;
     } catch (err) {
       console.log(err);
-      toast.error(`Could not delete the ${type}.`);
+      toast.error(t("dashboard:could-not-delete", { type }));
     }
   };
 

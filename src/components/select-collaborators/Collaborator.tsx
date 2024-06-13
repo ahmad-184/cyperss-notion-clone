@@ -3,6 +3,8 @@ import { User } from "@/types";
 import CustomAvatar from "../custom/CustomAvatar";
 import { Minus, Plus } from "lucide-react";
 import { useMemo } from "react";
+import { useLanguage } from "@/contexts/language-context";
+import { getDirByLang } from "@/lib/dir";
 
 interface CollaboratorProps {
   data: User;
@@ -16,9 +18,11 @@ const Collaborator: React.FC<CollaboratorProps> = ({
   isActive,
 }) => {
   const active = useMemo(() => isActive, [isActive]);
+  const { lang } = useLanguage();
 
   return (
     <div
+      dir={getDirByLang(lang)}
       className={cn(
         "flex px-3 shadow-sm dark:shadow-none bg-muted/40 hover:bg-muted/60 transition-color duration-150 cursor-pointer rounded-md p-2 justify-between gap-3 items-center",
         {

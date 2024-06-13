@@ -15,15 +15,15 @@ export const setupWorkspaceValidator = (t: TFunction) => {
   const validator = z.object({
     workspace_name: z
       .string()
-      .min(1, { message: "workspace name required" })
+      .min(1, { message: t("validators:workspace-name-required") })
       .max(30, {
-        message: "Workspace name can not have more than 30 characters.",
+        message: t("validators:workspace-max"),
       }),
     username: z
       .string()
-      .min(3, { message: "Name must have more than 3 characters." })
+      .min(3, { message: t("validators:username-max") })
       .max(30, {
-        message: "Name can not have more than 30 characters.",
+        message: t("validators:username-min"),
       })
       .nullable()
       .optional(),
@@ -35,9 +35,10 @@ export const setupWorkspaceValidator = (t: TFunction) => {
 export const WorkspaceSettingsValidator = (t: TFunction) => {
   const validator = z.object({
     workspace_name: z.string().max(30, {
-      message: "Workspace name can not have more than 30 characters.",
+      message: t("validators:workspace-max"),
     }),
     type: z.enum(["private", "shared"]),
+    logo: z.string().nullable().optional(),
   });
   return { validator };
 };

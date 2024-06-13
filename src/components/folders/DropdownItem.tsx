@@ -27,7 +27,6 @@ import {
 } from "@/server-actions";
 import useTrash from "@/hooks/useTrash";
 import EmojiPickerMart from "../EmojiPickerMart";
-import { Context as LocalContext } from "@/contexts/local-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +34,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/DropdownMenu";
 import { Context as SocketContext } from "@/contexts/socket-provider";
+import { useTranslation } from "react-i18next";
+import { useLocal } from "@/contexts/local-context";
 
 type DropdownItemProps =
   | {
@@ -53,7 +54,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const { current_workspace } = useAppSelector((store) => store.workspace);
-
+  const { t } = useTranslation();
   const [isEditting, setEdditing] = useState(false);
   const [title, setTitle] = useState(data.title || "");
 
@@ -80,7 +81,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       if (error || !resData) {
         payload["emoji"] = currentIcon;
         dispatch(changeEmoji(payload));
-        toast.error(error?.message || "Could not update the icon");
+        toast.error(t("dashboard:error-message"));
         return;
       }
       if (resData) {
@@ -104,7 +105,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       }
     } catch (err) {
       console.log(err);
-      toast.error(`Could not change the ${type} icon, please try again`);
+      toast.error(t("dashboard:error-message"));
     }
   };
 
@@ -132,7 +133,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         payload["title"] = currentTitle;
         dispatch(changeItemTitle(payload));
         setTitle(currentTitle);
-        toast.error(error?.message || "Could not update the icon");
+        toast.error(t("dashboard:error-message"));
 
         return;
       }
@@ -157,7 +158,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       }
     } catch (err) {
       console.log(err);
-      toast.error(`Could not change the ${type} name, please try again`);
+      toast.error(t("dashboard:could-not-change-file-name", { type }));
     }
   };
 
@@ -188,9 +189,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       const { data: resData, error } = await createFileAction(payload);
       if (error || !resData) {
         dispatch(removeFile({ folderId: data.id, id: payload.id }));
-        toast.error(
-          error?.message || "Could not create file, please try again"
-        );
+        toast.error(t("dashboard:could-not-create-file"));
 
         return;
       }
@@ -206,7 +205,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       } else throw new Error();
     } catch (err) {
       console.log(err);
-      toast.error("Could not create file, please try again");
+      toast.error(t("dashboard:could-not-create-file"));
     }
   };
 
@@ -246,11 +245,11 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       return;
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong, please try again");
+      toast.error(t("dashboard:error-message"));
     }
   };
 
-  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+  const { mobileSidebarOpen, mobile_sidebar_open } = useLocal();
 
   const handleCloseSidebarMobile = () => {
     if (mobile_sidebar_open) mobileSidebarOpen(false);
@@ -262,8 +261,8 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       onClick={(e) => {
         e.stopPropagation();
       }}
-      className={cn("sm:pr-4 w-full sm:w-[256px]", {
-        "sm:rtl:pl-4": type === "file",
+      className={cn("w-full sm:w-[256px]", {
+        "rtl:pr-3 ltr:pl-3": type === "file",
       })}
     >
       <AccordionTrigger
@@ -306,7 +305,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
                 className="cursor-pointer truncate flex-grow text-sm"
                 onDoubleClick={handleDoubleClick}
               >
-                {data?.title || "Untitled"}
+                {data?.title || t("dashboard:untitled")}
               </p>
             ) : (
               <Input
@@ -388,7 +387,9 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       ) : null}
       {type === "folder" && !data.files.filter((e) => !e.inTrash).length ? (
         <AccordionContent>
-          <p className="text-muted-foreground text-center">...empty...</p>
+          <p className="text-muted-foreground text-center">
+            ...{t("dashboard:empty")}...
+          </p>
         </AccordionContent>
       ) : null}
     </AccordionItem>

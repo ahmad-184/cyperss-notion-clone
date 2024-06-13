@@ -64,7 +64,7 @@ const SignUp: React.FC<SignUpProps> = ({ locale }) => {
         duration: 120,
       });
       if (limit.status === "err" || limit.error)
-        return setSubmittingError("Too many request, try after 1 minute");
+        return setSubmittingError(t("error:too-many-request", { num: "1" }));
       const res = await signIn("email", {
         email: data.email,
         callbackUrl: callback_url || "/",
@@ -74,7 +74,7 @@ const SignUp: React.FC<SignUpProps> = ({ locale }) => {
       if (res?.ok) setEmailSent(true);
     } catch (err: any) {
       console.log(err?.code);
-      setSubmittingError("Something went wrong, please try again");
+      setSubmittingError(t("error:error-msg-client"));
     }
   };
 

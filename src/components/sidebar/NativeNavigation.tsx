@@ -7,8 +7,9 @@ import CypressSettingsIcon from "../icons/SettingsIcon";
 import { Skeleton } from "../ui/Skeleton";
 import TrashBin from "../trash-bin";
 import { User } from "@/types";
-import { useContext } from "react";
-import { Context as LocalContext } from "@/contexts/local-context";
+import { useContext, useTransition } from "react";
+import { useLocal } from "@/contexts/local-context";
+import { useTranslation } from "react-i18next";
 
 interface NativeNavigationProps {
   user: User;
@@ -19,7 +20,8 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
     (store) => store.workspace.current_workspace
   );
   const loading = useAppSelector((store) => store.workspace.loading);
-  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+  const { mobileSidebarOpen, mobile_sidebar_open } = useLocal();
+  const { t } = useTranslation();
 
   const handleCloseSidebarMobile = () => {
     if (mobile_sidebar_open) mobileSidebarOpen(false);
@@ -38,7 +40,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           </div>
         </>
       ) : (
-        <div className="my-5 w-full">
+        <div className="my-2 w-full">
           <div className="w-full flex flex-col gap-2">
             <Link
               href={`/dashboard/${workspace?.id}`}
@@ -50,7 +52,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
               >
                 <CypressHomeIcon />
-                <p className="text-sm">My Workspace</p>
+                <p className="text-sm">{t("dashboard:my-workspace")}</p>
               </div>
             </Link>
             <Link
@@ -63,7 +65,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
               >
                 <CypressSettingsIcon />
-                <p className="text-sm">Settings</p>
+                <p className="text-sm">{t("dashboard:settings")}</p>
               </div>
             </Link>
             <TrashBin />

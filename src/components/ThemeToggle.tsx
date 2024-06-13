@@ -26,7 +26,7 @@ export default function ModeToggle({
   className,
 }: ModeToggleProps) {
   const { setTheme, theme: currentTheme } = useTheme();
-  const { i18n, t } = useTranslation();
+  const { t } = useTranslation();
 
   const themes = useMemo(
     () => [

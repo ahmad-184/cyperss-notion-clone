@@ -3,7 +3,7 @@ import { v4 as uuid4 } from "uuid";
 import type { Subscription } from "@prisma/client";
 
 import { User, UserSession, WorkspacePayload, WorkspaceTypes } from "@/types";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -30,19 +30,17 @@ import { Input } from "@/components/ui/Input";
 import ButtonWithLoaderAndProgress from "@/components/ButtonWithLoaderAndProgress";
 import WorkspaceLogoInput from "@/components/custom-inputs/WorkspaceLogoInput";
 import EmojiPickerMart from "@/components/EmojiPickerMart";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import PermissionSelectBox from "@/components/PermissionSelectBox";
 import SelectCollaborators from "@/components/select-collaborators";
 import { addWorkspace } from "@/store/slices/workspace";
-import { Context as LocalContext } from "@/contexts/local-context";
 import { Menu } from "lucide-react";
+import { useLocal } from "@/contexts/local-context";
 
 interface NewWorkspaceProps {
   subscription: Subscription | null;
   user: UserSession["user"];
   locale: string;
-  title: string;
-  description: string;
   first_setup: boolean;
 }
 
@@ -50,8 +48,6 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   user,
   subscription,
   locale,
-  title,
-  description,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
@@ -62,6 +58,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
   const [emoji, setEmoji] = useState("💼");
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { current_workspace } = useAppSelector((store) => store.workspace);
 
   const { startUpload, files, isUploading, progress } = useUploadV2({
     ref: inputRef,
@@ -122,7 +119,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
       }
 
       if (data.type === "shared" && !selectedCollaborators.length)
-        return setError("Atleast 1 collabrator required.");
+        return setError(t("dashboard:one-collaborator-required"));
 
       const { error: newWorkspaceError, data: newWorkspaceData } =
         await createWorkspaceAction(payload);
@@ -147,7 +144,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
 
       if (err || !dataToStore) {
         console.log(error);
-        toast.error("Colud not fetch workspace");
+        toast.error(t("dashboard:error-message"));
       }
 
       if (dataToStore?.id) {
@@ -158,14 +155,14 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
         );
         router.push(`/dashboard/${newWorkspaceData.id}`);
 
-        return toast.success("Workspace created successfully");
+        return toast.success(t("dashboard:workspace-created"));
       } else {
-        toast.error("Something went wrong");
+        toast.error(t("dashboard:error-message"));
         router.push(`/dashboard/${newWorkspaceData.id}`);
       }
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong, please try again.");
+      toast.error(t("dashboard:error-message"));
     }
   };
 
@@ -175,11 +172,13 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
 
   const typeValue = watch("type");
 
-  const { mobileSidebarOpen, mobile_sidebar_open } = useContext(LocalContext);
+  const { mobileSidebarOpen, mobile_sidebar_open } = useLocal();
 
   const handleCloseSidebarMobile = () => {
     if (mobile_sidebar_open) mobileSidebarOpen(false);
   };
+
+  if (!current_workspace) return null;
 
   return (
     <div className="py-6 flex flex-col w-full gap-5 justify-center items-center px-3 sm:px-6">
@@ -194,9 +193,11 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
             >
               <Menu className="w-7 h-7" />
             </div>
-            <CardTitle className="text-xl">{title}</CardTitle>
+            <CardTitle className="text-xl">
+              {t("dashboard:new-workspace")}
+            </CardTitle>
           </div>
-          <CardDescription>{description}</CardDescription>
+          <CardDescription>{t("dashboard:new-workspace-desc")}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -208,11 +209,10 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
                   classNames="text-[40px] sm:text-[50px]"
                 />
                 <div className="flex flex-grow flex-col gap-1">
-                  <Label htmlFor={"workspace_name"}>Workspace Name</Label>
-                  <Input
-                    {...register("workspace_name")}
-                    placeholder="something awesome..."
-                  />
+                  <Label htmlFor={"workspace_name"}>
+                    {t("dashboard:workspace-name")}
+                  </Label>
+                  <Input {...register("workspace_name")} />
                 </div>
               </div>
               {errors.workspace_name ? (
@@ -244,7 +244,7 @@ const NewWorkspace: React.FC<NewWorkspaceProps> = ({
               isUploading={isUploading}
               progress={progress}
             >
-              Create
+              {t("dashboard:create")}
             </ButtonWithLoaderAndProgress>
           </form>
         </CardContent>

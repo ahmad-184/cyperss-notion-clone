@@ -4,6 +4,7 @@ import { useEffect, useState, useContext } from "react";
 import { uploadFile } from "@uploadcare/upload-client";
 import { toast } from "sonner";
 import { Context } from "@/contexts/local-context";
+import { useTranslation } from "react-i18next";
 
 // upload files using uploadcare storage
 ("---------------------------------------------------");
@@ -17,7 +18,7 @@ const useUpload = ({ ref, max_size }: Props) => {
   const [files, setFiles] = useState<File[] | []>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-
+  const { t } = useTranslation();
   const { uploadcare_key } = useContext(Context);
 
   useEffect(() => {
@@ -40,13 +41,13 @@ const useUpload = ({ ref, max_size }: Props) => {
     if (file.size > 1000000 * max_size)
       return {
         error: {
-          message: `File too large, size: more than ${max_size}MB`,
+          message: t("dashboard:file-too-large", { num: max_size }),
         },
       };
     if (!file.type.startsWith("image/"))
       return {
         error: {
-          message: "File type incorrect, just 'image type' allowed",
+          message: t("dasboard:file-type-incorrect"),
         },
       };
   };
@@ -82,10 +83,7 @@ const useUpload = ({ ref, max_size }: Props) => {
         return res;
       } else throw new Error();
     } catch (err: any) {
-      toast.error("Getting error while uploading", {
-        description:
-          "We cant upload the image, please check your image size or network connection.",
-      });
+      toast.error(t("dashboard:error-message"));
     } finally {
       setIsUploading(false);
     }

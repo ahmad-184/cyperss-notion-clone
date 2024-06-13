@@ -15,6 +15,8 @@ import Loader from "../Loader";
 import { updateUserDetailAction } from "@/server-actions";
 import { useRouter } from "next/navigation";
 import CustomTooltip from "../custom/CustomTooltip";
+import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 interface UserSettingsProps {
   user: User;
@@ -36,6 +38,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
     ref: inputRef,
     max_size: 1,
   });
+  const { t } = useTranslation();
 
   const [isNameChanged, setIsNameChanged] = useState(false);
   const [isImageChanged, setIsImageChanged] = useState(false);
@@ -68,14 +71,13 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
         id: user.id,
       });
       if (error || !resData) throw new Error();
-      console.log(resData);
 
       setValue("name", resData?.name || "");
       setValue("image", resData?.image || "");
 
       router.refresh();
     } catch (err) {
-      toast.error("Something went wrong, please try again.");
+      toast.error(t("dashboard:error-message"));
       console.log(err);
     } finally {
       setSaveLoading(false);
@@ -94,7 +96,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
       return;
     } catch (err: any) {
       console.log(err);
-      toast.error("Somethin went wrong, please try again");
+      toast.error(t("dashboard:error-message"));
     }
   }, [files]);
 
@@ -139,7 +141,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
           <span>
             <UserIcon size={20} />
           </span>
-          User settings
+          {t("dashboard:user")}
         </p>
         <form
           id="user-form"
@@ -200,8 +202,11 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
             ) : null}
           </div>
           <div>
-            <Label>Name</Label>
-            <Input placeholder="username" {...register("name")} />
+            <Label>{t("dashboard:your-name")}</Label>
+            <Input
+              placeholder={t("dashboard:your-name")}
+              {...register("name")}
+            />
             {errors.name ? (
               <p className="text-sm text-red-400 ml-1">
                 {errors?.name?.message}
@@ -222,7 +227,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
             disabled={!isStateChanged || saveLoading}
             onClick={handleCancelChanges}
           >
-            Cancel
+            {t("dashboard:cancel")}
           </Button>
         ) : null}
         <ButtonWithLoaderAndProgress
@@ -234,7 +239,7 @@ const UserSettings: React.FC<UserSettingsProps> = ({ user }) => {
           disabled={!isStateChanged || saveLoading}
           loading={saveLoading}
         >
-          Save
+          {t("dashboard:save")}
         </ButtonWithLoaderAndProgress>
       </div>
     </div>

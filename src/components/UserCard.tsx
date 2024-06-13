@@ -12,6 +12,9 @@ import { Button } from "./ui/Button";
 import { ExternalLink } from "lucide-react";
 import { signOut } from "next-auth/react";
 import CustomTooltip from "./custom/CustomTooltip";
+import { getDirByLang } from "@/lib/dir";
+import { useLanguage } from "@/contexts/language-context";
+import { useTranslation } from "react-i18next";
 
 interface UserCardProps {
   user: User;
@@ -20,6 +23,8 @@ interface UserCardProps {
 
 const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
   const loading = useAppSelector((store) => store.workspace.loading);
+  const { lang } = useLanguage();
+  const { t } = useTranslation();
 
   if (loading)
     return (
@@ -39,11 +44,14 @@ const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
     );
 
   return (
-    <div className="w-full rounded-xl bg-muted/40 dark:bg-muted/40 p-2">
+    <div
+      dir={getDirByLang(lang)}
+      className="w-full rounded-xl bg-muted/40 dark:bg-muted/40 p-2"
+    >
       <div className="flex gap-2 items-center">
         <CustomAvatar user={user} />
         <div className="flex flex-col truncate">
-          <CustomTooltip description="Upgrade to Pro">
+          {/* <CustomTooltip description="Upgrade to Pro">
             <p
               className="flex items-center cursor-pointer hover:text-primary 
             transition-all duration-150 
@@ -58,19 +66,25 @@ const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
                 <ExternalLink className="w-[0.80rem] h-[0.80rem] relative bottom-[3px]" />
               )}
             </p>
-          </CustomTooltip>
-          <small className="dark:text-gray-400 text-gray-700 truncate">
+          </CustomTooltip> */}
+          <p className="dark:text-gray-500 text-xs" title={user.name || ""}>
+            {user.name}
+          </p>
+          <small
+            className="dark:text-gray-400 text-gray-700 truncate"
+            title={user.email || ""}
+          >
             {user.email}
           </small>
         </div>
         <div className="flex items-center flex-grow justify-end gap-2 dark:text-gray-400 text-gray-600">
-          <ThemeToggle
+          {/* <ThemeToggle
             btn_variant="ghost"
             className="bg-transparent hover:bg-transparent w-[1.5rem]"
-          />
+          /> */}
           <CustomDialog
-            header="Are you sure?"
-            description={`Before doing enything make sure about your decision.`}
+            header={t("dashboard:sign-out-title")}
+            description={t("dashboard:sign-out-desc")}
             content={
               <div className="flex w-full justify-end gap-3">
                 <Button
@@ -83,7 +97,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
                     });
                   }}
                 >
-                  Sign out
+                  {t("dashboard:sign-out")}
                 </Button>
               </div>
             }

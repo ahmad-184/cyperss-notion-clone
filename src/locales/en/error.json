@@ -1,5 +1,9 @@
 {
   "error_title": "Oooops, something went wrong",
   "error_message": "We encountered an unknown error, click the reset button to fix the problem",
-  "reset_btn": "Reset"
+  "reset_btn": "Reset",
+  "too-many-request": "Too many request, try after {{num}} minute",
+  "error-msg-client": "Something went wrong, please try again",
+  "error": "Error",
+  "access-denied": "Your access denied, Signing out..."
 }

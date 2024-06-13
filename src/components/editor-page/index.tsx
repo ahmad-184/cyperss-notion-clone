@@ -45,9 +45,10 @@ import { Badge } from "../ui/Badge";
 import { removeFileUpload } from "@/lib/removeFileUpload";
 import EmojiPickerMart from "../EmojiPickerMart";
 import { FolderType, User, WorkspaceTypes } from "@/types";
-import { Context as LocalContext } from "@/contexts/local-context";
 import { useParams, useRouter } from "next/navigation";
 import { Context as SocketContext } from "@/contexts/socket-provider";
+import { useTranslation } from "react-i18next";
+import { useLocal } from "@/contexts/local-context";
 interface EditorPageProps {
   type: "workspace" | "folder" | "file";
   id: string;
@@ -69,12 +70,13 @@ const EditorPage: React.FC<EditorPageProps> = ({
   const [onlineCollaborators, setOnlineCollaborators] = useState<User[] | []>(
     []
   );
+  const { t } = useTranslation();
 
   const { socket } = useContext(SocketContext);
 
   const params = useParams();
 
-  const { mobileSidebarOpen } = useContext(LocalContext);
+  const { mobileSidebarOpen } = useLocal();
 
   const { isUploading, startUpload, files } = useUploadV2({
     ref: inputRef,
@@ -112,7 +114,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
         dispatch(replaceFile(resData));
       }
     } catch (err: any) {
-      toast.error("Something went wrong, please try again");
+      toast.error(t("dashboard:error-messsage"));
       window.location.href = "/dashboard";
     }
   }, [current_workspace, id, type, params]);
@@ -140,7 +142,9 @@ const EditorPage: React.FC<EditorPageProps> = ({
 
   useEffect(() => {
     if (data?.id) {
-      document.title = `${data?.iconId} ${data?.title || "Untitled"}`;
+      document.title = `${data?.iconId} ${
+        data?.title || t("dashboard:untitled")
+      }`;
     }
   }, [data?.title, data?.iconId]);
 
@@ -164,7 +168,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
       if (error || !resData) {
         payload["emoji"] = currentIcon;
         dispatch(changeEmoji(payload));
-        toast.error(error?.message || "Could not update the icon");
+        toast.error(t("dashboard:error-messsage"));
         return;
       }
       if (resData) {
@@ -188,7 +192,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
       }
     } catch (err) {
       console.log(err);
-      toast.error(`Could not change the ${type} icon, please try again`);
+      toast.error(t("dashboard:error-messsage"));
     }
   };
 
@@ -205,7 +209,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
         if (resData) return;
       } catch (err) {
         console.log(err);
-        toast.error(`Could not change the ${type} name, please try again`);
+        toast.error(t("dashboard:error-messsage"));
       }
     }, 1000),
     [id, type, data?.id]
@@ -324,7 +328,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
       }
     } catch (err: any) {
       console.log(err);
-      toast.error("Somethin went wrong, please try again");
+      toast.error(t("dashboard:error-messsage"));
     } finally {
       setIsloading(false);
     }
@@ -466,7 +470,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
       }
     } catch (err: any) {
       console.log(err);
-      toast.error("Somethin went wrong, please try again");
+      toast.error(t("dashboard:error-messsage"));
     }
   };
 
@@ -510,7 +514,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
                 saving,
             })}
           >
-            {saving ? "Saving..." : "Saved"}
+            {saving ? t("dashboard:saving") : t("dashboard:saved")}
           </Badge>
         </div>
       </div>
@@ -538,7 +542,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
                   bg-muted-foreground/10 
                   dark:bg-muted/50 rounded-lg px-2 py-[3px]"
                       >
-                        Add Banner +
+                        {t("dashboard:add-banner")}
                       </div>
                     ) : null}
                     {data && data?.bannerUrl ? (
@@ -551,7 +555,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
                       bg-muted-foreground/10
                       dark:bg-muted/50 rounded-lg px-2 py-[3px]"
                         >
-                          Change Banner
+                          {t("dashboard:change-banner")}
                         </div>
                         <div
                           onClick={handleRemoveBanner}
@@ -585,7 +589,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
                 />
                 <input
                   value={data?.title || ""}
-                  placeholder="Untitled"
+                  placeholder={t("dashboard:untitled")}
                   className="text-3xl h-[3rem] font-bold dark:text-gray-400 pl-0
                 border-none bg-transparent hover:bg-transparent flex-grow 
                 outline-none hover:outline-none hover:border-none focus-visible:border-none

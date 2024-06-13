@@ -74,9 +74,9 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
     const isFirstLook = window.localStorage.getItem("FIRST_LOOK");
     if (!isFirstLook) {
       setTimeout(() => {
-        toast("Welcome to Cypress", {
+        toast(t("dashboard:wellcome-to-cypress"), {
           icon: "🎉",
-          description: "Here you can setup your first Workspace",
+          description: t("dashboard:wellcome-to-cypress-desc"),
           position: "top-center",
         });
       }, 1000);
@@ -121,12 +121,12 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
 
       if (error) return toast.error(error.message);
       if (resData) {
-        toast.success("Workspace created successfully.");
+        toast.success(t("dashboard:workspace-created-successfully"));
         router.refresh();
       } else throw new Error();
     } catch (err) {
       console.log(err);
-      toast.error("Something went wrong, please try again.");
+      toast.error(t("dashboard:error-message"));
     }
   };
 
@@ -141,22 +141,17 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
       />
       <Card className="max-w-[600px] h-auto">
         <CardHeader>
-          <CardTitle>Setup Your First Workspace</CardTitle>
+          <CardTitle>{t("dashboard:setup-your-first-workspace")}</CardTitle>
           <CardDescription>
-            Lets create a private workspace to get you started. You can add
-            collaborators later from the workspace setting tab.
+            {t("dashboard:setup-new-workspace-desc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-2">
               <div className="w-full mb-2">
-                <Label htmlFor="username">Your Name</Label>
-                <Input
-                  {...register("username")}
-                  className="w-full"
-                  placeholder="koorosh..."
-                />
+                <Label htmlFor="username">{t("dashboard:your-name")}</Label>
+                <Input {...register("username")} className="w-full" />
               </div>
               <div className="flex gap-3 items-center">
                 <EmojiPickerMart
@@ -165,11 +160,10 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
                   classNames="text-[40px] sm:text-[50px]"
                 />
                 <div className="flex flex-grow flex-col gap-1">
-                  <Label htmlFor={"workspace_name"}>Workspace Name</Label>
-                  <Input
-                    {...register("workspace_name")}
-                    placeholder="something awesome..."
-                  />
+                  <Label htmlFor={"workspace_name"}>
+                    {t("dashboard:workspace-name")}
+                  </Label>
+                  <Input {...register("workspace_name")} />
                 </div>
               </div>
               {errors.workspace_name ? (
@@ -186,7 +180,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
               isUploading={isUploading}
               progress={progress}
             >
-              Create
+              {t("create")}
             </ButtonWithLoaderAndProgress>
           </form>
         </CardContent>

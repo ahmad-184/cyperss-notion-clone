@@ -142,7 +142,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       };
 
       if (data.type === "shared" && !selectedCollaborators.length)
-        return setError("Atleast 1 collaborator required");
+        return setError(t("dashboard:one-collaborator-required"));
 
       const { data: res, error } = await updateWorkspaceAction({
         workspaceId: current_workspace.id,
@@ -152,7 +152,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
       if (error || !res) {
         console.log(error);
-        toast.error("Something went wrong, please try again");
+        toast.error(t("dashboard:error-message"));
 
         return;
       }
@@ -161,7 +161,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
 
       if (fetWorkspaceData.error || !fetWorkspaceData.data) {
         console.log(error);
-        toast.error("Something went wrong, please try again");
+        toast.error(t("dashboard:error-message"));
 
         return;
       }
@@ -183,7 +183,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
       router.refresh();
     } catch (err: any) {
       console.log(err);
-      toast.error("Could not update the changes");
+      toast.error(t("dashboard:error-message"));
     } finally {
       setSaveLoading(false);
     }
@@ -302,7 +302,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
           <span>
             <Briefcase size={20} />
           </span>
-          Workspace settings
+          {t("dashboard:workspace")}
         </p>
         <form
           id="settings-form"
@@ -316,7 +316,9 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
               classNames="text-[40px] sm:text-[50px]"
             />
             <div className="flex flex-grow flex-col gap-1">
-              <Label htmlFor={"workspace_name"}>Workspace name</Label>
+              <Label htmlFor={"workspace_name"}>
+                {t("dashboard:workspace-name")}
+              </Label>
               <Input
                 {...register("workspace_name")}
                 defaultValue={current_workspace?.title}
@@ -384,7 +386,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
             disabled={!isStateChanged || saveLoading}
             onClick={handleCancelChanges}
           >
-            Cancel
+            {t("dashboard:cancel")}
           </Button>
         ) : null}
         <ButtonWithLoaderAndProgress
@@ -398,7 +400,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({
           isUploading={isUploading}
           progress={progress}
         >
-          Save
+          {t("dashboard:save")}
         </ButtonWithLoaderAndProgress>
       </div>
     </div>

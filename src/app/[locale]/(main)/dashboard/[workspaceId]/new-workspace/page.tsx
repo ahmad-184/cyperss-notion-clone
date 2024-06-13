@@ -21,8 +21,6 @@ const Page: React.FC<PageProps> = async ({ params }) => {
     <>
       <NewWorkspace
         first_setup={false}
-        title="New Workspace"
-        description="Workspace give you the power to collaborate woth others. you can change your workspace privacy settings after creating workspace too."
         locale={params.locale}
         subscription={subscription}
         user={validatedUser}

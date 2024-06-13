@@ -3,7 +3,7 @@
 import { File, Folder, Workspace } from "@prisma/client";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Context as SocketContext } from "@/contexts/socket-provider";
-import { useAppDispatch, useAppSelector } from "@/store";
+import { useAppSelector } from "@/store";
 import { toast } from "sonner";
 import type QuillType from "quill";
 import { useParams } from "next/navigation";
@@ -16,12 +16,7 @@ import {
 } from "@/server-actions";
 import { User } from "@/types";
 import { supabase } from "@/lib/supabase";
-import {
-  updateFile,
-  updateFolder,
-  updateWorkspace,
-} from "@/store/slices/workspace";
-import { findFile, findFolder } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface QuillEditorProps {
   data: Folder | Workspace | File | null | undefined;
@@ -65,7 +60,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
   const [localCursors, setLocalCursors] = useState<any>([]);
   const [quill, setQuill] = useState<QuillType | null>(null);
   const timeOut = useRef<ReturnType<typeof setTimeout>>();
-  const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const wrapperRef = useCallback(async (wrapper: HTMLDivElement) => {
     if (typeof window !== "undefined") {
@@ -126,7 +121,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
       }
     } catch (err: any) {
       console.log(err);
-      toast.error("Could not save the changes");
+      toast.error(t("dashboard:cloud-not-save-changes"));
     } finally {
       setSaving(false);
     }

@@ -8,6 +8,7 @@ import { ScrollArea } from "../ui/ScrollArea";
 import { cn } from "@/lib/utils";
 import Loader from "../Loader";
 import Collaborator from "./Collaborator";
+import { useTranslation } from "react-i18next";
 
 interface SelectCollaboratorsProps {
   getValue(data: User[] | []): void;
@@ -21,6 +22,7 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
   const [users, seUsers] = useState<User[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!openDropdown) return;
@@ -29,14 +31,12 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
         setLoading(true);
         const { error, data } = await getUsersAction(false);
         if (error) {
-          toast.error(error.message ? error.message : "Can not fetch users.");
+          toast.error(t("dashboard:error-message"));
           return;
         }
         if (data?.length) seUsers(data);
       } catch (err: any) {
-        toast.error(
-          err.message ? err.message : "Something went wrong, please try again."
-        );
+        toast.error(t("dashboard:error-message"));
       } finally {
         setLoading(false);
       }
@@ -58,7 +58,7 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
   return (
     <div className="w-full relative">
       <div className="flex w-full flex-col gap-1 z-10">
-        <Label>Collaborators</Label>
+        <Label>{t("dashboard:collaborators")}</Label>
         <div
           onClick={() => setOpenDropdown((prev) => !prev)}
           className="w-full px-3 py-1 flex cursor-pointer items-center rounded-md border dark:border-slate-800"
@@ -66,7 +66,7 @@ const SelectCollaborators: React.FC<SelectCollaboratorsProps> = ({
           <div className="flex gap-2 flex-grow flex-row flex-wrap py-2">
             {!selectedCollaborators.length && (
               <p className="text-sm text-muted-foreground">
-                select collaborators
+                {t("dashboard:select")}
               </p>
             )}
             {selectedCollaborators.length
