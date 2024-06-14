@@ -19,7 +19,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ locale, children }) => {
       >
         <SheetContent
           className="w-fit p-0 m-0"
-          side={getDirByLang(locale) === "en" ? "left" : "right"}
+          side={locale === "en" ? "left" : "right"}
           showCloseBtn={false}
         >
           {children}
