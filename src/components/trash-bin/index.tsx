@@ -8,7 +8,6 @@ import { File } from "@prisma/client";
 import { ScrollArea } from "../ui/ScrollArea";
 import { Trash, Undo2 } from "lucide-react";
 import useTrash from "@/hooks/useTrash";
-import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -68,7 +67,6 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
   const { restoreDeletedItem, deleteItemPermanently } = useTrash();
   const { mobileSidebarOpen, mobile_sidebar_open } = useLocal();
   const { t } = useTranslation();
-  const router = useRouter();
 
   const handleDelete = () => {
     const payload = {
@@ -103,7 +101,7 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
         }}
         href={href}
       >
-        {data?.title || "Untitled"}
+        {data?.title || t("dashboard:untitled")}
       </Link>
       <div className="flex gap-4 dark:text-gray-400 text-gray-600">
         <Undo2
@@ -111,16 +109,20 @@ const TrashItem = ({ data, type, handleOpenDialog }: TrashItemProps) => {
           className="w-5 h-5 cursor-pointer dark:hover:text-gray-300 hover:text-gray-800"
         />
         <CustomDialog
-          header={`Are you sure?`}
+          header={t("dashboard:are-you-sure")}
           description={
             type === "file"
-              ? `By Doing this, this file will be delete forever`
-              : `By Doing this, this folder and all related files will delete forever`
+              ? t("dashboard:file-delete-forever")
+              : t("dashboard:folder-delete-forever")
           }
           content={
             <div className="flex gap-3 w-full justify-end">
-              <Button onClick={handleDelete} variant="destructive">
-                Delete
+              <Button
+                onClick={handleDelete}
+                className="capitalize"
+                variant="destructive"
+              >
+                {t("dashboard:delete")}
               </Button>
             </div>
           }

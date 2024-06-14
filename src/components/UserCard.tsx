@@ -3,15 +3,12 @@
 import { User } from "@/types";
 import { Subscription } from "@prisma/client";
 import CustomAvatar from "./custom/CustomAvatar";
-import { LogOutIcon, Zap } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { LogOutIcon } from "lucide-react";
 import { useAppSelector } from "@/store";
 import { Skeleton } from "./ui/Skeleton";
 import CustomDialog from "./custom/CustomDialog";
 import { Button } from "./ui/Button";
-import { ExternalLink } from "lucide-react";
 import { signOut } from "next-auth/react";
-import CustomTooltip from "./custom/CustomTooltip";
 import { getDirByLang } from "@/lib/dir";
 import { useLanguage } from "@/contexts/language-context";
 import { useTranslation } from "react-i18next";

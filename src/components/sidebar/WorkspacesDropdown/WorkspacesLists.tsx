@@ -1,6 +1,6 @@
 import { User, WorkspaceTypes } from "@/types";
 import Link from "next/link";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";

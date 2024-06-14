@@ -1,7 +1,6 @@
 import { getUserSubscriptionAction } from "@/server-actions";
 import { redirect } from "next/navigation";
 import WorkspacesDropdown from "./WorkspacesDropdown";
-import UsagePlan from "./UsagePlan";
 import NativeNavigation from "./NativeNavigation";
 import { ScrollArea } from "../ui/ScrollArea";
 import { validatUser } from "@/lib/validateUser";

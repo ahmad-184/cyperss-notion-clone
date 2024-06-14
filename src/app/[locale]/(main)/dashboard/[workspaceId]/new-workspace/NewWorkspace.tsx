@@ -44,11 +44,7 @@ interface NewWorkspaceProps {
   first_setup: boolean;
 }
 
-const NewWorkspace: React.FC<NewWorkspaceProps> = ({
-  user,
-  subscription,
-  locale,
-}) => {
+const NewWorkspace: React.FC<NewWorkspaceProps> = ({ user, subscription }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
   const [selectedCollaborators, setSelectedCollaborators] = useState<

@@ -117,11 +117,11 @@ const EditorPage: React.FC<EditorPageProps> = ({
       toast.error(t("dashboard:error-messsage"));
       window.location.href = "/dashboard";
     }
-  }, [current_workspace, id, type, params]);
+  }, [current_workspace, current_workspace?.id, id, type, params]);
 
   useEffect(() => {
     updateState();
-  }, [type, id, folderId, params]);
+  }, [type, id, folderId, params, current_workspace?.id]);
 
   const data = useMemo(() => {
     if (!current_workspace) return;
@@ -138,7 +138,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
       res = findFile(current_workspace, id, folderId) as File;
     }
     return res;
-  }, [current_workspace, type, id, folderId, params]);
+  }, [current_workspace, current_workspace?.id, type, id, folderId, params]);
 
   useEffect(() => {
     if (data?.id) {

@@ -71,5 +71,15 @@
   "could-not-create-file": "فایل ساخته نشد",
   "could-not-change-file-name": "نام {{type}} تغییر نیافت، لطفاً دوباره امتحان کنید",
   "cloud-not-save-changes": "تغییرات ذخیره نشدن",
-  "empty": "خالی"
+  "empty": "خالی",
+  "are-you-sure": "مطمئنی؟",
+  "file-delete-forever": "توجه کنید که فایل برای همیشه حذف خواهد شد",
+  "folder-delete-forever": "توجه کنید که پوشه و تمام فایل های مرتبط به آن برای همیشه حذف خواهند شد",
+  "delete": "حذف",
+  "restore": "بازیابی",
+  "is-in-trash": " {{type}} در سطل زباله به سر میبرد",
+  "by": "توسط {{by}}",
+  "you": "شما",
+  "folder": "پوشه",
+  "file": "فایل"
 }

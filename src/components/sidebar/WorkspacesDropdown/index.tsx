@@ -66,6 +66,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
   }, []);
 
   const update = useCallback(async () => {
+    if (current_workspace && current_workspace.id === workspaceIdParams) return;
     const allWorkspaces = workspaces;
     if (!allWorkspaces.length) return;
     const workspace = allWorkspaces.find((w) => w.id === workspaceIdParams);

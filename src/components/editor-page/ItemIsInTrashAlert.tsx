@@ -5,6 +5,7 @@ import { File } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { Button } from "../ui/Button";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 type ItemIsInTrashAlertProps =
   | {
@@ -24,6 +25,7 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({
   const router = useRouter();
   const { restoreDeletedItem, deleteItemPermanently } = useTrash();
   const { data: session } = useSession();
+  const { t } = useTranslation();
 
   if (!data || data === undefined) return null;
 
@@ -32,14 +34,15 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({
       <div className="flex flex-col justify-center gap-2">
         <div className="flex w-full items-center justify-center gap-3">
           <p className="dark:text-gray-200 text-sm">
-            This {type} is in trash{" "}
+            {t("dashboard:is-in-trash", { type: t(`dashboard:${type}`) })}{" "}
             {current_workspace?.type === "shared" ? (
               <>
-                by "
-                {session?.user.email === data.inTrashBy
-                  ? "You"
-                  : data.inTrashBy}
-                "
+                {t("dashboard:by", {
+                  by:
+                    session?.user.email === data.inTrashBy
+                      ? t("dashboard:you")
+                      : data.inTrashBy,
+                })}
               </>
             ) : null}
           </p>
@@ -56,8 +59,9 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({
               }}
               size={"sm"}
               variant={"secondary"}
+              className="capitalize"
             >
-              Restore
+              {t("dashboard:restore")}
             </Button>
             <Button
               onClick={() => {
@@ -79,8 +83,9 @@ const ItemIsInTrashAlert: React.FC<ItemIsInTrashAlertProps> = ({
               }}
               size={"sm"}
               variant={"destructive"}
+              className="capitalize"
             >
-              Delete
+              {t("dashboard:delete")}
             </Button>
           </div>
         </div>

@@ -15,7 +15,6 @@ import Loader from "../Loader";
 import { updateUserDetailAction } from "@/server-actions";
 import { useRouter } from "next/navigation";
 import CustomTooltip from "../custom/CustomTooltip";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 
 interface UserSettingsProps {

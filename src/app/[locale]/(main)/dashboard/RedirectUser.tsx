@@ -5,12 +5,10 @@ import { useEffect, useState } from "react";
 
 import CypressLogo from "@/components/CypressLogo";
 import { getWorkspaceByIdAction } from "@/server-actions";
-import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/Alert";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { User } from "@/types";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
 
 interface RedirectUserProps {

@@ -82,7 +82,9 @@ const useTrash = () => {
         payload["inTrash"] = true;
 
         console.log(error.message);
-        toast.error(t("dashboard:could-not-restor", { type }));
+        toast.error(
+          t("dashboard:could-not-restor", { type: t(`dashboard:${type}`) })
+        );
         dispatch(changeInTrashStatus(payload));
 
         return;
@@ -109,7 +111,9 @@ const useTrash = () => {
       return;
     } catch (err) {
       console.log(err);
-      toast.error(t("dashboard:could-not-restor", { type }));
+      toast.error(
+        t("dashboard:could-not-restor", { type: t(`dashboard:${type}`) })
+      );
     }
   };
 
@@ -143,7 +147,9 @@ const useTrash = () => {
 
         if (error) {
           console.log(error.message);
-          toast.error(t("dashboard:could-not-delete", { type }));
+          toast.error(
+            t("dashboard:could-not-delete", { type: t(`dashboard:${type}`) })
+          );
           dispatch(addFolder({ data: currentItem.data }));
 
           return;
@@ -170,7 +176,9 @@ const useTrash = () => {
 
         if (error) {
           console.log(error.message);
-          toast.error(t("dashboard:could-not-delete", { type }));
+          toast.error(
+            t("dashboard:could-not-delete", { type: t(`dashboard:${type}`) })
+          );
           dispatch(addfile({ data: currentItem.data, folderId }));
 
           return;
@@ -195,7 +203,9 @@ const useTrash = () => {
       }
     } catch (err) {
       console.log(err);
-      toast.error(t("dashboard:could-not-delete", { type }));
+      toast.error(
+        t("dashboard:could-not-delete", { type: t(`dashboard:${type}`) })
+      );
     }
   };
   const deleteItem = async ({
@@ -233,7 +243,9 @@ const useTrash = () => {
         payload["inTrash"] = false;
 
         console.log(error.message);
-        toast.error(t("dashboard:could-not-delete", { type }));
+        toast.error(
+          t("dashboard:could-not-delete", { type: t(`dashboard:${type}`) })
+        );
         dispatch(changeInTrashStatus(payload));
         return;
       }
@@ -259,7 +271,9 @@ const useTrash = () => {
       return;
     } catch (err) {
       console.log(err);
-      toast.error(t("dashboard:could-not-delete", { type }));
+      toast.error(
+        t("dashboard:could-not-delete", { type: t(`dashboard:${type}`) })
+      );
     }
   };
 

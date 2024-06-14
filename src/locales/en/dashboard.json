@@ -71,5 +71,15 @@
   "could-not-create-file": "Could not create the file",
   "could-not-change-file-name": "Could not change the {{type}} name, please try again",
   "cloud-not-save-changes": "Could not save the changes",
-  "empty": "empty"
+  "empty": "empty",
+  "are-you-sure": "Are you sure?",
+  "file-delete-forever": "By Doing this, this file will be delete forever",
+  "folder-delete-forever": "By Doing this, this folder and all related files will delete forever",
+  "delete": "delete",
+  "restore": "restore",
+  "is-in-trash": "This {{type}} is in trash",
+  "by": "by {{by}}",
+  "you": "You",
+  "folder": "folder",
+  "file": "file"
 }

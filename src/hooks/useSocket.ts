@@ -76,7 +76,7 @@ export const useSocket = () => {
       return;
 
     if (current_workspace.type === "shared") {
-      const s = io(REALTIMNE_SERVER_DEVELOPMENT, {
+      const s = io(REALTIMNE_SERVER_PRODUCTION, {
         auth: {
           userId: session.user.id,
         },

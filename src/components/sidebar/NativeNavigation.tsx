@@ -7,7 +7,6 @@ import CypressSettingsIcon from "../icons/SettingsIcon";
 import { Skeleton } from "../ui/Skeleton";
 import TrashBin from "../trash-bin";
 import { User } from "@/types";
-import { useContext, useTransition } from "react";
 import { useLocal } from "@/contexts/local-context";
 import { useTranslation } from "react-i18next";
 
