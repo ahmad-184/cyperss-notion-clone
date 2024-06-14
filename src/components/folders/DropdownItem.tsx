@@ -358,14 +358,18 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleMoveToTrash}>
                   <div className="w-full flex items-center gap-1">
-                    <p className="text-sm dark:text-gray-200">Delete</p>
+                    <p className="text-sm dark:text-gray-200 capitalize">
+                      {t("dashboard:delete")}
+                    </p>
                   </div>
                 </DropdownMenuItem>
 
                 {type === "folder" ? (
                   <DropdownMenuItem onClick={handleCreateNewFile}>
                     <div className="w-full flex items-center gap-1">
-                      <p className="text-sm dark:text-gray-200">Add File</p>
+                      <p className="text-sm dark:text-gray-200">
+                        {t("dashboard:new-file")}
+                      </p>
                     </div>
                   </DropdownMenuItem>
                 ) : null}

@@ -81,5 +81,6 @@
   "by": "by {{by}}",
   "you": "You",
   "folder": "folder",
-  "file": "file"
+  "file": "file",
+  "new-file": "New file"
 }
