@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { File } from "@prisma/client";
-import { memo, useContext, useState } from "react";
+import { memo, useContext, useEffect, useState } from "react";
 import { Input } from "../ui/Input";
 import CustomTooltip from "../custom/CustomTooltip";
 import { EllipsisVertical, PlusIcon, TrashIcon } from "lucide-react";
@@ -137,7 +137,6 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
         return;
       }
-      setTitle(resData.title);
       if (resData) {
         if (
           socket &&
@@ -162,6 +161,11 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       toast.error(t("dashboard:could-not-change-file-name", { type }));
     }
   };
+
+  useEffect(() => {
+    if (!current_workspace?.id) return;
+    setTitle(data.title);
+  }, [data.title]);
 
   const handleOnBlur = () => {
     setEdditing(false);
