@@ -1,5 +1,5 @@
-export const getDirByLang = (locale: string): string => {
-  let dir: string;
+export const getDirByLang = (locale: string): "rtl" | "ltr" => {
+  let dir: "rtl" | "ltr";
 
   switch (locale) {
     case "fa":

@@ -36,6 +36,8 @@ import {
 import { Context as SocketContext } from "@/contexts/socket-provider";
 import { useTranslation } from "react-i18next";
 import { useLocal } from "@/contexts/local-context";
+import { getDirByLang } from "@/lib/dir";
+import { useLanguage } from "@/contexts/language-context";
 
 type DropdownItemProps =
   | {
@@ -57,7 +59,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
   const { t } = useTranslation();
   const [isEditting, setEdditing] = useState(false);
   const [title, setTitle] = useState(data.title || "");
-
+  const { lang } = useLanguage();
   const { socket } = useContext(SocketContext);
 
   const { deleteItem } = useTrash();
@@ -351,7 +353,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
             ) : null}
           </div>
           <div className="md:hidden flex pr-2">
-            <DropdownMenu>
+            <DropdownMenu dir={getDirByLang(lang)}>
               <DropdownMenuTrigger>
                 <EllipsisVertical className="w-5 h-5 dark:text-gray-500" />
               </DropdownMenuTrigger>
