@@ -137,6 +137,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
 
         return;
       }
+      setTitle(resData.title);
       if (resData) {
         if (
           socket &&
