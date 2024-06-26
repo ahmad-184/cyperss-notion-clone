@@ -29,24 +29,28 @@ const Sidebar: React.FC<SidebarProps> = async ({
 
   return (
     <div
-      className={cn("bg-white dark:bg-background hidden md:block", className)}
+      className={cn(
+        "bg-white dark:bg-background hidden md:block flex-grow",
+        className
+      )}
     >
-      <ScrollArea className="ltr:border-r rtl:border-l w-full" type="hover">
-        <div
-          dir={getDirByLang(locale)}
-          className="w-screen sm:w-[280px] h-screen p-3 px-5 sm:px-3 py-4 pb-0 flex flex-col"
-        >
-          <WorkspacesDropdown user={validatedUser} />
-          {/* <UsagePlan subscription={data} /> */}
-          <ConnectionStatus />
-          {/* <hr /> */}
-          <NativeNavigation user={validatedUser} />
-          <Folders subscription={data} />
-          <div className="flex items-endpt-4 pb-3">
-            <UserCard user={validatedUser} subscription={data!} />
-          </div>
+      {/* <ScrollArea className="w-full" type="hover"> */}
+      <div
+        dir={getDirByLang(locale)}
+        className="w-full h-screen p-3 px-2 sm:px-3 py-4 pb-0 flex flex-col"
+      >
+        <WorkspacesDropdown user={validatedUser} />
+        {/* <UsagePlan subscription={data} /> */}
+        <ConnectionStatus />
+        {/* <hr /> */}
+        <NativeNavigation user={validatedUser} />
+        <Folders subscription={data} />
+        <div className="flex items-endpt-4 pb-3 relative">
+          <div className="hidden md:block absolute left-0 right-0 top-0 -translate-y-16 h-16 bg-gradient-to-t from-background to-transparent" />
+          <UserCard user={validatedUser} subscription={data!} />
         </div>
-      </ScrollArea>
+      </div>
+      {/* </ScrollArea> */}
     </div>
   );
 };

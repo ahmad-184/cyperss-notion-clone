@@ -36,7 +36,7 @@ const EmojiPickerReact: React.FC<EmojiPickerProps> = ({
   return (
     <div>
       <p
-        className={cn(`cursor-pointer`, classNames)}
+        className={cn(`cursor-pointer text-[16px]`, classNames)}
         onClick={() => setOpen(true)}
       >
         {emoji}

@@ -91,29 +91,28 @@ const CreateFolder: React.FC<CreateFolderProps> = ({ user, subscription }) => {
 
   return (
     <div
-      className="pt-1 flex w-full sticky top-0 z-20 bg-background
-      group/title justify-between items-center
+      className="pt-1 flex w-full top-0 z-20 bg-background
+      group/title justify-between items-center sticky pb-2
     "
     >
-      <div className="flex text-muted-foreground justify-between items-center w-full">
+      {/* <div className="absolute left-0 right-0 bottom-0 translate-y-3 h-3 bg-gradient-to-t to-background from-transparent" /> */}
+      <div className="flex text-muted-foreground justify-between items-center w-full ltr:pr-1 rtl:pl-1  md:ltr:pr-3 md:rtl:pl-3">
         {!loading ? (
           <>
             <p className="text-xs font-medium uppercase">
               {t("dashboard:folders")}
             </p>
-            <CustomTooltip side="left" description="Create New Folder">
-              <Plus
-                onClick={createFolderHandler}
-                className={cn(
-                  "w-4 h-4 md:group-hover/title:visible visible dark:text-gray-500 opacity-100 transition-all duration-150 md:group-hover/title:opacity-100 md:invisible md:opacity-0 cursor-pointer dark:hover:text-gray-400",
-                  {
-                    "md:invisible": workspace?.folders.length,
-                    "md:visible animate-bounce duration-10000 dark:text-gray-500 md:opacity-100":
-                      !workspace?.folders.length,
-                  }
-                )}
-              />
-            </CustomTooltip>
+            <Plus
+              onClick={createFolderHandler}
+              className={cn(
+                "w-4 h-4 md:group-hover/title:visible visible dark:text-gray-500 opacity-100 transition-all duration-150 md:group-hover/title:opacity-100 md:invisible md:opacity-0 cursor-pointer dark:hover:text-gray-400",
+                {
+                  "md:invisible": workspace?.folders.length,
+                  "md:visible animate-bounce duration-10000 dark:text-gray-500 md:opacity-100":
+                    !workspace?.folders.length,
+                }
+              )}
+            />
           </>
         ) : (
           <Skeleton className="h-3 w-11" />

@@ -9,7 +9,7 @@ const StylesProviders = ({ children }: { children: React.ReactNode }) => {
     <>
       <style jsx global>{`
         ::-webkit-scrollbar {
-          width: ${pathname.startsWith("/dashboard") ? "7" : "10"}px;
+          width: ${pathname.includes("/dashboard") ? "7" : "10"}px;
         }
         ::-webkit-scrollbar-track {
           //   border-radius: 10px;

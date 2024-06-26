@@ -496,7 +496,13 @@ const EditorPage: React.FC<EditorPageProps> = ({
           >
             <Menu className="w-7 h-7" />
           </div>
-          <EditorBreadCrumb type={type} />
+          <EditorBreadCrumb
+            type={type}
+            data={data}
+            user={user}
+            handleChangeTitle={handleChangeTitle}
+            handleChangeEmoji={handleChangeEmoji}
+          />
         </div>
         <div className="flex items-center gap-3 sm:px-0">
           <Collaborators

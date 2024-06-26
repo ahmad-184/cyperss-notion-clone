@@ -14,7 +14,7 @@ import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { getAllWorkspacesThunk } from "@/store/slices/workspace/thunk-actions";
 import { User, WorkspaceTypes } from "@/types";
-import { ChevronRight, ChevronsUpDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
 import WorkspacesLists from "./WorkspacesLists";
 import {
   getFullDataWorkspaceByIdAction,
@@ -147,7 +147,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
             </div>
           ) : (
             <div className="w-full flex-col">
-              <div className="w-full mb-2 flex items-center gap-3 md:gap-0 justify-between">
+              <div className="w-full mb-0 flex items-center gap-3 md:gap-0 justify-between">
                 <SelectWorkspace
                   workspace={current_workspace}
                   selectWorkspace={selectWorkspace}
@@ -170,7 +170,8 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                     variant={"outline"}
                     size={"icon"}
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronRight className="rtl:hidden ltr:block w-6 h-6" />
+                    <ChevronLeft className="ltr:hidden rtl:block w-6 h-6" />
                   </Button>
                 </div>
               </div>
@@ -178,7 +179,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                 className={`w-full border rounded-md ${
                   isLoading ? "h-[50px]" : "h-[174px]"
                 } dark:bg-black/30 select-none flex-col transition-all duration-150  ${
-                  openDropdown ? "table px-2 py-3" : "invisible h-0"
+                  openDropdown ? "table px-2 py-3 mb-2" : "invisible h-0"
                 }`}
               >
                 {isLoading ? (

@@ -24,8 +24,8 @@
   "untitled": "بی نام",
   "private": " خصوصی",
   "private-workspace": " خصوصی",
-  "shared-workspace": " به اشتراک گذاشته شده",
-  "collaboratos-workspace": "فضای کاری در آن همکاری میکنید",
+  "shared-workspace": "به اشتراک گذاشتید",
+  "collaboratos-workspace": "همکاری میکنید",
   "create-new-workspace": "ساخت فضای کار جدید",
   "permission": "دسترسی ها",
   "private-permission-desc": "فضای کاریتان خصوصی و فقط برای شماست. قابلیت تغییر وجود دارد",
@@ -82,5 +82,6 @@
   "you": "شما",
   "folder": "پوشه",
   "file": "فایل",
-  "new-file": "فایل جدید"
+  "new-file": "فایل جدید",
+  "search": "جستجو"
 }

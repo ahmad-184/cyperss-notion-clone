@@ -64,11 +64,14 @@ const UserCard: React.FC<UserCardProps> = ({ user, subscription }) => {
               )}
             </p>
           </CustomTooltip> */}
-          <p className="dark:text-gray-500 text-xs" title={user.name || ""}>
+          <p
+            className="dark:text-gray-500 text-xs font-medium"
+            title={user.name || ""}
+          >
             {user.name}
           </p>
           <small
-            className="dark:text-gray-400 text-gray-700 truncate"
+            className="dark:text-gray-400 text-gray-700 truncate font-medium"
             title={user.email || ""}
           >
             {user.email}

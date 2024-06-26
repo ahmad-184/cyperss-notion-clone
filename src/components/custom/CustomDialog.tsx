@@ -27,7 +27,7 @@ const CustomDialog: React.FC<CustomDialogProps> = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="overflow-auto max-h-[95vh]">
         <DialogHeader>
-          <DialogTitle>{header}</DialogTitle>
+          <DialogTitle className="dark:text-gray-200">{header}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {content}

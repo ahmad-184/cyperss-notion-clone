@@ -28,7 +28,7 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = () => {
                 <p className="dark:text-gray-300 text-sm">
                   {t("dashboard:appearance")}
                 </p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-xs font-medium">
                   {t("dashboard:appearance-desc")}
                 </p>
               </div>

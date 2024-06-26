@@ -1,32 +1,21 @@
 import { v4 as uuid4 } from "uuid";
 import { FolderType, User } from "@/types";
-import {
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "../ui/Accordion";
 import { cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { File } from "@prisma/client";
-import { memo, useContext, useEffect, useState } from "react";
-import { Input } from "../ui/Input";
-import CustomTooltip from "../custom/CustomTooltip";
-import { EllipsisVertical, PlusIcon, TrashIcon } from "lucide-react";
+import { memo, useContext, useState } from "react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EllipsisIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/store";
-import {
-  addfile,
-  changeEmoji,
-  changeItemTitle,
-  removeFile,
-} from "@/store/slices/workspace";
-import {
-  changeItemTitleAction,
-  changeIconAction,
-  createFileAction,
-} from "@/server-actions";
+import { addfile, removeFile } from "@/store/slices/workspace";
+import { createFileAction } from "@/server-actions";
 import useTrash from "@/hooks/useTrash";
-import EmojiPickerMart from "../EmojiPickerMart";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,122 +46,12 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
   const pathname = usePathname();
   const { current_workspace } = useAppSelector((store) => store.workspace);
   const { t } = useTranslation();
-  const [isEditting, setEdditing] = useState(false);
-  const [title, setTitle] = useState(data.title || "");
   const { lang } = useLanguage();
   const { socket } = useContext(SocketContext);
+  const params = useParams();
+  const [open, setOpen] = useState(params.folderId === data.id);
 
   const { deleteItem } = useTrash();
-
-  const handleChangeEmoji = async (value: string) => {
-    try {
-      const currentIcon = data.iconId as string;
-      const newIcon = value;
-      const payload = {
-        emoji: newIcon,
-        type,
-        id: data.id,
-        ...(type === "file" && { folderId: data.folderId }),
-      };
-      dispatch(changeEmoji(payload));
-      const { error, data: resData } = await changeIconAction({
-        type: type,
-        emoji: newIcon,
-        id: data.id,
-      });
-      if (error || !resData) {
-        payload["emoji"] = currentIcon;
-        dispatch(changeEmoji(payload));
-        toast.error(t("dashboard:error-message"));
-        return;
-      }
-      if (resData) {
-        if (
-          socket &&
-          socket.connected &&
-          data &&
-          current_workspace?.type === "shared"
-        ) {
-          socket?.emit(
-            "change_icon",
-            current_workspace?.id,
-            data.id,
-            newIcon,
-            type,
-            //@ts-ignore
-            data.folderId,
-            user.id
-          );
-        }
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error(t("dashboard:error-message"));
-    }
-  };
-
-  const handleDoubleClick = () => {
-    console.log("double clicked");
-    setEdditing(true);
-  };
-
-  const handleChangeTitle = async () => {
-    try {
-      const currentTitle = data.title;
-      const payload = {
-        type,
-        title,
-        id: data.id,
-        ...(type === "file" && { folderId: data.folderId }),
-      };
-      dispatch(changeItemTitle(payload));
-      const { data: resData, error } = await changeItemTitleAction({
-        type,
-        id: data.id,
-        title,
-      });
-      if (error || !resData) {
-        payload["title"] = currentTitle;
-        dispatch(changeItemTitle(payload));
-        setTitle(currentTitle);
-        toast.error(t("dashboard:error-message"));
-
-        return;
-      }
-      if (resData) {
-        if (
-          socket &&
-          socket.connected &&
-          data &&
-          current_workspace?.type === "shared"
-        ) {
-          socket.emit(
-            "change_title",
-            current_workspace?.id,
-            data.id,
-            resData.title,
-            type,
-            // @ts-ignore
-            data.folderId,
-            user.id
-          );
-        }
-      }
-    } catch (err) {
-      console.log(err);
-      toast.error(t("dashboard:could-not-change-file-name", { type }));
-    }
-  };
-
-  useEffect(() => {
-    if (!current_workspace?.id) return;
-    setTitle(data.title);
-  }, [data.title]);
-
-  const handleOnBlur = () => {
-    setEdditing(false);
-    handleChangeTitle();
-  };
 
   const handleCreateNewFile = async () => {
     try {
@@ -193,6 +72,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
         workspaceOwnerId: data.workspaceOwnerId,
       };
       dispatch(addfile({ data: payload, folderId: data.id }));
+      if (!open) setOpen(true);
       const { data: resData, error } = await createFileAction(payload);
       if (error || !resData) {
         dispatch(removeFile({ folderId: data.id, id: payload.id }));
@@ -263,147 +143,136 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
   };
 
   return (
-    <AccordionItem
-      value={data.id}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-      className={cn("w-full sm:w-[256px]", {
-        "rtl:pr-3 ltr:pl-3": type === "file",
-      })}
-    >
-      <AccordionTrigger
-        isFolder={type === "folder"}
-        className="dark:text-gray-500"
-      >
+    <>
+      <div className="my-[1px]">
         <div
           className={cn(
-            "flex items-center w-full sm:w-[236px] gap-2 justify-between max-w-full group/common dark:text-gray-500",
+            "flex gap-1 transition-all border-b md:border-0 duration-150 py-2 md:py-1 items-center rounded-sm md:rounded-lg group/common dark:hover:bg-gray-500/20 hover:bg-gray-500/10 px-1",
             {
-              "group/folder": type === "folder",
-              "group/file": type === "file",
+              "dark:bg-gray-500/20 bg-gray-500/10":
+                (type === "folder" &&
+                  !params.fileId &&
+                  data.id === params.folderId) ||
+                (type === "file" &&
+                  params.folderId &&
+                  data.id === params.fileId),
+              "ltr:pl-9 ltr:md:pl-3 rtl:pr-9 rtl:md:pr-3": type === "file",
             }
           )}
         >
-          <div className="flex items-center gap-2 truncate flex-grow">
-            <div className="hidden sm:block">
-              <EmojiPickerMart
-                onChangeEmoji={handleChangeEmoji}
-                emoji={data.iconId! || ""}
-              />
-            </div>
-            <div className="block sm:hidden">
-              <p
-                className={cn(`cursor-pointer`)}
-                onClick={() => {
-                  handleCloseSidebarMobile();
-                  handleChangeUrl();
-                }}
-              >
-                {data?.iconId}
-              </p>
-            </div>
-            {!isEditting ? (
-              <p
-                onClick={() => {
-                  handleCloseSidebarMobile();
-                  handleChangeUrl();
-                }}
-                className="cursor-pointer truncate flex-grow text-sm"
-                onDoubleClick={handleDoubleClick}
-              >
-                {data?.title || t("dashboard:untitled")}
-              </p>
-            ) : (
-              <Input
-                value={title}
-                className="border-none outline-none text-gray-700 dark:text-primary-foreground h-fit flex flex-grow bg-muted"
-                onChange={(e) => setTitle(e.target.value)}
-                onBlur={handleOnBlur}
-                readOnly={!isEditting}
-                autoFocus
-              />
+          <div
+            className={cn(
+              "dark:text-gray-500 cursor-pointer dark:hover:bg-gray-800 hover:bg-gray-300/80 py-[4px] px-[3px] rounded-md",
+              {
+                "hidden invisible": type !== "folder",
+                "md:hidden md:group-hover/common:block": type === "folder",
+              }
             )}
+            onClick={() => setOpen((prev) => !prev)}
+          >
+            <ChevronRightIcon
+              className={cn(
+                "h-4 w-4 ltr:block text-[16px] rtl:hidden shrink-0 transition-transform duration-200",
+                {
+                  "ltr:rotate-[90deg] rtl:rotate-[-90deg]": open,
+                }
+              )}
+            />
+            <ChevronLeftIcon
+              className={cn(
+                "h-4 w-4 rtl:block text-[16px] ltr:hidden shrink-0 transition-transform duration-200",
+                {
+                  "ltr:rotate-[90deg] rtl:rotate-[-90deg]": open,
+                }
+              )}
+            />
           </div>
           <div
-            className="items-center pr-3 gap-2 md:hidden md:group-hover/common:flex
-          transition-all duration-150 hidden"
+            onClick={() => {
+              handleCloseSidebarMobile();
+              handleChangeUrl();
+            }}
+            className="flex items-center cursor-pointer gap-1 flex-grow truncate"
           >
-            <CustomTooltip
-              description={
-                type === "folder"
-                  ? "Delete Folder"
-                  : type === "file"
-                  ? "Delete File"
-                  : ""
-              }
+            <div
+              className={cn("sm:block", {
+                "md:group-hover/common:hidden": type === "folder",
+              })}
             >
-              <TrashIcon
-                onClick={handleMoveToTrash}
-                className="w-4 h-4 dark:hover:text-gray-400 cursor-pointer"
-              />
-            </CustomTooltip>
-            {type === "folder" ? (
-              <CustomTooltip description={"Create New File"}>
-                <PlusIcon
-                  onClick={handleCreateNewFile}
-                  className="w-4 h-4 dark:hover:text-gray-400 cursor-pointer"
-                />
-              </CustomTooltip>
-            ) : null}
+              <p className="text-[16px] select-none">{data.iconId || ""}</p>
+            </div>
+            <p className="truncate cursor-pointer flex-grow text-sm font-medium dark:text-gray-500">
+              {data.title || "untitled"}
+            </p>
           </div>
-          <div className="md:hidden flex pr-2">
-            <DropdownMenu dir={getDirByLang(lang)}>
-              <DropdownMenuTrigger>
-                <EllipsisVertical className="w-5 h-5 dark:text-gray-500" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={handleMoveToTrash}>
-                  <div className="w-full flex items-center gap-1">
-                    <p className="text-sm dark:text-gray-200 capitalize">
-                      {t("dashboard:delete")}
-                    </p>
-                  </div>
-                </DropdownMenuItem>
-
-                {type === "folder" ? (
-                  <DropdownMenuItem onClick={handleCreateNewFile}>
-                    <div className="w-full flex items-center gap-1">
-                      <p className="text-sm dark:text-gray-200">
-                        {t("dashboard:new-file")}
-                      </p>
-                    </div>
-                  </DropdownMenuItem>
-                ) : null}
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="flex gap-2 relative items-center text-gray-500 md:hidden md:group-hover/common:flex">
+            <div className="cursor-pointer">
+              <div
+                className={cn("cursor-pointer hidden md:block")}
+                onClick={handleMoveToTrash}
+              >
+                <Trash2Icon className="w-4 h-4" />
+              </div>
+              <div className="md:hidden">
+                <DropdownMenu dir={getDirByLang(lang)}>
+                  <DropdownMenuTrigger asChild>
+                    <EllipsisIcon className="w-5 h-5" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={handleMoveToTrash}>
+                      <div className="flex gap-2">
+                        <Trash2Icon className="w-4 h-4" />
+                        <p className="text-sm capitalize">
+                          {t("dashboard:delete")}
+                        </p>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+            <div
+              className={cn("cursor-pointer", {
+                hidden: type !== "folder",
+              })}
+              onClick={handleCreateNewFile}
+            >
+              <PlusIcon className="w-4 h-4" strokeWidth={2.3} />
+            </div>
           </div>
         </div>
-      </AccordionTrigger>
-      {type === "folder" && data.files.length ? (
-        <>
-          <AccordionContent className="ml-4">
-            {data.files
-              .filter((e) => !e.inTrash)
-              .map((f, i) => (
-                <DropdownItem
-                  data={f}
-                  type="file"
-                  key={`file-item-${i}-${f.id}`}
-                  user={user}
-                />
-              ))}
-          </AccordionContent>
-        </>
-      ) : null}
-      {type === "folder" && !data.files.filter((e) => !e.inTrash).length ? (
-        <AccordionContent>
-          <p className="text-muted-foreground text-center">
-            ...{t("dashboard:empty")}...
-          </p>
-        </AccordionContent>
-      ) : null}
-    </AccordionItem>
+        <div
+          className={cn({
+            "hidden h-0 invisible": !open,
+            "block visible": open,
+          })}
+        >
+          {type === "folder" && data.files.length ? (
+            <>
+              <div>
+                {data.files
+                  .filter((e) => !e.inTrash)
+                  .map((f, i) => (
+                    <DropdownItem
+                      data={f}
+                      type="file"
+                      key={`file-item-${i}-${f.id}`}
+                      user={user}
+                    />
+                  ))}
+              </div>
+            </>
+          ) : null}
+          {type === "folder" && !data.files.filter((e) => !e.inTrash).length ? (
+            <div className="mt-2">
+              <p className="text-muted-foreground text-center text-xs capitalize font-medium">
+                ...{t("dashboard:empty")}...
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 };
 

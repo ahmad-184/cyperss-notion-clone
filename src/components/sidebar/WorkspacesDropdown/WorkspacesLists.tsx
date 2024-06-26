@@ -61,7 +61,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
       <div className="w-full" dir={getDirByLang(lang)}>
         {privateWorkspaces.length ? (
           <div className="flex flex-col w-full mb-2">
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 text-xs font-medium">
               {t("dashboard:private-workspace")}
             </p>
             {privateWorkspaces.map((e, i) => (
@@ -94,7 +94,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
 
         {sharedWorkspaces.length ? (
           <div className="flex flex-col w-full mb-2">
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 text-xs font-medium">
               {t("dashboard:shared-workspace")}
             </p>
             {sharedWorkspaces.map((e, i) => (
@@ -127,7 +127,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
 
         {collaboratingWorkspaces.length ? (
           <div className="flex flex-col w-full">
-            <p className="text-gray-500 text-xs">
+            <p className="text-gray-500 text-xs font-medium">
               {t("dashboard:collaborating-workspace")}
             </p>
             {collaboratingWorkspaces.map((e, i) => (
@@ -163,7 +163,7 @@ const WorkspacesLists: React.FC<WorkspacesListsProps> = ({
         onClick={handleCloseSidebarMobile}
       >
         <div className="w-full" dir={getDirByLang(lang)}>
-          <div className="flex w-full gap-2 items-center p-2 cursor-pointer hover:bg-muted/70 rounded-md transition-all duration-150">
+          <div className="flex w-full font-medium gap-2 items-center p-2 cursor-pointer hover:bg-muted/70 rounded-md transition-all duration-150">
             <div className="rounded-full relative bottom-[1.5px] w-4 h-4 flex items-center justify-center bg-muted dark:bg-slate-800 text-slate-500">
               +
             </div>

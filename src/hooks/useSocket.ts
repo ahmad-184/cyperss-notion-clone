@@ -72,8 +72,13 @@ export const useSocket = () => {
       !current_workspace ||
       current_workspace?.type !== "shared" ||
       !current_workspace?.id
-    )
+    ) {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
       return;
+    }
 
     if (current_workspace.type === "shared") {
       const s = io(REALTIMNE_SERVER_PRODUCTION, {

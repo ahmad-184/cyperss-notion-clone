@@ -51,7 +51,9 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
               >
                 <CypressHomeIcon />
-                <p className="text-sm">{t("dashboard:my-workspace")}</p>
+                <p className="text-sm font-medium">
+                  {t("dashboard:my-workspace")}
+                </p>
               </div>
             </Link>
             <Link
@@ -64,7 +66,7 @@ const NativeNavigation: React.FC<NativeNavigationProps> = ({ user }) => {
           items-center dark:text-gray-400"
               >
                 <CypressSettingsIcon />
-                <p className="text-sm">{t("dashboard:settings")}</p>
+                <p className="text-sm font-medium">{t("dashboard:settings")}</p>
               </div>
             </Link>
             <TrashBin />

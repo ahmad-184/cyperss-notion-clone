@@ -1,7 +1,6 @@
 "use client";
 import { Sheet, SheetContent } from "../ui/Sheet";
 import { useLocal } from "@/contexts/local-context";
-import { getDirByLang } from "@/lib/dir";
 
 interface MobileSidebarProps {
   children: React.ReactNode;

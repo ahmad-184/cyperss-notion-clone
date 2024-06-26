@@ -8,6 +8,7 @@ import { Skeleton } from "../ui/Skeleton";
 import { User } from "@/types";
 import { useLanguage } from "@/contexts/language-context";
 import { getDirByLang } from "@/lib/dir";
+import { ScrollArea } from "../ui/ScrollArea";
 
 interface FoldersListProps {
   user: User;
@@ -39,36 +40,30 @@ const FoldersList: React.FC<FoldersListProps> = ({ user }) => {
   const { lang } = useLanguage();
 
   return (
-    <div className="py-2" dir={getDirByLang(lang)}>
-      <Accordion
-        type="multiple"
-        className="w-full h-full max-h-[400px] pb-20"
-        defaultValue={[(params.folderId as string) || ""]}
-      >
-        {!loading && !workspace?.folders.length ? (
-          <div className="text-center w-full">
-            <small className="text-muted-foreground text-center">.......</small>
-          </div>
-        ) : null}
-        {loading ? (
-          <>
-            <FolderListSkeleton />
-          </>
-        ) : (
-          <>
-            {workspace?.folders
-              .filter((f) => !f.inTrash)
-              .map((f, i) => (
-                <DropdownItem
-                  key={`dropdown-item-${i}-${f.id}`}
-                  type="folder"
-                  data={f}
-                  user={user}
-                />
-              ))}
-          </>
-        )}
-      </Accordion>
+    <div className="pb-5" dir={getDirByLang(lang)}>
+      {!loading && !workspace?.folders.length ? (
+        <div className="text-center w-full">
+          <small className="text-muted-foreground text-center">.......</small>
+        </div>
+      ) : null}
+      {loading ? (
+        <>
+          <FolderListSkeleton />
+        </>
+      ) : (
+        <div className="w-full md:ltr:pr-2 md:rtl:pl-2">
+          {workspace?.folders
+            .filter((f) => !f.inTrash)
+            .map((f, i) => (
+              <DropdownItem
+                key={`dropdown-item-${i}-${f.id}`}
+                type="folder"
+                data={f}
+                user={user}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 };

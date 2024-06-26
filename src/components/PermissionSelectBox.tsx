@@ -46,7 +46,7 @@ const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
                 </div>
                 <div className="flex flex-col ltr:text-left rtl:text-right">
                   <span>{t("dashboard:private")}</span>
-                  <p className="text-xs">
+                  <p className="text-xs font-medium">
                     {t("dashboard:private-permission-desc")}
                   </p>
                 </div>
@@ -59,7 +59,7 @@ const PermissionSelectBox: React.FC<PermissionSelectBox> = ({
                 </div>
                 <div className="flex flex-col ltr:text-left rtl:text-right">
                   <span className="">{t("dashboard:shared")}</span>
-                  <p className="text-xs">
+                  <p className="text-xs font-medium">
                     {t("dashboard:shaerd-permission-desc")}
                   </p>
                 </div>

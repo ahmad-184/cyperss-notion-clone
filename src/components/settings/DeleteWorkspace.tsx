@@ -93,7 +93,7 @@ const DeleteWorkspace: React.FC<DeleteWorkspaceProps> = () => {
           >
             {t("dashboard:warning")}
           </AlertTitle>
-          <AlertDescription className="text-xs">
+          <AlertDescription className="text-xs font-medium">
             {t("dashboard:delete-workspace-warning-desc")}
           </AlertDescription>
           <div className="w-full mt-3">
