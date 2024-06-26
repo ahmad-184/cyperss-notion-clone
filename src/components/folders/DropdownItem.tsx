@@ -147,7 +147,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       <div className="my-[1px]">
         <div
           className={cn(
-            "flex gap-1 transition-all border-b md:border-0 duration-150 py-2 md:py-1 items-center rounded-sm md:rounded-lg group/common dark:hover:bg-gray-500/20 hover:bg-gray-500/10 px-1",
+            "flex gap-1 transition-all border-b md:border-0 duration-150 h-8 items-center rounded-sm md:rounded-lg group/common dark:hover:bg-gray-500/20 hover:bg-gray-500/10 px-1",
             {
               "dark:bg-gray-500/20 bg-gray-500/10":
                 (type === "folder" &&
@@ -192,7 +192,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
               handleCloseSidebarMobile();
               handleChangeUrl();
             }}
-            className="flex items-center cursor-pointer gap-1 flex-grow truncate"
+            className="flex h-full items-center cursor-pointer gap-1 flex-grow truncate"
           >
             <div
               className={cn("sm:block", {
