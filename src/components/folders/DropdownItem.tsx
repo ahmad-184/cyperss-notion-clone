@@ -202,7 +202,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
               <p className="text-[16px] select-none">{data.iconId || ""}</p>
             </div>
             <p className="truncate cursor-pointer flex-grow text-sm font-medium dark:text-gray-500">
-              {data.title || "untitled"}
+              {data.title || t("dashboard:untitled")}
             </p>
           </div>
           <div className="flex gap-2 relative items-center text-gray-500 md:hidden md:group-hover/common:flex">

@@ -3,7 +3,7 @@
 import { useAppSelector } from "@/store";
 import CypressTrashIcon from "../icons/TrashIcon";
 import { FolderType, WorkspaceTypes } from "@/types";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { File } from "@prisma/client";
 import { ScrollArea } from "../ui/ScrollArea";
 import { Trash, Trash2Icon, Undo2 } from "lucide-react";
@@ -143,8 +143,15 @@ const TrashBin = () => {
   const current_workspace = useAppSelector(
     (store) => store.workspace.current_workspace
   );
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [data, setData] = useState<ReturnType<typeof getInTrashFilesFolders>>({
+    folders: [],
+    files: [],
+  });
+  const [filteredData, setFilteredData] = useState<
+    ReturnType<typeof getInTrashFilesFolders>
+  >({
     folders: [],
     files: [],
   });
@@ -154,25 +161,31 @@ const TrashBin = () => {
 
   useEffect(() => {
     if (!current_workspace) return;
-    setData(getInTrashFilesFolders(current_workspace!));
+    const getData = getInTrashFilesFolders(current_workspace!);
+    setData(getData);
+    setFilteredData(getData);
   }, [current_workspace]);
 
   const handleChangeSearch = (e: any) => {
-    const s = e.target.value.toLowerCase();
-    if (!s) setData(getInTrashFilesFolders(current_workspace!));
+    const s = e.target.value.toLowerCase() as string;
+    if (timer.current) clearTimeout(timer.current);
+    if (!s) return setFilteredData(data);
     else {
-      const filteredFolders = data.folders.filter((e) => {
-        if ((s.includes("u") || s.includes("ب")) && !e.title) return true;
-        if (e.title.toLowerCase().startsWith(s)) return true;
-      });
-      const filteredFiles = data.files.filter((e) => {
-        if ((s.includes("u") || s.includes("ب")) && !e.title) return true;
-        if (e.title.toLowerCase().startsWith(s)) return true;
-      });
-      setData({
-        folders: filteredFolders,
-        files: filteredFiles,
-      });
+      timer.current = setTimeout(() => {
+        console.log(s);
+        const filteredFolders = data.folders.filter((e) => {
+          if (!e.title && t("dashboard:untitled").startsWith(s)) return true;
+          if (e.title.toLowerCase().startsWith(s)) return true;
+        });
+        const filteredFiles = data.files.filter((e) => {
+          if (!e.title && t("dashboard:untitled").startsWith(s)) return true;
+          if (e.title.toLowerCase().startsWith(s)) return true;
+        });
+        setFilteredData({
+          folders: filteredFolders,
+          files: filteredFiles,
+        });
+      }, 600);
     }
   };
 
@@ -216,13 +229,13 @@ const TrashBin = () => {
                 dir={getDirByLang(lang)}
                 className="flex flex-col w-full gap-3 h-full p-3 px-4"
               >
-                {data.folders.length ? (
+                {filteredData.folders.length ? (
                   <div className="flex flex-col gap-1">
                     <span className="dark:text-gray-600 capitalize text-muted-foreground font-medium text-xs">
                       {t("dashboard:folders")}
                     </span>
                     <div className="px-0 flex flex-col">
-                      {data.folders.map((e, i) => (
+                      {filteredData.folders.map((e, i) => (
                         <TrashItem
                           key={i + e.id}
                           data={e}
@@ -233,13 +246,13 @@ const TrashBin = () => {
                     </div>
                   </div>
                 ) : null}
-                {data.files.length ? (
+                {filteredData.files.length ? (
                   <div className="flex flex-col gap-1 pb-3">
                     <span className="dark:text-gray-600 capitalize  text-muted-foreground font-medium text-xs">
                       {t("dashboard:files")}
                     </span>
                     <div className="px-0 flex flex-col">
-                      {data.files.map((e, i) => (
+                      {filteredData.files.map((e, i) => (
                         <TrashItem
                           key={i + e.id}
                           data={e}
