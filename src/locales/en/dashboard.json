@@ -25,7 +25,7 @@
   "private-workspace": "Private Workspaces",
   "private": "Private",
   "shared-workspace": "Shared Workspaces",
-  "collaboratos-workspace": "Collaborating Workspaces",
+  "collaborating-workspace": "Collaborating Workspaces",
   "create-new-workspace": "Create New Workspace",
   "permission": "Permission",
   "private-permission-desc": "Your workspace is private to you. you can choose to share it later.",

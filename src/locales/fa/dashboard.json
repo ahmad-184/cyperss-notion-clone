@@ -25,7 +25,7 @@
   "private": " خصوصی",
   "private-workspace": " خصوصی",
   "shared-workspace": "به اشتراک گذاشتید",
-  "collaboratos-workspace": "همکاری میکنید",
+  "collaborating-workspace": "همکاری میکنید",
   "create-new-workspace": "ساخت فضای کار جدید",
   "permission": "دسترسی ها",
   "private-permission-desc": "فضای کاریتان خصوصی و فقط برای شماست. قابلیت تغییر وجود دارد",
