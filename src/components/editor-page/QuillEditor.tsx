@@ -57,7 +57,7 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
   const { socket } = useContext(SocketContext);
   const params = useParams();
   const { current_workspace } = useAppSelector((store) => store.workspace);
-  const [localCursors, setLocalCursors] = useState<any>([]);
+  const [localCursors, setLocalCursors] = useState<any>(null);
   const [quill, setQuill] = useState<QuillType | null>(null);
   const timeOut = useRef<ReturnType<typeof setTimeout>>();
   const { t } = useTranslation();
@@ -233,8 +233,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({
         data.id !== fileId
       )
         return;
-      // console.log(localCursors);
-      const cursors = localCursors.cursors();
+      if (!localCursors) return;
+      const cursors = localCursors?.cursors();
       const cursorToMove = cursors.find((e: any) => e.id === cursorId);
       // console.log(cursors);
       if (cursorToMove) {

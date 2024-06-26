@@ -28,11 +28,6 @@ export const useSocket = () => {
     }
   };
 
-  const server_url =
-    APP_MODE === "production"
-      ? REALTIMNE_SERVER_PRODUCTION
-      : REALTIMNE_SERVER_DEVELOPMENT;
-
   useEffect(() => {
     if (
       !current_workspace ||
@@ -80,8 +75,13 @@ export const useSocket = () => {
       return;
     }
 
+    const server_url =
+      APP_MODE === "production"
+        ? REALTIMNE_SERVER_PRODUCTION
+        : REALTIMNE_SERVER_DEVELOPMENT;
+
     if (current_workspace.type === "shared") {
-      const s = io(REALTIMNE_SERVER_PRODUCTION, {
+      const s = io(server_url, {
         auth: {
           userId: session.user.id,
         },

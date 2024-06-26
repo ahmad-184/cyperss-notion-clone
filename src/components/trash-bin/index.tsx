@@ -3,10 +3,9 @@
 import { useAppSelector } from "@/store";
 import CypressTrashIcon from "../icons/TrashIcon";
 import { FolderType, WorkspaceTypes } from "@/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect,useRef, useState } from "react";
 import { File } from "@prisma/client";
-import { ScrollArea } from "../ui/ScrollArea";
-import { Trash, Trash2Icon, Undo2 } from "lucide-react";
+import { Trash2Icon, Undo2 } from "lucide-react";
 import useTrash from "@/hooks/useTrash";
 import {
   Dialog,
