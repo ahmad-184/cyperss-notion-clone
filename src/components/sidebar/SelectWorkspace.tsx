@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Workspace } from "@prisma/client";
 
 interface SelectWorkspaceProps extends React.HTMLAttributes<HTMLDivElement> {
-  selectWorkspace: (e: boolean | null) => void;
+  selectWorkspace: () => void;
   workspace: Workspace;
   image_size?: number;
   endIcon?: React.ReactNode;
