@@ -24,8 +24,9 @@ import { Button } from "@/components/ui/Button";
 import { useLocal } from "@/contexts/local-context";
 import { Workspace } from "@prisma/client";
 import Loader from "@/components/Loader";
-import { t } from "i18next";
 import { useTranslation } from "react-i18next";
+import WorkspacesList from "./WorkspacesList";
+import { useClickOutside } from "@mantine/hooks";
 
 interface WorkspacesDropdownProps {
   user: User;
@@ -41,7 +42,6 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
   const [workspacesList, setWorkspacesList] = useState<
     Workspace[] | WorkspaceTypes[] | []
   >([]);
-
   const { mobileSidebarOpen } = useLocal();
 
   const [openDropdown, setOpenDropdown] = useState(false);
@@ -135,6 +135,10 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
     }
   }, [current_workspace?.id, openDropdown]);
 
+  const containerRef = useClickOutside(() => {
+    setOpenDropdown(false);
+  });
+
   return (
     <>
       <div className="w-full relative">
@@ -146,13 +150,13 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
               <p>{t("dashboard:select-workspace")}</p>
             </div>
           ) : (
-            <div className="w-full flex-col">
+            <div ref={containerRef} className="w-full flex-col relative">
               <div className="w-full mb-0 flex items-center gap-3 md:gap-0 justify-between">
                 <SelectWorkspace
                   workspace={current_workspace}
                   selectWorkspace={selectWorkspace}
                   className="bg-transparent text-sm"
-                  image_size={25}
+                  image_size={20}
                   endIcon={
                     <ChevronsUpDown
                       className={cn(
@@ -175,7 +179,15 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                   </Button>
                 </div>
               </div>
-              <ScrollArea
+              <WorkspacesList
+                user={user}
+                workspaces={workspacesList}
+                current_workspace={current_workspace}
+                selectWorkspace={selectWorkspace}
+                open={openDropdown}
+                isLoading={isLoading}
+              />
+              {/* <ScrollArea
                 className={`w-full border rounded-md ${
                   isLoading ? "h-[50px]" : "h-[174px]"
                 } dark:bg-black/30 select-none flex-col transition-all duration-150  ${
@@ -194,7 +206,7 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                     selectWorkspace={selectWorkspace}
                   />
                 ) : null}
-              </ScrollArea>
+              </ScrollArea> */}
             </div>
           )}
         </div>

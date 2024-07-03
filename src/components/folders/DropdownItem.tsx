@@ -147,7 +147,7 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ type, data, user }) => {
       <div className="my-[1px]">
         <div
           className={cn(
-            "flex gap-1 transition-all border-b md:border-0 duration-150 h-8 items-center rounded-sm md:rounded-lg group/common dark:hover:bg-gray-500/20 hover:bg-gray-500/10 px-1",
+            "flex gap-1 transition-all border-b md:border-0 duration-150 h-10 sm:h-9 items-center rounded-sm md:rounded-lg group/common dark:hover:bg-gray-500/20 hover:bg-gray-500/10 px-1",
             {
               "dark:bg-gray-500/20 bg-gray-500/10":
                 (type === "folder" &&

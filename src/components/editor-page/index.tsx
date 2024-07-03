@@ -211,7 +211,7 @@ const EditorPage: React.FC<EditorPageProps> = ({
         console.log(err);
         toast.error(t("dashboard:error-messsage"));
       }
-    }, 1000),
+    }, 550),
     [id, type, data?.id]
   );
 

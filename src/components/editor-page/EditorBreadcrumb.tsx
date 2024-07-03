@@ -115,14 +115,14 @@ const EditorBreadCrumb: React.FC<EditorBreadCrumbProps> = ({
                         >
                           {/* <div className="p-1 rounded-sm border dark:bg-zinc-900"> */}
                           <EmojiPickerMart
-                            classNames="p-1 rounded-sm border dark:bg-zinc-900 bg-zinc-100"
+                            classNames="p-1 rounded-sm border dark:bg-stone-950 bg-zinc-100"
                             onChangeEmoji={handleChangeEmoji}
                             emoji={data?.iconId || ""}
                           />
                           {/* </div> */}
                           <Input
                             placeholder={t("dashboard:untitled")}
-                            className="flex-grow dark:bg-zinc-900 bg-zinc-100 ring-0 focus-visible:ring-0 rounded-sm focus-visible:ring-offset-0 h-8 px-3 py-0"
+                            className="flex-grow dark:bg-stone-950 bg-zinc-100 ring-0 focus-visible:ring-0 rounded-sm focus-visible:ring-offset-0 h-8 px-3 py-0"
                             value={data?.title}
                             onChange={handleChangeTitle}
                             ref={inputRef}
