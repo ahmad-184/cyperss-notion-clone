@@ -170,11 +170,15 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                   image_size={20}
                   endIcon={
                     <div className="flex items-center gap-3">
-                      {socket && connection ? (
-                        <Wifi className="w-5 h-5 text-green-500" />
-                      ) : (
-                        <WifiOff className="w-5 h-5 text-rose-400 animate-pulse" />
-                      )}
+                      {current_workspace?.type === "shared" ? (
+                        <>
+                          {socket && connection ? (
+                            <Wifi className="w-5 h-5 text-green-500" />
+                          ) : (
+                            <WifiOff className="w-5 h-5 text-rose-400 animate-pulse" />
+                          )}
+                        </>
+                      ) : null}
                       <ChevronsUpDown
                         className={cn(
                           "dark:text-gray-400 text-gray-500 w-3 h-3",
