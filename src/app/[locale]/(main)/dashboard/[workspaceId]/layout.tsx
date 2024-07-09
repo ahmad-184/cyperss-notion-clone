@@ -23,7 +23,28 @@ export default async function Layout({
 
   return (
     <>
-      <SidebarDesktop
+      <div className="w-screen h-screen flex overflow-auto bg-gray-50 dark:bg-background">
+        <Sidebar
+          workspaceId={params.workspaceId}
+          className="fixed top-0 bottom-0 w-[280px] ltr:left-0 rtl:right-0 ltr:border-r rtl:border-l"
+          locale={params.locale}
+        />
+        <MobileSidebar locale={params.locale}>
+          <Sidebar
+            locale={params.locale}
+            workspaceId={params.workspaceId}
+            className="md:hidden flex z-50 w-screen sm:w-[280px]"
+          />
+        </MobileSidebar>
+        <div
+          className="flex flex-grow ltr:md:ml-[280px] rtl:md:mr-[280px] h-[100vh] flex-col gap-2"
+          style={{ width: "100%" }}
+        >
+          <BackgroundOverlay />
+          {children}
+        </div>
+      </div>
+      {/* <SidebarDesktop
         sidebar={
           <Sidebar
             workspaceId={params.workspaceId}
@@ -52,7 +73,7 @@ export default async function Layout({
           <BackgroundOverlay />
           {children}
         </div>
-      </div>
+      </div> */}
     </>
   );
 }

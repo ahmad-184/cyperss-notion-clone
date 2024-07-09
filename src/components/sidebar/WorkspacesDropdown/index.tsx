@@ -14,7 +14,14 @@ import SelectWorkspace from "../SelectWorkspace";
 import { cn } from "@/lib/utils";
 import { getAllWorkspacesThunk } from "@/store/slices/workspace/thunk-actions";
 import { User, WorkspaceTypes } from "@/types";
-import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  RotateCcw,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import WorkspacesLists from "./WorkspacesLists";
 import {
   getFullDataWorkspaceByIdAction,
@@ -27,6 +34,7 @@ import Loader from "@/components/Loader";
 import { useTranslation } from "react-i18next";
 import WorkspacesList from "./WorkspacesList";
 import { useClickOutside } from "@mantine/hooks";
+import { Context as SocketContext } from "@/contexts/socket-provider";
 
 interface WorkspacesDropdownProps {
   user: User;
@@ -139,6 +147,9 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
     setOpenDropdown(false);
   });
 
+  const { socket, connection, reconnect, ping, reconnecting } =
+    useContext(SocketContext);
+
   return (
     <>
       <div className="w-full relative">
@@ -158,14 +169,21 @@ const WorkspacesDropdown: React.FC<WorkspacesDropdownProps> = ({ user }) => {
                   className="bg-transparent text-sm"
                   image_size={20}
                   endIcon={
-                    <ChevronsUpDown
-                      className={cn(
-                        "dark:text-gray-400 text-gray-500 w-3 h-3",
-                        {
-                          "dark:text-gray-200 text-gray-800": openDropdown,
-                        }
+                    <div className="flex items-center gap-3">
+                      {socket && connection ? (
+                        <Wifi className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <WifiOff className="w-5 h-5 text-rose-400 animate-pulse" />
                       )}
-                    />
+                      <ChevronsUpDown
+                        className={cn(
+                          "dark:text-gray-400 text-gray-500 w-3 h-3",
+                          {
+                            "dark:text-gray-200 text-gray-800": openDropdown,
+                          }
+                        )}
+                      />
+                    </div>
                   }
                 />
                 <div className="flex md:hidden">

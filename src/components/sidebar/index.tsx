@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = async ({
       >
         <WorkspacesDropdown user={validatedUser} />
         {/* <UsagePlan subscription={data} /> */}
-        <ConnectionStatus />
+        {/* <ConnectionStatus /> */}
         {/* <hr /> */}
         <NativeNavigation user={validatedUser} />
         <Folders subscription={data} />
